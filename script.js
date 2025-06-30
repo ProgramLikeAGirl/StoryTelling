@@ -22,6 +22,33 @@ let currentDialogue = 0;     // Which dialogue within the current scene?
 let playerName = "Brave Veteran";  // The user's chosen name
 let audioEnabled = false;    // Is background music playing?
 
+// Get the current story scene and dialogue
+function getCurrentDialogue() {
+    if (currentScene >= storyData.scenes.length) return null;
+    const scene = storyData.scenes[currentScene];
+    if (currentDialogue >= scene.dialogue.length) return null;
+    return scene.dialogue[currentDialogue];
+}
+
+// Get total dialogue count across all scenes
+function getTotalDialogueCount() {
+    return storyData.scenes.reduce((total, scene) => total + scene.dialogue.length, 0);
+}
+
+// Get current position in the overall story
+function getCurrentPosition() {
+    let position = 0;
+    for (let i = 0; i < currentScene; i++) {
+        position += storyData.scenes[i].dialogue.length;
+    }
+    return position + currentDialogue;
+}
+
+// Replace placeholders in text with player name
+function personalizeText(text) {
+    return text.replace(/\{playerName\}/g, playerName);
+}
+
 // COMMUNICATION: For real-time sync between devices
 let mqttClient = null;       // Connection for real-time sync between devices
 let isSceneTransition = false; // Prevent rapid clicking during transitions
@@ -41,187 +68,139 @@ let dialogueTextEl, speakerNameEl, sceneCounterEl, progressFillEl, backgroundEl,
 const storyData = {
     scenes: [
         {
-            id: 1,
             title: "The Ordinary World",
-            background: "bg-office",
+            background: "bg-park",
             dialogue: [
-                { 
-                    speaker: "Narrator", 
-                    text: "Welcome to the archives of the Great Nerf War Veterans Association, where {PLAYER_NAME} will discover a tale of foam, fury, and unexpected friendship." 
-                },
-                { 
-                    speaker: "Captain Jenkins", 
-                    text: "People think we're just playing around, but that capybara... it changed everything. What started as innocent target practice became something much bigger." 
-                }
+                { speaker: "Narrator", text: "Every Tuesday morning, just as the sun peeked over Briarwood Park, the Veterans' Association gathered like clockwork. Among them stood {playerName}, a respected member whose sharp eye and steady hand had earned recognition in their weekly competitions." },
+                { speaker: "Jenkins", text: "Alright folks, stretch those hips. Winner today gets first dibs on donuts." },
+                { speaker: "Morales", text: "Only if {playerName} doesn't sweep us all again! That was some impressive shooting last week." },
+                { speaker: "Narrator", text: "The veterans weren't just passing time—they were preserving tradition. Amidst Nerf fire and laughter, {playerName} had become known for both skill and sportsmanship, helping to maintain the group's camaraderie." },
+                { speaker: "Jenkins", text: "{playerName}, you're with me on the advanced targets today. Show these rookies how it's done." }
             ]
         },
         {
-            id: 2,
             title: "The Call to Adventure",
+            background: "bg-forest",
+            dialogue: [
+                { speaker: "Morales", text: "I saw something near the trash bins. Big. Round. Looked like it was judging me." },
+                { speaker: "Jenkins", text: "What, a raccoon holding court?" },
+                { speaker: "Ernie", text: "No joke. Look at this photo—tell me that ain't a capybara." },
+                { speaker: "Narrator", text: "Not long after, emus began appearing too. Watching. Lingering. {playerName} noticed the unusual behavior before most others—the way these creatures seemed to observe their training sessions with an almost intelligent intent." },
+                { speaker: "{playerName}", text: "There's definitely something different about these animals. They're not acting like typical park wildlife." },
+                { speaker: "Morales", text: "Feels like we're being scoped out. Like... surveilled. {playerName}, you've got the best eyes here—what do you think?" }
+            ]
+        },
+        {
+            title: "The Refusal",
             background: "bg-park",
             dialogue: [
-                { 
-                    speaker: "Narrator", 
-                    text: "Six months ago, {PLAYER_NAME}, strange reports began surfacing. Emu sightings increased near the local park where the Veterans Association held their weekly meetings." 
-                },
-                { 
-                    speaker: "Jenkins", 
-                    text: "At first, we thought it was coincidence. But then the capybara appeared... sitting there, watching us with those knowing eyes." 
-                }
+                { speaker: "Jenkins", text: "Rodents and birds don't scare me. This park's been ours since before they were hatched." },
+                { speaker: "{playerName}", text: "Maybe we should take this seriously, Jenkins. Something feels off about the whole situation." },
+                { speaker: "Jenkins", text: "Paranoia's setting in, {playerName}. Let's stay focused. Target practice at 0600, no excuses." },
+                { speaker: "Narrator", text: "Despite {playerName}'s concerns, Jenkins couldn't ignore the unease building in his gut—or the missing ammo. {playerName} had noticed the shortages too, but chose to support the team leader's decision to continue as normal." },
+                { speaker: "{playerName}", text: "I'll keep an extra watch during practice. If something's happening, we'll figure it out together." }
             ]
         },
         {
-            id: 3,
-            title: "Refusal of the Call",
-            background: "bg-office",
-            dialogue: [
-                { 
-                    speaker: "Jenkins", 
-                    text: "{PLAYER_NAME}, I'll be honest - I didn't want to believe it. A conspiracy involving emus and a capybara? It sounded ridiculous." 
-                },
-                { 
-                    speaker: "Narrator", 
-                    text: "Jenkins dismissed the reports, focusing instead on the Association's annual foam dart tournament. But fate had other plans." 
-                }
-            ]
-        },
-        {
-            id: 4,
             title: "Meeting the Mentor",
-            background: "bg-office",
+            background: "bg-forest",
             dialogue: [
-                { 
-                    speaker: "Elder Morrison", 
-                    text: "Jenkins, {PLAYER_NAME}, there's something you need to know about the origins of our Association. We weren't always just recreational warriors." 
-                },
-                { 
-                    speaker: "Morrison", 
-                    text: "Years ago, during a team-building exercise, we accidentally disrupted a peaceful capybara habitat. That wise old capybara... it never forgot." 
-                }
+                { speaker: "Narrator", text: "One morning, Calhoun Morrison was already waiting at the elm tree, his weathered Nerf Longshot across his lap. He'd specifically asked {playerName} to join this early meeting." },
+                { speaker: "Morrison", text: "This ain't the first time, {playerName}. In '87, there was an accident. Marshmallow launcher. Capybara took the hit." },
+                { speaker: "{playerName}", text: "You're serious about this, aren't you? What really happened back then?" },
+                { speaker: "Morrison", text: "We broke a truce we forgot we made. But they didn't. {playerName}, you've got the respect of both the team and keen instincts. I need you to help Jenkins understand." },
+                { speaker: "Narrator", text: "He handed {playerName} a tattered patch—an old symbol of a peace long lost. 'Show this to Jenkins when the time is right,' Morrison whispered." }
             ]
         },
         {
-            id: 5,
             title: "Crossing the Threshold",
-            background: "bg-park",
+            background: "bg-forest",
             dialogue: [
-                { 
-                    speaker: "Narrator", 
-                    text: "Armed with this knowledge, {PLAYER_NAME}, Jenkins ventured into what members now call 'emu territory' - the eastern section of Memorial Park." 
-                },
-                { 
-                    speaker: "Jenkins", 
-                    text: "The moment I stepped into that clearing, I knew I was being watched. Dozens of emus emerged from the trees, forming a protective circle." 
-                }
+                { speaker: "Narrator", text: "At sunrise, {playerName} and Jenkins crossed into the park's eastern trails—'emu territory,' as they called it. {playerName} volunteered to accompany Jenkins, sensing this mission needed backup." },
+                { speaker: "Narrator", text: "They passed makeshift barricades and finally faced an emu standing still, like a sentinel." },
+                { speaker: "Jenkins", text: "Not here to start trouble. Just need answers." },
+                { speaker: "{playerName}", text: "Easy, Jenkins. Let's approach this carefully. Something tells me these creatures are more intelligent than we thought." },
+                { speaker: "Narrator", text: "The emu didn't flinch as {playerName} and Jenkins took careful steps closer, their training evident in every measured movement." }
             ]
         },
         {
-            id: 6,
             title: "Tests, Allies, and Enemies",
-            background: "bg-park",
+            background: "bg-urban",
             dialogue: [
-                { 
-                    speaker: "Narrator", 
-                    text: "What followed was a series of encounters that would test Jenkins' resolve and reveal unexpected allies, {PLAYER_NAME}." 
-                },
-                { 
-                    speaker: "Jenkins", 
-                    text: "One emu stepped forward - Edgar, as I later learned. He had been observing our group for months, torn between loyalty to the capybara and understanding our intentions." 
-                }
+                { speaker: "Teen", text: "You two must be from the Veterans' group. Which one of you is {playerName}? We've heard about your reputation." },
+                { speaker: "{playerName}", text: "That's me. And you are...?" },
+                { speaker: "Teen", text: "We're Team Emu. These creatures deserve the park too. Some of us think you veterans might actually understand that." },
+                { speaker: "Narrator", text: "{playerName} and Jenkins were tested—ambushes, cryptic symbols, and even Cassidy, a veteran who had changed sides." },
+                { speaker: "Cassidy", text: "They don't want war, {playerName}. Just recognition. You always were one of the more thoughtful ones in our group." },
+                { speaker: "{playerName}", text: "What exactly are they asking for, Cassidy? Help me understand what we're missing here." }
             ]
         },
         {
-            id: 7,
             title: "Approach to the Inmost Cave",
+            background: "bg-forest",
+            dialogue: [
+                { speaker: "Narrator", text: "{playerName} followed Jenkins to an old willow grove, where they found a burrow reinforced with soda cans and toy parts." },
+                { speaker: "Narrator", text: "Inside were relics: photos of old alliances and a document titled Operation: Peace Dart. {playerName} was the first to spot the significance." },
+                { speaker: "{playerName}", text: "Jenkins, look at this! These photos... that's our group from decades ago. And that capybara—it was part of our team!" },
+                { speaker: "Jenkins", text: "They wanted to play with us... not against us." },
+                { speaker: "{playerName}", text: "This changes everything. We weren't being invaded—we were being reminded of a promise we forgot." }
+            ]
+        },
+        {
+            title: "The Ordeal",
+            background: "bg-urban",
+            dialogue: [
+                { speaker: "Narrator", text: "As {playerName} and Jenkins exited the burrow, they were surrounded—emus in front, teens with blasters behind." },
+                { speaker: "Teen", text: "Time to see what the veterans are made of. {playerName}, you ready to prove yourselves?" },
+                { speaker: "Narrator", text: "{playerName} ducked, rolled, and returned fire with precision alongside Jenkins. The emus didn't move—they watched. Judged." },
+                { speaker: "{playerName}", text: "Wait! Everyone stop!" },
+                { speaker: "Narrator", text: "{playerName} held the treaty patch high, understanding flooding through the group as Morrison's gift revealed its purpose." },
+                { speaker: "{playerName}", text: "Back in '87, we made a pact with these creatures. This proves it. We're not enemies—we're allies who lost our way." }
+            ]
+        },
+        {
+            title: "The Reward",
             background: "bg-park",
             dialogue: [
-                { 
-                    speaker: "Edgar the Emu", 
-                    text: "*Thoughtful emu sounds* The Great Capybara waits by the old oak tree, {PLAYER_NAME}. But approach with respect - many have tried to make peace, all have failed." 
-                },
-                { 
-                    speaker: "Jenkins", 
-                    text: "Edgar led me deeper into the park than I'd ever been. There, in a natural amphitheater of trees, sat the most majestic capybara I'd ever seen." 
-                }
+                { speaker: "Ernie", text: "They were waiting for us... to remember. {playerName}, you figured it out." },
+                { speaker: "Narrator", text: "The room fell quiet as the veterans read the truth they had forgotten. {playerName}'s discovery had bridged a gap decades in the making." },
+                { speaker: "{playerName}", text: "We need to honor this alliance. These creatures have been trying to reconnect with us all along." },
+                { speaker: "Jenkins", text: "{playerName}, you've shown us something important today. Will you help me make this right?" },
+                { speaker: "Narrator", text: "The group looked to {playerName} for guidance, recognizing the wisdom that had emerged from careful observation and respect." }
             ]
         },
         {
-            id: 8,
-            title: "The Ordeal",
-            background: "bg-battlefield",
-            dialogue: [
-                { 
-                    speaker: "Narrator", 
-                    text: "What ensued, {PLAYER_NAME}, was the most epic foam dart battle in recorded history - a clash between human veterans and emu defenders." 
-                },
-                { 
-                    speaker: "Jenkins", 
-                    text: "The capybara's eyes flashed with ancient wisdom and justified anger. The emu squadron took formation, and for a moment, I thought this was the end." 
-                }
-            ]
-        },
-        {
-            id: 9,
-            title: "The Reward",
-            background: "bg-peace",
-            dialogue: [
-                { 
-                    speaker: "Great Capybara", 
-                    text: "*Wise capybara chittering* Young human, {PLAYER_NAME} has shown you our history. We seek not vengeance, but understanding. Respect for all peaceful creatures." 
-                },
-                { 
-                    speaker: "Jenkins", 
-                    text: "In that moment, I understood. The capybara wasn't our enemy - it was our teacher, showing us the impact of our actions on others." 
-                }
-            ]
-        },
-        {
-            id: 10,
             title: "The Road Back",
-            background: "bg-office",
+            background: "bg-park",
             dialogue: [
-                { 
-                    speaker: "Narrator", 
-                    text: "Returning to the Veterans Association, {PLAYER_NAME}, Jenkins faced his greatest challenge yet - convincing his fellow veterans to change their ways." 
-                },
-                { 
-                    speaker: "Jenkins", 
-                    text: "Many thought I'd lost my mind. 'Talking to a capybara? Alliance with emus?' But I had Edgar's support and the truth on my side." 
-                }
+                { speaker: "Narrator", text: "{playerName} and Jenkins returned to the park with offerings—bird seed, clean targets, and open hands." },
+                { speaker: "Narrator", text: "Emus nodded approval as {playerName} approached with respect and understanding." },
+                { speaker: "Narrator", text: "Captain Cheeks, the capybara, approached and rested beside {playerName}, recognizing a kindred spirit." },
+                { speaker: "{playerName}", text: "Welcome back, Captain. We've missed having you as part of our team." },
+                { speaker: "Jenkins", text: "{playerName} helped me understand—tradition isn't about doing things the same way. It's about doing them right." }
             ]
         },
         {
-            id: 11,
-            title: "Resurrection",
-            background: "bg-peace",
+            title: "The Resurrection",
+            background: "bg-park",
             dialogue: [
-                { 
-                    speaker: "Narrator", 
-                    text: "Through patience and demonstration, {PLAYER_NAME}, Jenkins transformed from a paranoid veteran into a bridge-builder between species." 
-                },
-                { 
-                    speaker: "Jenkins", 
-                    text: "The first joint training exercise was awkward, I'll admit. But seeing humans and emus working together... it was beautiful." 
-                }
+                { speaker: "Narrator", text: "At the next VA meeting, {playerName} stood alongside Jenkins to address the group." },
+                { speaker: "{playerName}", text: "We've learned that our traditions are stronger when they include rather than exclude. These animals aren't intruders—they're partners." },
+                { speaker: "Jenkins", text: "The motion before us, proposed by {playerName}, is to reestablish Operation Peace Dart with our animal allies." },
+                { speaker: "Narrator", text: "The VA voted unanimously to support {playerName}'s proposal. Operation Peace Dart 2.0 was born from understanding and respect." },
+                { speaker: "Morales", text: "{playerName}, you've given us something we didn't know we'd lost. Thank you." }
             ]
         },
         {
-            id: 12,
             title: "Return with the Elixir",
-            background: "bg-peace",
+            background: "bg-park",
             dialogue: [
-                { 
-                    speaker: "Narrator", 
-                    text: "And so, {PLAYER_NAME}, the Great Nerf War ended not with victory or defeat, but with wisdom. The Veterans Association now includes honorary emu members." 
-                },
-                { 
-                    speaker: "Great Capybara", 
-                    text: "*Contented capybara sounds* Peace between all creatures who respect the harmony of foam and friendship. The greatest victory of all." 
-                },
-                { 
-                    speaker: "Narrator", 
-                    text: "Thank you for experiencing this tale, {PLAYER_NAME}. Remember: sometimes the greatest battles are won not with weapons, but with understanding." 
-                }
+                { speaker: "Narrator", text: "That spring, {playerName} helped organize the first 'Annual Co-Op Target Games.' Veterans, kids, and emus alike participated." },
+                { speaker: "Narrator", text: "Foam darts flew through rings, ricocheted off rubber shields, and whistled past emu decoys. No one kept score. Everyone laughed." },
+                { speaker: "Narrator", text: "Captain Cheeks sat in a folding chair beside {playerName}, watching it all with contentment." },
+                { speaker: "{playerName}", text: "You know, Jenkins, sometimes the best victories come from knowing when not to fight." },
+                { speaker: "Jenkins", text: "You taught us all that, {playerName}. Sometimes peace truly is the sharpest shot of all." },
+                { speaker: "Narrator", text: "The park was alive with joy and unity, a testament to {playerName}'s wisdom in recognizing that even the oddest alliances could build something beautiful." }
             ]
         }
     ]
@@ -277,120 +256,89 @@ function initializeElements() {
 
 // NEXT SCENE FUNCTION: What happens when user clicks "Next" button
 function nextScene() {
-    // Don't allow navigation during scene transitions (prevents glitches)
     if (isSceneTransition) return;
     
-    // Get information about the current scene
     const scene = storyData.scenes[currentScene];
+    if (!scene) return;
     
-    // Are there more dialogue lines in this scene?
+    // Move to next dialogue in current scene
     if (currentDialogue < scene.dialogue.length - 1) {
-        currentDialogue++; // Move to next dialogue in same scene
+        currentDialogue++;
     } 
-    // Or should we move to the next scene entirely?
+    // Move to next scene
     else if (currentScene < storyData.scenes.length - 1) {
-        currentScene++;      // Move to next scene
-        currentDialogue = 0; // Start at first dialogue of new scene
-        
-        // Prevent rapid clicking during transitions
-        isSceneTransition = true;
-        setTimeout(() => isSceneTransition = false, 2000);
-        
-        // Show the new scene title with animation
+        currentScene++;
+        currentDialogue = 0;
         showSceneTitle(storyData.scenes[currentScene].title);
-        
-        // Tell other connected devices about the scene change
-        publishSceneChange(currentScene);
     }
     
-    // Update what's displayed on screen
     updateDisplay();
+    publishSceneChange(getCurrentPosition());
 }
 
 // PREVIOUS SCENE FUNCTION: What happens when user clicks "Previous" button
 function previousScene() {
-    // Don't allow navigation during transitions
     if (isSceneTransition) return;
     
-    // Are we at the first dialogue of the current scene?
+    // Move to previous dialogue in current scene
     if (currentDialogue > 0) {
-        currentDialogue--; // Go back one dialogue in same scene
-    } 
-    // Or should we go to the previous scene?
+        currentDialogue--;
+    }
+    // Move to previous scene
     else if (currentScene > 0) {
-        currentScene--;    // Go to previous scene
-        // Go to the last dialogue of the previous scene
+        currentScene--;
         currentDialogue = storyData.scenes[currentScene].dialogue.length - 1;
-        
-        // Prevent rapid clicking
-        isSceneTransition = true;
-        setTimeout(() => isSceneTransition = false, 2000);
-        
-        // Show scene title
         showSceneTitle(storyData.scenes[currentScene].title);
-        
-        // Tell other devices about the change
-        publishSceneChange(currentScene);
     }
     
-    // Update the display
     updateDisplay();
+    publishSceneChange(getCurrentPosition());
 }
 
 // UPDATE DISPLAY: Refresh everything shown on screen
 function updateDisplay() {
-    // Get current scene and dialogue data
-    const scene = storyData.scenes[currentScene];
-    const dialogue = scene.dialogue[currentDialogue];
+    const dialogue = getCurrentDialogue();
+    if (!dialogue) return;
     
     // Update the speaker name
-    if (speakerNameEl && dialogue.speaker) {
-        speakerNameEl.textContent = dialogue.speaker;
+    if (speakerNameEl) {
+        const speaker = personalizeText(dialogue.speaker);
+        speakerNameEl.textContent = speaker;
     }
     
-    // Update the dialogue text (replace {PLAYER_NAME} with actual name)
-    if (dialogueTextEl && dialogue.text) {
-        dialogueTextEl.textContent = dialogue.text.replace('{PLAYER_NAME}', playerName);
+    // Update the dialogue text
+    if (dialogueTextEl) {
+        const text = personalizeText(dialogue.text);
+        dialogueTextEl.textContent = text;
     }
     
-    // Update the scene counter (e.g., "Scene 3 of 12")
+    // Update the scene counter
     if (sceneCounterEl) {
-        sceneCounterEl.textContent = `Scene ${currentScene + 1} of ${storyData.scenes.length}`;
+        const position = getCurrentPosition() + 1;
+        const total = getTotalDialogueCount();
+        sceneCounterEl.textContent = `Line ${position} of ${total} - ${storyData.scenes[currentScene].title}`;
     }
     
     // Update the progress bar
     updateProgressBar();
     
-    // Update the background
-    updateBackground(scene.background);
-    
-    // Update navigation buttons (enable/disable based on position)
+    // Update navigation buttons
     updateNavigationButtons();
+    
+    // Update background if scene has changed
+    const scene = storyData.scenes[currentScene];
+    if (scene && scene.background) {
+        updateBackground(scene.background);
+    }
 }
 
 // UPDATE PROGRESS BAR: Show how far through the story we are
 function updateProgressBar() {
     if (!progressFillEl) return;
-    
-    // Calculate progress as a percentage
-    const progress = ((currentScene + (currentDialogue / storyData.scenes[currentScene].dialogue.length)) 
-                     / storyData.scenes.length) * 100;
-    
-    // Update the visual width of the progress bar
+    const position = getCurrentPosition() + 1;
+    const total = getTotalDialogueCount();
+    const progress = (position / total) * 100;
     progressFillEl.style.width = `${progress}%`;
-}
-
-// UPDATE BACKGROUND: Change the visual theme based on current scene
-function updateBackground(backgroundClass) {
-    if (!backgroundEl) return;
-    
-    // Remove all existing background classes
-    backgroundEl.className = 'background';
-    
-    // Add the new background class
-    if (backgroundClass) {
-        backgroundEl.classList.add(backgroundClass);
-    }
 }
 
 // UPDATE NAVIGATION BUTTONS: Enable/disable based on story position
@@ -398,17 +346,12 @@ function updateNavigationButtons() {
     const prevButton = document.getElementById('prevButton');
     const nextButton = document.getElementById('nextButton');
     
-    if (prevButton) {
-        // Disable "Previous" if we're at the very beginning
-        prevButton.disabled = (currentScene === 0 && currentDialogue === 0);
-    }
+    const isAtStart = (currentScene === 0 && currentDialogue === 0);
+    const isAtEnd = (currentScene === storyData.scenes.length - 1 && 
+                    currentDialogue === storyData.scenes[currentScene].dialogue.length - 1);
     
-    if (nextButton) {
-        const scene = storyData.scenes[currentScene];
-        // Disable "Next" if we're at the very end
-        nextButton.disabled = (currentScene === storyData.scenes.length - 1 && 
-                              currentDialogue === scene.dialogue.length - 1);
-    }
+    if (prevButton) prevButton.disabled = isAtStart;
+    if (nextButton) nextButton.disabled = isAtEnd;
 }
 
 // SHOW SCENE TITLE: Display animated scene title
@@ -422,6 +365,19 @@ function showSceneTitle(title) {
     setTimeout(() => {
         sceneTitle.style.display = 'none';
     }, 2000);
+}
+
+// UPDATE BACKGROUND: Change the visual theme based on current scene
+function updateBackground(backgroundClass) {
+    if (!backgroundEl) return;
+    
+    // Remove all existing background classes
+    backgroundEl.className = 'background';
+    
+    // Add the new background class
+    if (backgroundClass) {
+        backgroundEl.classList.add(backgroundClass);
+    }
 }
 
 /* ==========================================================================
@@ -629,9 +585,20 @@ function onMessageArrived(message) {
         
         // Only sync if message is from a different device
         if (data.player !== playerName) {
-            // Update to the scene specified in the message
-            currentScene = Math.max(0, Math.min(data.sceneId - 1, storyData.scenes.length - 1));
-            currentDialogue = 0;
+            // Convert position back to scene and dialogue
+            const position = Math.max(0, Math.min(data.position - 1, getTotalDialogueCount() - 1));
+            
+            // Find which scene this position corresponds to
+            let pos = 0;
+            for (let i = 0; i < storyData.scenes.length; i++) {
+                if (pos + storyData.scenes[i].dialogue.length > position) {
+                    currentScene = i;
+                    currentDialogue = position - pos;
+                    break;
+                }
+                pos += storyData.scenes[i].dialogue.length;
+            }
+            
             updateDisplay();
             showSceneTitle(storyData.scenes[currentScene].title);
         }
@@ -641,12 +608,12 @@ function onMessageArrived(message) {
 }
 
 // PUBLISH SCENE CHANGE: Tell other devices about scene changes
-function publishSceneChange(sceneId) {
+function publishSceneChange(position) {
     if (!mqttClient || !mqttClient.isConnected()) return;
     
     try {
         const message = new Paho.MQTT.Message(JSON.stringify({
-            sceneId: sceneId + 1,
+            position: position + 1,
             player: playerName,
             timestamp: Date.now()
         }));
@@ -700,12 +667,13 @@ function debounce(func, wait) {
    ========================================================================== */
 
 // Jump to specific scene (for development/testing)
-function jumpToScene(sceneIndex) {
+function jumpToScene(sceneIndex, dialogueIndex = 0) {
     if (sceneIndex >= 0 && sceneIndex < storyData.scenes.length) {
         currentScene = sceneIndex;
-        currentDialogue = 0;
+        const scene = storyData.scenes[sceneIndex];
+        currentDialogue = Math.max(0, Math.min(dialogueIndex, scene.dialogue.length - 1));
         updateDisplay();
-        showSceneTitle(storyData.scenes[currentScene].title);
+        showSceneTitle(scene.title);
     }
 }
 
@@ -714,13 +682,78 @@ function getStoryState() {
     return {
         currentScene: currentScene,
         currentDialogue: currentDialogue,
+        currentPosition: getCurrentPosition(),
         playerName: playerName,
         audioEnabled: audioEnabled,
-        totalScenes: storyData.scenes.length
+        totalScenes: storyData.scenes.length,
+        totalDialogues: getTotalDialogueCount()
     };
 }
 
 // Log story state to console (for debugging)
 function logStoryState() {
     console.log('Current Story State:', getStoryState());
+}
+
+// Add this function at the end of the file or after other UI functions
+function showFullStory() {
+    // Hide navigation and audio controls while showing the full story
+    document.querySelector('.controls').style.display = 'none';
+    document.querySelector('.audio-controls').style.display = 'none';
+    if (sceneCounterEl) sceneCounterEl.style.display = 'none';
+
+    // Make the dialogue box scrollable and expand it
+    if (dialogueTextEl) {
+        dialogueTextEl.style.maxHeight = '70vh';
+        dialogueTextEl.style.overflowY = 'auto';
+        dialogueTextEl.style.padding = '20px';
+        dialogueTextEl.style.lineHeight = '1.6';
+    }
+
+    // Fetch the markdown file
+    fetch('assets/docs/storyline.md')
+        .then(response => response.text())
+        .then(md => {
+            // Split into lines and filter out headers (lines starting with # or ##)
+            const paragraphs = md.split(/\n+/)
+                .filter(line => line.trim() && !line.trim().startsWith('#'));
+            // Join paragraphs with double line breaks for readability
+            const storyHtml = paragraphs.map(p => `<p style="margin-bottom: 15px;">${p}</p>`).join('');
+            // Display in the dialogue area with better styling
+            if (dialogueTextEl) {
+                dialogueTextEl.innerHTML = `
+                    <div style="font-size: 16px; line-height: 1.6;">
+                        ${storyHtml}
+                        <div style="text-align:center; margin-top:30px; padding-top:20px; border-top: 1px solid #666;">
+                            <button class="nav-button" onclick="hideFullStory()">Back to Interactive Story</button>
+                        </div>
+                    </div>
+                `;
+                // Scroll to top of the content
+                dialogueTextEl.scrollTop = 0;
+            }
+        })
+        .catch(err => {
+            if (dialogueTextEl) {
+                dialogueTextEl.innerHTML = '<p>Failed to load story. Please check that the storyline.md file exists in the assets/docs/ folder.</p><div style="text-align:center; margin-top:20px;"><button class="nav-button" onclick="hideFullStory()">Back to Interactive Story</button></div>';
+            }
+        });
+}
+
+function hideFullStory() {
+    // Restore navigation and audio controls
+    document.querySelector('.controls').style.display = '';
+    document.querySelector('.audio-controls').style.display = '';
+    if (sceneCounterEl) sceneCounterEl.style.display = '';
+    
+    // Restore original dialogue box styling
+    if (dialogueTextEl) {
+        dialogueTextEl.style.maxHeight = '';
+        dialogueTextEl.style.overflowY = '';
+        dialogueTextEl.style.padding = '';
+        dialogueTextEl.style.lineHeight = '';
+    }
+    
+    // Restore the normal story view
+    updateDisplay();
 }
