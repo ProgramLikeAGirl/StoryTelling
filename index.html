@@ -1,418 +1,123 @@
 <!DOCTYPE html>
+<!-- 
+    🎖️ THE GREAT NERF WAR: A CAPYBARA'S REVENGE 🎖️
+    
+    This is an interactive storytelling web application created for CS 3660.
+    It tells the epic tale of foam dart warfare through 12 engaging scenes.
+    
+    ✨ Key Features:
+    - Interactive story with 12 scenes following the Hero's Journey
+    - Real-time synchronization across multiple devices using MQTT
+    - Responsive design that works on phones, tablets, and computers
+    - Audio controls and accessibility features
+    - Touch/swipe gestures for mobile users
+    
+    📚 For detailed code explanations, see CODE_EXPLANATION.md
+-->
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Basic page information that browsers need -->
+    <meta charset="UTF-8"> <!-- Tells browser how to read characters -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Makes it work properly on mobile -->
     <title>The Great Nerf War: A Capybara's Revenge</title>
+    
+    <!-- External library for real-time communication between devices -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
+    
+    <!-- Custom icon for the browser tab (military medal emoji) -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎖️</text></svg>">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    
+    <!-- 
+    🔗 EXTERNAL FILE LINKS
+    
+    These lines connect our HTML to the separate files that handle:
+    - styles.css: All the visual styling and animations
+    - script.js: All the interactive functionality and logic
+    
+    This is called "modular programming" - separating different types of code
+    into their own files makes the project easier to maintain and collaborate on.
+    -->
+    <link rel="stylesheet" href="styles.css">
+    <script src="script.js"></script>
+    
+    <!-- 
+    ✅ All CSS styling has been moved to external file: styles.css
+    This makes the code modular and easier to maintain!
+    -->
+        
 
-        body {
-            font-family: 'Georgia', serif;
-            background: #1a1a1a;
-            color: #fff;
-            overflow: hidden;
-            height: 100vh;
-        }
-
-        .story-container {
-            position: relative;
-            width: 100%;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .background {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            filter: brightness(0.7);
-            transition: all 1.5s ease-in-out;
-            z-index: 1;
-        }
-
-        .gradient-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(
-                to bottom,
-                rgba(0,0,0,0.3) 0%,
-                rgba(0,0,0,0.1) 40%,
-                rgba(0,0,0,0.8) 100%
-            );
-            z-index: 2;
-        }
-
-        .ui-overlay {
-            position: relative;
-            z-index: 10;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .title-bar {
-            background: rgba(0,0,0,0.9);
-            padding: 15px 20px;
-            border-bottom: 3px solid #8B4513;
-            backdrop-filter: blur(10px);
-        }
-
-        .title {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: #DAA520;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-        }
-
-        .subtitle {
-            font-size: 1rem;
-            color: #ccc;
-            font-style: italic;
-            margin-top: 5px;
-        }
-
-        .progress-bar {
-            height: 4px;
-            background: rgba(255,255,255,0.2);
-            margin-top: 10px;
-            border-radius: 2px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #DAA520, #FFD700);
-            transition: width 0.8s ease;
-            width: 0%;
-        }
-
-        .main-content {
-            flex: 1;
-            display: flex;
-            align-items: flex-end;
-            padding: 20px;
-        }
-
-        .dialogue-box {
-            background: rgba(0,0,0,0.95);
-            border: 2px solid #8B4513;
-            border-radius: 15px;
-            padding: 25px;
-            width: 100%;
-            max-width: 900px;
-            margin: 0 auto;
-            backdrop-filter: blur(15px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
-            animation: fadeInUp 0.5s ease-out;
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .speaker-name {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #DAA520;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .dialogue-text {
-            font-size: 1.1rem;
-            line-height: 1.6;
-            color: #f0f0f0;
-            margin-bottom: 15px;
-            min-height: 60px;
-        }
-
-        .controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 15px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .nav-button {
-            background: linear-gradient(135deg, #8B4513, #A0522D);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .nav-button:hover {
-            background: linear-gradient(135deg, #A0522D, #CD853F);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(139, 69, 19, 0.4);
-        }
-
-        .nav-button:disabled {
-            background: #555;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .scene-counter {
-            color: #ccc;
-            font-size: 0.9rem;
-            text-align: center;
-        }
-
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.9);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            backdrop-filter: blur(10px);
-        }
-
-        .modal-content {
-            background: linear-gradient(135deg, #2c1810, #3d2317);
-            padding: 40px;
-            border-radius: 20px;
-            border: 3px solid #DAA520;
-            text-align: center;
-            max-width: 500px;
-            width: 90%;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
-            animation: modalSlideIn 0.5s ease-out;
-        }
-
-        @keyframes modalSlideIn {
-            from {
-                opacity: 0;
-                transform: scale(0.8);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        .modal h2 {
-            color: #DAA520;
-            margin-bottom: 20px;
-            font-size: 1.8rem;
-        }
-
-        .modal p {
-            color: #ccc;
-            margin-bottom: 25px;
-            line-height: 1.5;
-        }
-
-        .modal input {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #8B4513;
-            border-radius: 10px;
-            background: rgba(0,0,0,0.5);
-            color: white;
-            font-size: 1.1rem;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .modal input:focus {
-            outline: none;
-            border-color: #DAA520;
-            box-shadow: 0 0 10px rgba(218, 165, 32, 0.3);
-        }
-
-        .mqtt-status {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 10px 15px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            z-index: 100;
-            transition: all 0.3s ease;
-        }
-
-        .mqtt-connected {
-            background: rgba(0, 200, 0, 0.8);
-            color: white;
-        }
-
-        .mqtt-disconnected {
-            background: rgba(200, 0, 0, 0.8);
-            color: white;
-        }
-
-        .audio-controls {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-top: 15px;
-            flex-wrap: wrap;
-        }
-
-        .volume-control {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .volume-slider {
-            width: 80px;
-            accent-color: #DAA520;
-        }
-
-        /* Background patterns for different scenes */
-        .bg-park {
-            background: linear-gradient(135deg, #4CAF50, #8BC34A), 
-                        radial-gradient(circle at 20% 80%, rgba(255,255,255,0.1) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 20%, rgba(255,255,255,0.1) 0%, transparent 50%);
-        }
-
-        .bg-office {
-            background: linear-gradient(135deg, #795548, #8D6E63),
-                        repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px);
-        }
-
-        .bg-battlefield {
-            background: linear-gradient(135deg, #FF5722, #FF7043),
-                        radial-gradient(circle at 30% 30%, rgba(255,255,0,0.1) 0%, transparent 50%);
-        }
-
-        .bg-peace {
-            background: linear-gradient(135deg, #2196F3, #64B5F6, #81C784);
-        }
-
-        @media (max-width: 768px) {
-            .title {
-                font-size: 1.4rem;
-            }
-            
-            .dialogue-box {
-                padding: 20px;
-                margin: 0 10px;
-            }
-            
-            .controls {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .nav-button {
-                width: 100%;
-                margin: 5px 0;
-            }
-
-            .audio-controls {
-                justify-content: center;
-            }
-        }
-
-        .typewriter-effect {
-            overflow: hidden;
-            white-space: nowrap;
-            animation: typewriter 1.5s steps(40) forwards;
-        }
-
-        @keyframes typewriter {
-            from { width: 0 }
-            to { width: 100% }
-        }
-
-        .scene-title {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 2rem;
-            color: #DAA520;
-            text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
-            opacity: 0;
-            animation: sceneTitleFade 2s ease-in-out;
-            pointer-events: none;
-            z-index: 5;
-        }
-
-        @keyframes sceneTitleFade {
-            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
-            20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-            80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-            100% { opacity: 0; transform: translate(-50%, -50%) scale(1.1); }
-        }
-    </style>
 </head>
 <body>
+    <!-- 
+    🏗️ HTML STRUCTURE SECTION
+    
+    This is where we build the actual interface that users see and interact with.
+    Think of HTML as the "skeleton" of our web page - it defines what elements exist
+    and how they're organized, while CSS makes them look good.
+    
+    Our page is organized in layers (like Photoshop layers):
+    1. Background layer (changes based on current scene)
+    2. Gradient overlay (makes text easier to read)
+    3. UI overlay (contains all the buttons and text)
+    -->
+    
+    <!-- MAIN CONTAINER: Holds everything for the story experience -->
     <div class="story-container">
+        <!-- BACKGROUND LAYER: Changes color/pattern based on current scene -->
         <div class="background bg-park" id="background"></div>
+        
+        <!-- GRADIENT OVERLAY: Adds a subtle dark fade to make text more readable -->
         <div class="gradient-overlay"></div>
+        
+        <!-- SCENE TITLE: Shows scene names with animation when scenes change -->
         <div class="scene-title" id="sceneTitle" style="display: none;"></div>
         
+        <!-- UI OVERLAY: Contains all the interactive elements users see -->
         <div class="ui-overlay">
+            <!-- TOP BAR: Shows title, subtitle, and progress through the story -->
             <div class="title-bar">
                 <div class="title">The Great Nerf War: A Capybara's Revenge</div>
                 <div class="subtitle">An Interactive Mockumentary Experience</div>
+                <!-- PROGRESS BAR: Visual indicator showing how far through the story you are -->
                 <div class="progress-bar">
                     <div class="progress-fill" id="progressFill"></div>
                 </div>
             </div>
             
+            <!-- MAIN CONTENT AREA: Where the story dialogue and controls appear -->
             <div class="main-content">
+                <!-- DIALOGUE BOX: Main interface for reading and navigating the story -->
                 <div class="dialogue-box">
+                    <!-- SPEAKER NAME: Shows who is currently talking (Narrator, Captain Jenkins, etc.) -->
                     <div class="speaker-name" id="speakerName">Narrator</div>
+                    
+                    <!-- DIALOGUE TEXT: The actual story text that gets updated by JavaScript -->
                     <div class="dialogue-text" id="dialogueText">Welcome to the most epic foam dart conflict in recorded history...</div>
                     
+                    <!-- NAVIGATION CONTROLS: Buttons to move through the story -->
                     <div class="controls">
                         <button class="nav-button" id="prevButton" onclick="previousScene()" aria-label="Previous scene">← Previous</button>
+                        
+                        <!-- SCENE COUNTER: Shows current position in the story (e.g., "Scene 3 of 12") -->
                         <div class="scene-counter">
                             <span id="sceneCounter">Scene 1 of 12</span>
                         </div>
+                        
                         <button class="nav-button" id="nextButton" onclick="nextScene()" aria-label="Next scene">Next →</button>
                     </div>
                     
+                    <!-- AUDIO CONTROLS: Volume, mute/unmute, and restart options -->
                     <div class="audio-controls">
+                        <!-- AUDIO TOGGLE: Turn background music on/off -->
                         <button class="nav-button" onclick="toggleAudio()" id="audioToggle" style="padding: 8px 15px; font-size: 0.9rem;" aria-label="Toggle audio">🔊 Audio</button>
+                        
+                        <!-- VOLUME CONTROL: Slider to adjust audio volume -->
                         <div class="volume-control">
                             <span style="font-size: 0.8rem; color: #ccc;">Volume:</span>
                             <input type="range" class="volume-slider" min="0" max="1" step="0.1" value="0.7" onchange="setVolume(this.value)" aria-label="Volume control">
                         </div>
+                        
+                        <!-- RESTART BUTTON: Reset story back to the beginning -->
                         <button class="nav-button" onclick="resetStory()" style="padding: 8px 15px; font-size: 0.9rem;" aria-label="Restart story">🔄 Restart</button>
                     </div>
                 </div>
