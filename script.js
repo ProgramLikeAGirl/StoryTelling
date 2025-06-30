@@ -337,10 +337,35 @@ function updateDisplay() {
     const dialogue = getCurrentDialogue();
     if (!dialogue) return;
     
-    // Update the speaker name
+    // Update the speaker name with color coding
     if (speakerNameEl) {
         const speaker = personalizeText(dialogue.speaker);
         speakerNameEl.textContent = speaker;
+        
+        // Apply different colors for different speakers
+        if (speaker === 'Captain Cheeks') {
+            speakerNameEl.style.color = '#FFB74D'; // Orange for Captain Cheeks
+        } else if (speaker === 'Narrator') {
+            speakerNameEl.style.color = '#90CAF9'; // Light blue for narrator
+        } else if (speaker === playerName) {
+            speakerNameEl.style.color = '#81C784'; // Green for player
+        } else if (speaker === 'Jenkins') {
+            speakerNameEl.style.color = '#F48FB1'; // Pink for Jenkins
+        } else if (speaker === 'Morales') {
+            speakerNameEl.style.color = '#CE93D8'; // Purple for Morales
+        } else if (speaker === 'Morrison') {
+            speakerNameEl.style.color = '#FFCC02'; // Yellow for Morrison
+        } else if (speaker === 'Alex' || speaker === 'Teen Leader') {
+            speakerNameEl.style.color = '#80CBC4'; // Teal for Alex/Teen Leader
+        } else if (speaker === 'Cassidy') {
+            speakerNameEl.style.color = '#FFAB91'; // Orange for Cassidy
+        } else if (speaker === 'Emu Commander') {
+            speakerNameEl.style.color = '#A5D6A7'; // Light green for Emu Commander
+        } else if (speaker === 'Ernie') {
+            speakerNameEl.style.color = '#B39DDB'; // Light purple for Ernie
+        } else {
+            speakerNameEl.style.color = '#FFFFFF'; // White for any other speakers
+        }
     }
     
     // Update the dialogue text
