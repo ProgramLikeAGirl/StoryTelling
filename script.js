@@ -68,139 +68,176 @@ let dialogueTextEl, speakerNameEl, sceneCounterEl, progressFillEl, backgroundEl,
 const storyData = {
     scenes: [
         {
-            title: "The Ordinary World",
+            title: "The Ordinary World: Target Practice Tradition",
             background: "bg-park",
             dialogue: [
-                { speaker: "Narrator", text: "Every Tuesday morning, just as the sun peeked over Briarwood Park, the Veterans' Association gathered like clockwork. Among them stood {playerName}, a respected member whose sharp eye and steady hand had earned recognition in their weekly competitions." },
-                { speaker: "Jenkins", text: "Alright folks, stretch those hips. Winner today gets first dibs on donuts." },
-                { speaker: "Morales", text: "Only if {playerName} doesn't sweep us all again! That was some impressive shooting last week." },
-                { speaker: "Narrator", text: "The veterans weren't just passing time—they were preserving tradition. Amidst Nerf fire and laughter, {playerName} had become known for both skill and sportsmanship, helping to maintain the group's camaraderie." },
-                { speaker: "Jenkins", text: "{playerName}, you're with me on the advanced targets today. Show these rookies how it's done." }
+                { speaker: "Narrator", text: "Every Tuesday at dawn, the Veterans' Association transforms Briarwood Park into their personal battlefield. {playerName}, known for precision shooting and tactical thinking, has become a cornerstone of this sacred tradition." },
+                { speaker: "Jenkins", text: "Alright, veterans! Time for our weekly foam-dart warfare. {playerName}, you're team captain today—show these rookies how real soldiers handle a Nerf blaster!" },
+                { speaker: "Morales", text: "Last week {playerName} hit every target from 50 yards. That's some serious marksmanship right there." },
+                { speaker: "Narrator", text: "For these aging warriors, Tuesday target practice isn't just recreation—it's a lifeline to their military heritage. {playerName} understands this better than most." },
+                { speaker: "{playerName}", text: "This tradition keeps us sharp, keeps us connected. Every dart fired is a reminder of who we were... and who we still are." },
+                { speaker: "Jenkins", text: "Exactly! Now let's see some precision fire! {playerName}, take point on the obstacle course!" }
             ]
         },
         {
-            title: "The Call to Adventure",
+            title: "The Call to Adventure: Mysterious Capybara & Emu Patrols",
             background: "bg-forest",
             dialogue: [
-                { speaker: "Morales", text: "I saw something near the trash bins. Big. Round. Looked like it was judging me." },
-                { speaker: "Jenkins", text: "What, a raccoon holding court?" },
-                { speaker: "Ernie", text: "No joke. Look at this photo—tell me that ain't a capybara." },
-                { speaker: "Narrator", text: "Not long after, emus began appearing too. Watching. Lingering. {playerName} noticed the unusual behavior before most others—the way these creatures seemed to observe their training sessions with an almost intelligent intent." },
-                { speaker: "{playerName}", text: "There's definitely something different about these animals. They're not acting like typical park wildlife." },
-                { speaker: "Morales", text: "Feels like we're being scoped out. Like... surveilled. {playerName}, you've got the best eyes here—what do you think?" }
+                { speaker: "Morales", text: "Something's wrong, {playerName}. There's this... creature by the equipment shed. Massive rodent, just sitting there like it's running surveillance on our operation." },
+                { speaker: "Jenkins", text: "Probably just a stray. Nothing a few warning shots can't handle." },
+                { speaker: "Ernie", text: "No sir, this is different. Look at this photo—that's a capybara, and it's got backup. Emus. Lots of them." },
+                { speaker: "Narrator", text: "Within 48 hours, emu patrols materialized throughout Briarwood Park. {playerName} recognized the tactical significance immediately—flanking positions, elevated observation posts, coordinated movement patterns." },
+                { speaker: "{playerName}", text: "Jenkins, these aren't random animal encounters. Look at their formation—perimeter security, rotating watch schedules. Someone's commanding them." },
+                { speaker: "Morales", text: "You're saying they're organized? {playerName}, that's impossible." },
+                { speaker: "Captain Cheeks", text: "*Steps out from behind an oak tree, wearing a tiny military beret* Impossible? Perhaps. But true nonetheless, Sergeant {playerName}." },
+                { speaker: "{playerName}", text: "Did... did that capybara just call me by rank?" },
+                { speaker: "Captain Cheeks", text: "Captain Cheeks, 3rd Regiment Woodland Forces. And yes, I know exactly who you are, {playerName}. Your reputation precedes you." }
             ]
         },
         {
-            title: "The Refusal",
+            title: "The Refusal: Jenkins Denies the Threat",
             background: "bg-park",
             dialogue: [
-                { speaker: "Jenkins", text: "Rodents and birds don't scare me. This park's been ours since before they were hatched." },
-                { speaker: "{playerName}", text: "Maybe we should take this seriously, Jenkins. Something feels off about the whole situation." },
-                { speaker: "Jenkins", text: "Paranoia's setting in, {playerName}. Let's stay focused. Target practice at 0600, no excuses." },
-                { speaker: "Narrator", text: "Despite {playerName}'s concerns, Jenkins couldn't ignore the unease building in his gut—or the missing ammo. {playerName} had noticed the shortages too, but chose to support the team leader's decision to continue as normal." },
-                { speaker: "{playerName}", text: "I'll keep an extra watch during practice. If something's happening, we'll figure it out together." }
+                { speaker: "Jenkins", text: "A talking rodent with military knowledge? {playerName}, I expected better from you. This is clearly some elaborate hoax." },
+                { speaker: "{playerName}", text: "Jenkins, that capybara knew my service record. It addressed me by rank. This isn't a kid with a walkie-talkie." },
+                { speaker: "Jenkins", text: "There's a logical explanation for everything. Probably some nature documentary crew filming nearby." },
+                { speaker: "Captain Cheeks", text: "*Approaching the group boldly* Documentary crew? Sir, I'm insulted. My intelligence network is far more sophisticated than human entertainment media." },
+                { speaker: "Jenkins", text: "*Stumbling backward* What the... {playerName}, are you seeing this too?" },
+                { speaker: "Captain Cheeks", text: "Sergeant Jenkins, your denial won't change reality. The Woodland Alliance has been monitoring your activities for months. We know your patterns, your weaknesses." },
+                { speaker: "{playerName}", text: "Captain... Cheeks, was it? What do you want from us?" },
+                { speaker: "Captain Cheeks", text: "Justice, {playerName}. Your veterans have disturbed the sacred harmony of our domain. But you... you show promise. You listen. You observe. You might be the key to resolving this conflict without unnecessary bloodshed." },
+                { speaker: "Jenkins", text: "I'm not negotiating with vermin! {playerName}, we're leaving. Now!" }
             ]
         },
         {
-            title: "Meeting the Mentor",
+            title: "Meeting the Mentor: Morrison's Secret History",
             background: "bg-forest",
             dialogue: [
-                { speaker: "Narrator", text: "One morning, Calhoun Morrison was already waiting at the elm tree, his weathered Nerf Longshot across his lap. He'd specifically asked {playerName} to join this early meeting." },
-                { speaker: "Morrison", text: "This ain't the first time, {playerName}. In '87, there was an accident. Marshmallow launcher. Capybara took the hit." },
-                { speaker: "{playerName}", text: "You're serious about this, aren't you? What really happened back then?" },
-                { speaker: "Morrison", text: "We broke a truce we forgot we made. But they didn't. {playerName}, you've got the respect of both the team and keen instincts. I need you to help Jenkins understand." },
-                { speaker: "Narrator", text: "He handed {playerName} a tattered patch—an old symbol of a peace long lost. 'Show this to Jenkins when the time is right,' Morrison whispered." }
+                { speaker: "Narrator", text: "Morrison, the grizzled 30-year veteran, pulled {playerName} aside beneath the memorial oak. His weathered Nerf Longshot—a relic from the group's founding—lay across his knees like a sacred artifact." },
+                { speaker: "Morrison", text: "What you witnessed today, {playerName}... it's happened before. 1987. Operation Woodland Peace. We had first contact with Captain Cheeks' predecessor." },
+                { speaker: "{playerName}", text: "First contact? Morrison, you're talking like this is some classified military operation." },
+                { speaker: "Morrison", text: "It was. Dr. Miranda Whiskers ran an experimental program—teaching tactical communication to rescued wildlife. Capybaras, emus, even some corvids. We were supposed to be their training partners." },
+                { speaker: "Narrator", text: "Morrison produced a yellowed photograph: soldiers in dress uniforms standing beside capybaras wearing tiny military decorations, a formal treaty ceremony captured in fading color." },
+                { speaker: "Morrison", text: "We broke faith, {playerName}. Got spooked, opened fire during a joint exercise. Scattered their forces, destroyed their trust. Captain Cheeks' father... he didn't make it." },
+                { speaker: "Captain Cheeks", text: "*Emerging from the shadows* But his son did. And his son remembers both the betrayal... and the original promise of cooperation." },
+                { speaker: "{playerName}", text: "Captain, I... we didn't know. Is there any way to make this right?" },
+                { speaker: "Captain Cheeks", text: "There is, {playerName}. But it requires courage Jenkins doesn't possess. You must enter our domain—emu territory—and prove your commitment to peace." }
             ]
         },
         {
-            title: "Crossing the Threshold",
+            title: "Crossing the Threshold: Entering Emu Territory",
             background: "bg-forest",
             dialogue: [
-                { speaker: "Narrator", text: "At sunrise, {playerName} and Jenkins crossed into the park's eastern trails—'emu territory,' as they called it. {playerName} volunteered to accompany Jenkins, sensing this mission needed backup." },
-                { speaker: "Narrator", text: "They passed makeshift barricades and finally faced an emu standing still, like a sentinel." },
-                { speaker: "Jenkins", text: "Not here to start trouble. Just need answers." },
-                { speaker: "{playerName}", text: "Easy, Jenkins. Let's approach this carefully. Something tells me these creatures are more intelligent than we thought." },
-                { speaker: "Narrator", text: "The emu didn't flinch as {playerName} and Jenkins took careful steps closer, their training evident in every measured movement." }
+                { speaker: "Narrator", text: "At dawn, {playerName} made the fateful decision to cross into the eastern sector—emu territory. Jenkins followed reluctantly, his skepticism warring with military discipline." },
+                { speaker: "Jenkins", text: "This is madness, {playerName}. We're treating a park like a combat zone because of some overgrown guinea pig." },
+                { speaker: "{playerName}", text: "Military protocol, Jenkins. Reconnaissance before engagement. We need to understand what we're dealing with." },
+                { speaker: "Narrator", text: "The threshold was unmistakable—a line of park benches arranged in defensive formation, with an emu sentry standing perfectly still, like a feathered checkpoint guard." },
+                { speaker: "Jenkins", text: "Okay, that bird is definitely not acting normal. {playerName}, it's watching us like it's taking notes." },
+                { speaker: "Captain Cheeks", text: "*Stepping through morning mist* Excellent observation, Sergeant Jenkins. Lieutenant Feathers does maintain detailed reconnaissance reports." },
+                { speaker: "{playerName}", text: "Lieutenant... you have a military command structure?" },
+                { speaker: "Captain Cheeks", text: "Indeed. Welcome to Forward Operating Base Willow, {playerName}. You're now in Woodland Alliance territory. Your weapons, please—a show of good faith." },
+                { speaker: "Jenkins", text: "We're not surrendering our Nerf blasters to a talking hamster!" },
+                { speaker: "Captain Cheeks", text: "*Chuckling* Capybara, Sergeant. And this isn't surrender—it's diplomacy. {playerName} understands the difference, don't you?" }
             ]
         },
         {
-            title: "Tests, Allies, and Enemies",
+            title: "Tests, Allies, Enemies: The Foam Dart Trials",
             background: "bg-urban",
             dialogue: [
-                { speaker: "Teen", text: "You two must be from the Veterans' group. Which one of you is {playerName}? We've heard about your reputation." },
-                { speaker: "{playerName}", text: "That's me. And you are...?" },
-                { speaker: "Teen", text: "We're Team Emu. These creatures deserve the park too. Some of us think you veterans might actually understand that." },
-                { speaker: "Narrator", text: "{playerName} and Jenkins were tested—ambushes, cryptic symbols, and even Cassidy, a veteran who had changed sides." },
-                { speaker: "Cassidy", text: "They don't want war, {playerName}. Just recognition. You always were one of the more thoughtful ones in our group." },
-                { speaker: "{playerName}", text: "What exactly are they asking for, Cassidy? Help me understand what we're missing here." }
+                { speaker: "Captain Cheeks", text: "Before we can trust you completely, {playerName}, you must prove your worthiness through the traditional trials of marksmanship and strategy." },
+                { speaker: "Teen Leader", text: "Wait up! I'm Alex, leader of the Emu Liberation Front. {playerName}, we've been monitoring your group—some of us think you veterans actually understand honor." },
+                { speaker: "{playerName}", text: "Liberation Front? Alex, what exactly do you think is happening here?" },
+                { speaker: "Alex", text: "These animals have intelligence, military training, and legitimate grievances against your group. Captain Cheeks has been trying to reestablish diplomatic contact for months." },
+                { speaker: "Captain Cheeks", text: "Alex speaks truth. But words alone are insufficient, {playerName}. You must demonstrate your commitment through action." },
+                { speaker: "Cassidy", text: "*Former VA member stepping forward* They don't want war, {playerName}. I've been working with Captain Cheeks to develop peaceful conflict resolution protocols." },
+                { speaker: "{playerName}", text: "Cassidy? You left the veterans to work with... them? What convinced you?" },
+                { speaker: "Captain Cheeks", text: "We offered her what humans often forget, {playerName}—the chance to be part of something larger than tribal loyalty. True interspecies cooperation." },
+                { speaker: "Jenkins", text: "This is completely insane! {playerName}, we're negotiating foreign policy with a rodent!" },
+                { speaker: "Captain Cheeks", text: "*Drawing a tiny foam dart blaster* Sergeant Jenkins, your skepticism is noted. However, if {playerName} can hit three targets from fifty meters, we proceed to negotiations. If not... well, perhaps this alliance isn't meant to be." }
             ]
         },
         {
-            title: "Approach to the Inmost Cave",
+            title: "Approach to the Inmost Cave: The Capybara Command Bunker",
             background: "bg-forest",
             dialogue: [
-                { speaker: "Narrator", text: "{playerName} followed Jenkins to an old willow grove, where they found a burrow reinforced with soda cans and toy parts." },
-                { speaker: "Narrator", text: "Inside were relics: photos of old alliances and a document titled Operation: Peace Dart. {playerName} was the first to spot the significance." },
-                { speaker: "{playerName}", text: "Jenkins, look at this! These photos... that's our group from decades ago. And that capybara—it was part of our team!" },
-                { speaker: "Jenkins", text: "They wanted to play with us... not against us." },
-                { speaker: "{playerName}", text: "This changes everything. We weren't being invaded—we were being reminded of a promise we forgot." }
+                { speaker: "Captain Cheeks", text: "Follow me, {playerName}. It's time you saw the true heart of our operation—the command center your predecessors helped design in 1987." },
+                { speaker: "Narrator", text: "Following a trail of tactical markers that only {playerName}'s trained eye could detect, the team discovered a sophisticated bunker beneath the ancient willow grove." },
+                { speaker: "{playerName}", text: "Jenkins, look at this construction. Military-grade camouflage, multiple exit routes, strategic supply caches. This isn't some animal nest—it's a professional command center." },
+                { speaker: "Captain Cheeks", text: "Welcome to Base Willow, {playerName}. Built with human engineering expertise and capybara patience. Your mentor Morrison helped design the ventilation system." },
+                { speaker: "Narrator", text: "Inside, the walls displayed decades of documentation: photos of joint training exercises, tactical manuals in multiple languages, and detailed maps of the entire park ecosystem." },
+                { speaker: "Jenkins", text: "My God, {playerName}... this is a full military intelligence operation. How long have they been planning this?" },
+                { speaker: "Captain Cheeks", text: "Not planning, Sergeant Jenkins. Hoping. We've been hoping for thirty-five years that your veterans would remember the original alliance." },
+                { speaker: "{playerName}", text: "Captain, the evidence here... it suggests humans and animals were meant to work together. Why did we abandon this?" },
+                { speaker: "Captain Cheeks", text: "Fear, {playerName}. Fear of the unknown, fear of losing human superiority. But you... you have the wisdom to see beyond such limitations." }
             ]
         },
         {
-            title: "The Ordeal",
+            title: "The Ordeal: The Great Foam-Dart Battle",
             background: "bg-urban",
             dialogue: [
-                { speaker: "Narrator", text: "As {playerName} and Jenkins exited the burrow, they were surrounded—emus in front, teens with blasters behind." },
-                { speaker: "Teen", text: "Time to see what the veterans are made of. {playerName}, you ready to prove yourselves?" },
-                { speaker: "Narrator", text: "{playerName} ducked, rolled, and returned fire with precision alongside Jenkins. The emus didn't move—they watched. Judged." },
-                { speaker: "{playerName}", text: "Wait! Everyone stop!" },
-                { speaker: "Narrator", text: "{playerName} held the treaty patch high, understanding flooding through the group as Morrison's gift revealed its purpose." },
-                { speaker: "{playerName}", text: "Back in '87, we made a pact with these creatures. This proves it. We're not enemies—we're allies who lost our way." }
+                { speaker: "Captain Cheeks", text: "{playerName}, you've seen our history. But some of my troops remain skeptical. They demand proof of your commitment through trial by combat." },
+                { speaker: "Narrator", text: "As they emerged from the bunker, {playerName} and Jenkins found themselves surrounded by the elite Emu Defense Corps—six-foot-tall birds with tactical positions and foam-dart launchers." },
+                { speaker: "Emu Commander", text: "*Through a voice modulator* Humans Jenkins and {playerName}, you have violated sacred territory. Submit to our judgment or face the consequences." },
+                { speaker: "{playerName}", text: "Negative! We're here for diplomatic talks! Captain Cheeks, call off your troops!" },
+                { speaker: "Captain Cheeks", text: "*Sighing heavily* I'm afraid diplomacy requires demonstration, {playerName}. My officers demand you prove your worthiness in honorable combat." },
+                { speaker: "Narrator", text: "Foam darts erupted from all directions. {playerName} and Jenkins found themselves in the most surreal firefight of their military careers—dodging emu volleys while teenage sympathizers provided covering fire." },
+                { speaker: "Jenkins", text: "{playerName}, I can't believe I'm saying this, but these birds have better tactical coordination than most human squads I've commanded!" },
+                { speaker: "Captain Cheeks", text: "*Whistling a complex cease-fire signal* Enough! These humans have proven their courage under fire. Lower your weapons, my friends!" },
+                { speaker: "{playerName}", text: "Thank you, Captain. Now can we please talk like civilized beings?" },
+                { speaker: "Captain Cheeks", text: "Indeed we can, {playerName}. You've earned the right to see our most sacred artifact—the original Peace Dart Accords of 1987." }
             ]
         },
         {
-            title: "The Reward",
+            title: "The Reward: Discovering the Peace Treaty",
             background: "bg-park",
             dialogue: [
-                { speaker: "Ernie", text: "They were waiting for us... to remember. {playerName}, you figured it out." },
-                { speaker: "Narrator", text: "The room fell quiet as the veterans read the truth they had forgotten. {playerName}'s discovery had bridged a gap decades in the making." },
-                { speaker: "{playerName}", text: "We need to honor this alliance. These creatures have been trying to reconnect with us all along." },
-                { speaker: "Jenkins", text: "{playerName}, you've shown us something important today. Will you help me make this right?" },
-                { speaker: "Narrator", text: "The group looked to {playerName} for guidance, recognizing the wisdom that had emerged from careful observation and respect." }
+                { speaker: "Captain Cheeks", text: "Behold, {playerName}—the original Peace Dart Accords of 1987. Your military understands the sacred importance of written agreements." },
+                { speaker: "Narrator", text: "The ancient document outlined revolutionary concepts: shared training facilities, mutual respect protocols, joint defensive strategies, and interspecies communication standards." },
+                { speaker: "{playerName}", text: "This is incredible! Captain, this document describes true interspecies military cooperation. Shared intelligence, collaborative defense strategies... this could change everything." },
+                { speaker: "Jenkins", text: "{playerName}, you're talking about treating animals as equals in military operations. The implications are staggering." },
+                { speaker: "Captain Cheeks", text: "Revolution was never our goal, Sergeant Jenkins. Evolution was. The evolution of understanding between all species capable of strategic thinking." },
+                { speaker: "{playerName}", text: "Captain, with your permission, I'd like to bring this back to the Veterans' Association. They need to understand what we lost... and what we could regain." },
+                { speaker: "Captain Cheeks", text: "That is precisely what I hoped you would say, {playerName}. But first, you must convince your commander Jenkins to sign the renewal treaty." },
+                { speaker: "Jenkins", text: "Sign a treaty? With animals? {playerName}, this is either the craziest thing I've ever done... or the most brilliant." },
+                { speaker: "Captain Cheeks", text: "Courage and wisdom often appear as madness to those who possess neither, Sergeant. But {playerName} has both in abundance." }
             ]
         },
         {
-            title: "The Road Back",
+            title: "The Road Back: Newfound Respect",
             background: "bg-park",
             dialogue: [
-                { speaker: "Narrator", text: "{playerName} and Jenkins returned to the park with offerings—bird seed, clean targets, and open hands." },
-                { speaker: "Narrator", text: "Emus nodded approval as {playerName} approached with respect and understanding." },
-                { speaker: "Narrator", text: "Captain Cheeks, the capybara, approached and rested beside {playerName}, recognizing a kindred spirit." },
-                { speaker: "{playerName}", text: "Welcome back, Captain. We've missed having you as part of our team." },
-                { speaker: "Jenkins", text: "{playerName} helped me understand—tradition isn't about doing things the same way. It's about doing them right." }
+                { speaker: "Narrator", text: "{playerName} and Jenkins returned to Briarwood Park not as conquerors, but as diplomats carrying offerings: premium bird seed, precision-crafted targets, and most importantly, open minds." },
+                { speaker: "Captain Cheeks", text: "Your approach honors the spirit of the original accords, {playerName}. The Emu Corps has voted to accept your peaceful overtures." },
+                { speaker: "{playerName}", text: "Captain Cheeks, on behalf of the Veterans' Association, I formally request to reestablish the Peace Dart Alliance." },
+                { speaker: "Narrator", text: "Emus lowered their heads in respectful acknowledgment as {playerName} demonstrated the tactical hand signals learned from the old documents." },
+                { speaker: "Jenkins", text: "{playerName}, I owe you an apology. Your tactical instincts were right from the beginning. This alliance could benefit everyone." },
+                { speaker: "Captain Cheeks", text: "Apology accepted, Jenkins. But the real test comes next—can your association adapt their traditions to include non-human participants?" }
             ]
         },
         {
-            title: "The Resurrection",
+            title: "The Resurrection: Jenkins' Reform Push",
             background: "bg-park",
             dialogue: [
-                { speaker: "Narrator", text: "At the next VA meeting, {playerName} stood alongside Jenkins to address the group." },
-                { speaker: "{playerName}", text: "We've learned that our traditions are stronger when they include rather than exclude. These animals aren't intruders—they're partners." },
-                { speaker: "Jenkins", text: "The motion before us, proposed by {playerName}, is to reestablish Operation Peace Dart with our animal allies." },
-                { speaker: "Narrator", text: "The VA voted unanimously to support {playerName}'s proposal. Operation Peace Dart 2.0 was born from understanding and respect." },
-                { speaker: "Morales", text: "{playerName}, you've given us something we didn't know we'd lost. Thank you." }
+                { speaker: "Narrator", text: "At the emergency VA assembly, Jenkins stood beside {playerName} to address the most controversial proposal in the organization's history." },
+                { speaker: "Jenkins", text: "Fellow veterans, {playerName} has brought us evidence of a partnership that predates our current traditions. I move to ratify the revised Peace Dart Accords." },
+                { speaker: "{playerName}", text: "This isn't about abandoning our military heritage—it's about expanding it. These animals have tactical skills that could enhance our training protocols." },
+                { speaker: "Morales", text: "You're asking us to train alongside talking capybaras and strategically-minded emus? {playerName}, that's asking a lot." },
+                { speaker: "Captain Cheeks", text: "*Addressing the assembly via video link* Veterans, we seek not to replace your traditions, but to enrich them with interspecies cooperation." },
+                { speaker: "Narrator", text: "The vote was unanimous: 15-0 in favor of {playerName}'s proposal. Operation Peace Dart 2.0 was officially sanctioned." },
+                { speaker: "Jenkins", text: "{playerName}, you've done something I thought impossible—you've made this old soldier excited about change." }
             ]
         },
         {
-            title: "Return with the Elixir",
+            title: "Return with the Elixir: The New Tradition",
             background: "bg-park",
             dialogue: [
-                { speaker: "Narrator", text: "That spring, {playerName} helped organize the first 'Annual Co-Op Target Games.' Veterans, kids, and emus alike participated." },
-                { speaker: "Narrator", text: "Foam darts flew through rings, ricocheted off rubber shields, and whistled past emu decoys. No one kept score. Everyone laughed." },
-                { speaker: "Narrator", text: "Captain Cheeks sat in a folding chair beside {playerName}, watching it all with contentment." },
-                { speaker: "{playerName}", text: "You know, Jenkins, sometimes the best victories come from knowing when not to fight." },
-                { speaker: "Jenkins", text: "You taught us all that, {playerName}. Sometimes peace truly is the sharpest shot of all." },
-                { speaker: "Narrator", text: "The park was alive with joy and unity, a testament to {playerName}'s wisdom in recognizing that even the oddest alliances could build something beautiful." }
+                { speaker: "Narrator", text: "Six months later, {playerName} stood before the first Annual Interspecies Tactical Training Exercise, watching humans and animals compete side by side." },
+                { speaker: "{playerName}", text: "Ladies, gentlemen, emus, and distinguished capybara officers—welcome to the future of cooperative defense training!" },
+                { speaker: "Narrator", text: "Foam darts flew in complex patterns designed by both human and animal strategists. Emu observers provided aerial reconnaissance while capybara officers coordinated ground movements." },
+                { speaker: "Captain Cheeks", text: "*Sitting in the command chair beside {playerName}* You have given both our species something precious—proof that intelligence and respect can overcome any barrier." },
+                { speaker: "Jenkins", text: "You know, {playerName}, when I first saw that capybara, I thought we were under attack. Turns out we were being offered the greatest tactical alliance in military history." },
+                { speaker: "{playerName}", text: "Sometimes the best victories come not from defeating your enemy, but from discovering they were never your enemy at all." },
+                { speaker: "Narrator", text: "As the sun set over Briarwood Park, {playerName} watched humans and animals working together, realizing that some wars are won not through conflict, but through the courage to extend a hand... or paw... in friendship." }
             ]
         }
     ]
@@ -300,10 +337,35 @@ function updateDisplay() {
     const dialogue = getCurrentDialogue();
     if (!dialogue) return;
     
-    // Update the speaker name
+    // Update the speaker name with color coding
     if (speakerNameEl) {
         const speaker = personalizeText(dialogue.speaker);
         speakerNameEl.textContent = speaker;
+        
+        // Apply different colors for different speakers
+        if (speaker === 'Captain Cheeks') {
+            speakerNameEl.style.color = '#FFB74D'; // Orange for Captain Cheeks
+        } else if (speaker === 'Narrator') {
+            speakerNameEl.style.color = '#90CAF9'; // Light blue for narrator
+        } else if (speaker === playerName) {
+            speakerNameEl.style.color = '#81C784'; // Green for player
+        } else if (speaker === 'Jenkins') {
+            speakerNameEl.style.color = '#F48FB1'; // Pink for Jenkins
+        } else if (speaker === 'Morales') {
+            speakerNameEl.style.color = '#CE93D8'; // Purple for Morales
+        } else if (speaker === 'Morrison') {
+            speakerNameEl.style.color = '#FFCC02'; // Yellow for Morrison
+        } else if (speaker === 'Alex' || speaker === 'Teen Leader') {
+            speakerNameEl.style.color = '#80CBC4'; // Teal for Alex/Teen Leader
+        } else if (speaker === 'Cassidy') {
+            speakerNameEl.style.color = '#FFAB91'; // Orange for Cassidy
+        } else if (speaker === 'Emu Commander') {
+            speakerNameEl.style.color = '#A5D6A7'; // Light green for Emu Commander
+        } else if (speaker === 'Ernie') {
+            speakerNameEl.style.color = '#B39DDB'; // Light purple for Ernie
+        } else {
+            speakerNameEl.style.color = '#FFFFFF'; // White for any other speakers
+        }
     }
     
     // Update the dialogue text
@@ -695,12 +757,13 @@ function logStoryState() {
     console.log('Current Story State:', getStoryState());
 }
 
-// Add this function at the end of the file or after other UI functions
+// Enhanced Show Full Story function to display the complete interactive narrative
 function showFullStory() {
     // Hide navigation and audio controls while showing the full story
     document.querySelector('.controls').style.display = 'none';
     document.querySelector('.audio-controls').style.display = 'none';
     if (sceneCounterEl) sceneCounterEl.style.display = 'none';
+    if (speakerNameEl) speakerNameEl.style.display = 'none';
 
     // Make the dialogue box scrollable and expand it
     if (dialogueTextEl) {
@@ -708,52 +771,214 @@ function showFullStory() {
         dialogueTextEl.style.overflowY = 'auto';
         dialogueTextEl.style.padding = '20px';
         dialogueTextEl.style.lineHeight = '1.6';
+        dialogueTextEl.style.fontSize = '16px';
     }
 
-    // Fetch the markdown file
-    fetch('assets/docs/storyline.md')
-        .then(response => response.text())
-        .then(md => {
-            // Split into lines and filter out headers (lines starting with # or ##)
-            const paragraphs = md.split(/\n+/)
-                .filter(line => line.trim() && !line.trim().startsWith('#'));
-            // Join paragraphs with double line breaks for readability
-            const storyHtml = paragraphs.map(p => `<p style="margin-bottom: 15px;">${p}</p>`).join('');
-            // Display in the dialogue area with better styling
-            if (dialogueTextEl) {
-                dialogueTextEl.innerHTML = `
-                    <div style="font-size: 16px; line-height: 1.6;">
-                        ${storyHtml}
-                        <div style="text-align:center; margin-top:30px; padding-top:20px; border-top: 1px solid #666;">
-                            <button class="nav-button" onclick="hideFullStory()">Back to Interactive Story</button>
-                        </div>
+    // Generate the complete story from storyData
+    // Create sticky header content
+    const stickyHeaderHtml = `
+        <div style="background: rgba(0, 0, 0, 0.95); padding: 15px 20px; border-bottom: 2px solid #4CAF50; backdrop-filter: blur(10px);">
+            <h1 style="text-align: center; color: #4CAF50; margin: 0; font-size: 24px;">
+                The Great Nerf War: A Capybara's Revenge
+            </h1>
+            <p style="text-align: center; font-style: italic; margin: 10px 0 0 0; color: #aaa;">
+                The Complete Interactive Story featuring ${playerName}
+            </p>
+        </div>
+    `;
+
+    // Scene colors for variety
+    const sceneColors = [
+        '#4CAF50', // Green
+        '#2196F3', // Blue
+        '#FF9800', // Orange
+        '#9C27B0', // Purple
+        '#F44336', // Red
+        '#00BCD4', // Cyan
+        '#795548', // Brown
+        '#607D8B', // Blue Grey
+        '#8BC34A', // Light Green
+        '#3F51B5', // Indigo
+        '#E91E63', // Pink
+        '#FFC107'  // Amber
+    ];
+
+    let fullStoryHtml = `
+        <div style="font-size: 16px; line-height: 1.8; color: #e0e0e0; padding-top: 20px;">
+    `;
+
+    // Add each scene with proper formatting
+    storyData.scenes.forEach((scene, sceneIndex) => {
+        const sceneColor = sceneColors[sceneIndex % sceneColors.length];
+        fullStoryHtml += `
+            <div style="margin-bottom: 40px; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 10px; border-left: 4px solid ${sceneColor};">
+                <h2 style="color: ${sceneColor}; margin-bottom: 20px; font-size: 20px;">
+                    ${sceneIndex + 1}. ${scene.title}
+                </h2>
+        `;
+
+        scene.dialogue.forEach((dialogue, dialogueIndex) => {
+            const personalizedText = personalizeText(dialogue.text);
+            const personalizedSpeaker = personalizeText(dialogue.speaker);
+            
+            // Style speakers differently
+            let speakerStyle = 'color: #fff; font-weight: bold;';
+            if (personalizedSpeaker === 'Captain Cheeks') {
+                speakerStyle = 'color: #FFB74D; font-weight: bold;'; // Orange for Captain Cheeks
+            } else if (personalizedSpeaker === 'Narrator') {
+                speakerStyle = 'color: #90CAF9; font-style: italic;'; // Light blue for narrator
+            } else if (personalizedSpeaker === playerName) {
+                speakerStyle = 'color: #81C784; font-weight: bold;'; // Green for player
+            }
+
+            fullStoryHtml += `
+                <div style="margin-bottom: 15px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 5px;">
+                    <div style="${speakerStyle} margin-bottom: 5px;">
+                        ${personalizedSpeaker}:
                     </div>
-                `;
-                // Scroll to top of the content
-                dialogueTextEl.scrollTop = 0;
-            }
-        })
-        .catch(err => {
-            if (dialogueTextEl) {
-                dialogueTextEl.innerHTML = '<p>Failed to load story. Please check that the storyline.md file exists in the assets/docs/ folder.</p><div style="text-align:center; margin-top:20px;"><button class="nav-button" onclick="hideFullStory()">Back to Interactive Story</button></div>';
-            }
+                    <div style="color: #e0e0e0; padding-left: 10px;">
+                        ${personalizedText}
+                    </div>
+                </div>
+            `;
         });
+
+        fullStoryHtml += '</div>';
+    });
+
+    fullStoryHtml += `
+            <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 2px solid #4CAF50;">
+                <p style="font-style: italic; color: #aaa; margin-bottom: 20px;">
+                    The End - A tale of friendship, understanding, and foam dart diplomacy.
+                </p>
+            </div>
+        </div>
+    `;
+
+    // Display the complete story
+    if (dialogueTextEl) {
+        // Set up the dialogue container with relative positioning
+        dialogueTextEl.style.position = 'relative';
+        dialogueTextEl.style.display = 'flex';
+        dialogueTextEl.style.flexDirection = 'column';
+        dialogueTextEl.style.height = '70vh';
+        
+        // Create sticky header section
+        const stickyHeader = document.createElement('div');
+        stickyHeader.id = 'stickyHeader';
+        stickyHeader.style.cssText = `
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            flex-shrink: 0;
+        `;
+        stickyHeader.innerHTML = stickyHeaderHtml;
+        
+        // Create scrollable content area
+        const scrollableContent = document.createElement('div');
+        scrollableContent.style.cssText = `
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 20px 20px 20px;
+        `;
+        scrollableContent.innerHTML = fullStoryHtml;
+        
+        // Create fixed button section at bottom
+        const buttonSection = document.createElement('div');
+        buttonSection.id = 'stickyBackButtonSection';
+        buttonSection.style.cssText = `
+            flex-shrink: 0;
+            background: rgba(0, 0, 0, 0.9);
+            border-top: 1px solid #444;
+            padding: 25px 15px 15px 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        `;
+        
+        // Create the back button
+        const stickyButton = document.createElement('button');
+        stickyButton.id = 'stickyBackButton';
+        stickyButton.textContent = 'Back to Interactive Story';
+        stickyButton.onclick = hideFullStory;
+        stickyButton.className = 'nav-button';
+        stickyButton.style.cssText = `
+            background: linear-gradient(135deg, #8B4513, #A0522D);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            min-width: 200px;
+            max-width: 300px;
+        `;
+        
+        // Add hover effect
+        stickyButton.addEventListener('mouseenter', function() {
+            this.style.background = 'linear-gradient(135deg, #A0522D, #CD853F)';
+            this.style.transform = 'translateY(-2px)';
+            this.style.boxShadow = '0 5px 15px rgba(139, 69, 19, 0.4)';
+        });
+        
+        stickyButton.addEventListener('mouseleave', function() {
+            this.style.background = 'linear-gradient(135deg, #8B4513, #A0522D)';
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.3)';
+        });
+        
+        // Append button to button section
+        buttonSection.appendChild(stickyButton);
+        
+        // Clear the dialogue container and add all sections
+        dialogueTextEl.innerHTML = '';
+        dialogueTextEl.appendChild(stickyHeader);
+        dialogueTextEl.appendChild(scrollableContent);
+        dialogueTextEl.appendChild(buttonSection);
+        
+        // Scroll to top of content
+        scrollableContent.scrollTop = 0;
+    }
 }
 
 function hideFullStory() {
+    // Remove sticky header if it exists
+    const stickyHeader = document.getElementById('stickyHeader');
+    if (stickyHeader) {
+        stickyHeader.remove();
+    }
+    
+    // Remove button section if it exists
+    const buttonSection = document.getElementById('stickyBackButtonSection');
+    if (buttonSection) {
+        buttonSection.remove();
+    }
+    
     // Restore navigation and audio controls
     document.querySelector('.controls').style.display = '';
     document.querySelector('.audio-controls').style.display = '';
     if (sceneCounterEl) sceneCounterEl.style.display = '';
+    if (speakerNameEl) speakerNameEl.style.display = '';
     
     // Restore original dialogue box styling
     if (dialogueTextEl) {
         dialogueTextEl.style.maxHeight = '';
         dialogueTextEl.style.overflowY = '';
         dialogueTextEl.style.padding = '';
+        dialogueTextEl.style.paddingBottom = '';
         dialogueTextEl.style.lineHeight = '';
+        dialogueTextEl.style.fontSize = '';
+        dialogueTextEl.style.position = '';
+        dialogueTextEl.style.display = '';
+        dialogueTextEl.style.flexDirection = '';
+        dialogueTextEl.style.height = '';
     }
     
-    // Restore the normal story view
+    // Restore the normal story view with current scene
     updateDisplay();
 }

@@ -104,14 +104,12 @@
                         </div>
                         
                         <button class="nav-button" id="nextButton" onclick="nextScene()" aria-label="Next scene">Next →</button>
-                        <!-- Add the new button here -->
-                        <button class="nav-button" id="showFullStoryButton" onclick="showFullStory()" aria-label="Show full story">📖 Show Full Story</button>
                     </div>
                     
                     <!-- AUDIO CONTROLS: Volume, mute/unmute, and restart options -->
                     <div class="audio-controls">
                         <!-- AUDIO TOGGLE: Turn background music on/off -->
-                        <button class="nav-button" onclick="toggleAudio()" id="audioToggle" style="padding: 8px 15px; font-size: 0.9rem;" aria-label="Toggle audio">🔊 Audio</button>
+                        <button class="nav-button" onclick="toggleAudio()" id="audioToggle" aria-label="Toggle audio">🔊 Audio</button>
                         
                         <!-- VOLUME CONTROL: Slider to adjust audio volume -->
                         <div class="volume-control">
@@ -120,7 +118,10 @@
                         </div>
                         
                         <!-- RESTART BUTTON: Reset story back to the beginning -->
-                        <button class="nav-button" onclick="resetStory()" style="padding: 8px 15px; font-size: 0.9rem;" aria-label="Restart story">🔄 Restart</button>
+                        <button class="nav-button" onclick="resetStory()" aria-label="Restart story">🔄 Restart</button>
+                        
+                        <!-- SHOW FULL STORY BUTTON: Display the complete story -->
+                        <button class="nav-button" id="showFullStoryButton" onclick="showFullStory()" aria-label="Show full story">Show Full Story</button>
                     </div>
                 </div>
             </div>
