@@ -21,8 +21,6 @@ let currentScene = 0;        // Which scene are we on? (0-11 for our 12 scenes)
 let currentDialogue = 0;     // Which dialogue within the current scene?
 let playerName = "Brave Veteran";  // The user's chosen name
 let audioEnabled = false;    // Is background music playing?
-let sceneImageEl; 
-
 
 // Get the current story scene and dialogue
 function getCurrentDialogue() {
@@ -287,7 +285,6 @@ function initializeElements() {
     progressFillEl = document.getElementById('progressFill');
     backgroundEl = document.getElementById('background');
     sceneTitle = document.getElementById('sceneTitle');
-    sceneImageEl = document.getElementById("sceneImage");
 }
 
 /* ==========================================================================
@@ -313,8 +310,7 @@ function nextScene() {
     }
     
     updateDisplay();
-    publishDialogueStep();
-
+    publishSceneChange(getCurrentPosition());
 }
 
 // PREVIOUS SCENE FUNCTION: What happens when user clicks "Previous" button
@@ -333,85 +329,68 @@ function previousScene() {
     }
     
     updateDisplay();
-    publishDialogueStep();
-
+    publishSceneChange(getCurrentPosition());
 }
 
 // UPDATE DISPLAY: Refresh everything shown on screen
 function updateDisplay() {
     const dialogue = getCurrentDialogue();
     if (!dialogue) return;
-
+    
     // Update the speaker name with color coding
     if (speakerNameEl) {
         const speaker = personalizeText(dialogue.speaker);
         speakerNameEl.textContent = speaker;
-
+        
         // Apply different colors for different speakers
         if (speaker === 'Captain Cheeks') {
-            speakerNameEl.style.color = '#FFB74D';
+            speakerNameEl.style.color = '#FFB74D'; // Orange for Captain Cheeks
         } else if (speaker === 'Narrator') {
-            speakerNameEl.style.color = '#90CAF9';
+            speakerNameEl.style.color = '#90CAF9'; // Light blue for narrator
         } else if (speaker === playerName) {
-            speakerNameEl.style.color = '#81C784';
+            speakerNameEl.style.color = '#81C784'; // Green for player
         } else if (speaker === 'Jenkins') {
-            speakerNameEl.style.color = '#F48FB1';
+            speakerNameEl.style.color = '#F48FB1'; // Pink for Jenkins
         } else if (speaker === 'Morales') {
-            speakerNameEl.style.color = '#CE93D8';
+            speakerNameEl.style.color = '#CE93D8'; // Purple for Morales
         } else if (speaker === 'Morrison') {
-            speakerNameEl.style.color = '#FFCC02';
+            speakerNameEl.style.color = '#FFCC02'; // Yellow for Morrison
         } else if (speaker === 'Alex' || speaker === 'Teen Leader') {
-            speakerNameEl.style.color = '#80CBC4';
+            speakerNameEl.style.color = '#80CBC4'; // Teal for Alex/Teen Leader
         } else if (speaker === 'Cassidy') {
-            speakerNameEl.style.color = '#FFAB91';
+            speakerNameEl.style.color = '#FFAB91'; // Orange for Cassidy
         } else if (speaker === 'Emu Commander') {
-            speakerNameEl.style.color = '#A5D6A7';
+            speakerNameEl.style.color = '#A5D6A7'; // Light green for Emu Commander
         } else if (speaker === 'Ernie') {
-            speakerNameEl.style.color = '#B39DDB';
+            speakerNameEl.style.color = '#B39DDB'; // Light purple for Ernie
         } else {
-            speakerNameEl.style.color = '#FFFFFF';
+            speakerNameEl.style.color = '#FFFFFF'; // White for any other speakers
         }
     }
-
+    
     // Update the dialogue text
     if (dialogueTextEl) {
         const text = personalizeText(dialogue.text);
         dialogueTextEl.textContent = text;
     }
-
+    
     // Update the scene counter
     if (sceneCounterEl) {
-        const position = getCurrentPosition() + 1;
-        const total = getTotalDialogueCount();
-        sceneCounterEl.textContent = `Line ${position} of ${total} - ${storyData.scenes[currentScene].title}`;
+        const sceneNumber = currentScene + 1;
+        const totalScenes = storyData.scenes.length;
+        sceneCounterEl.textContent = `Scene ${sceneNumber} of ${totalScenes}`;
     }
-
+    
     // Update the progress bar
     updateProgressBar();
-
+    
     // Update navigation buttons
     updateNavigationButtons();
-
+    
     // Update background if scene has changed
     const scene = storyData.scenes[currentScene];
     if (scene && scene.background) {
         updateBackground(scene.background);
-    }
-
-    // ✅ Update the scene image based on dialogue index
-    if (sceneImageEl) {
-        const imageIndex = getCurrentPosition() + 1;
-        const imagePath = `assets/images/${imageIndex}.svg`;
-
-        // Optional: Fade image smoothly
-        sceneImageEl.style.opacity = 0; // Start fade out
-        setTimeout(() => {
-            sceneImageEl.src = imagePath;
-            sceneImageEl.alt = `Scene image ${imageIndex}`;
-            sceneImageEl.onload = () => {
-                sceneImageEl.style.opacity = 1; // Fade in after load
-            };
-        }, 150);
     }
 }
 
@@ -643,7 +622,7 @@ function onConnect() {
     updateMQTTStatus(true);
     
     // Subscribe to scene change messages
-    mqttClient.subscribe("nerfwar/story/state");
+    mqttClient.subscribe("nerfwar/scene/advanced");
 }
 
 // MQTT CONNECTION FAILED: Called when connection fails
@@ -665,16 +644,23 @@ function onConnectionLost(responseObject) {
 function onMessageArrived(message) {
     try {
         const data = JSON.parse(message.payloadString);
-        if (data.player === playerName) return;
-
-        if (data.action === "dialogue-step") {
-            const sceneIndex = Math.max(0, Math.min(data.sceneId, storyData.scenes.length - 1));
-            const dialogueIndex = Math.max(0, Math.min(data.dialogueIndex || 0, storyData.scenes[sceneIndex].dialogue.length - 1));
-
-            currentScene = sceneIndex;
-            currentDialogue = dialogueIndex;
-
-            updateBackground(data.background);
+        
+        // Only sync if message is from a different device
+        if (data.player !== playerName) {
+            // Convert position back to scene and dialogue
+            const position = Math.max(0, Math.min(data.position - 1, getTotalDialogueCount() - 1));
+            
+            // Find which scene this position corresponds to
+            let pos = 0;
+            for (let i = 0; i < storyData.scenes.length; i++) {
+                if (pos + storyData.scenes[i].dialogue.length > position) {
+                    currentScene = i;
+                    currentDialogue = position - pos;
+                    break;
+                }
+                pos += storyData.scenes[i].dialogue.length;
+            }
+            
             updateDisplay();
             showSceneTitle(storyData.scenes[currentScene].title);
         }
@@ -683,38 +669,22 @@ function onMessageArrived(message) {
     }
 }
 
-
-// PUBLISH DIALOGUE AND GRAPHIC CHANGE: Notify other devices about dialogue steps.
-function publishDialogueStep() {
-
-    if (!mqttClient || !mqttClient.isConnected()) {
-        console.log("MQTT client not connected — message not sent.");
-    }
-
+// PUBLISH SCENE CHANGE: Tell other devices about scene changes
+function publishSceneChange(position) {
+    if (!mqttClient || !mqttClient.isConnected()) return;
+    
     try {
-        const scene = storyData.scenes[currentScene];
-        const messagePayload = {
-            sceneId: currentScene,
-            dialogueIndex: currentDialogue,
-            background: scene.background,
+        const message = new Paho.MQTT.Message(JSON.stringify({
+            position: position + 1,
             player: playerName,
-            timestamp: Date.now(),
-            action: "dialogue-step"
-        };
-
-        console.log("Publishing MQTT message:", messagePayload);
-
-        const message = new Paho.MQTT.Message(JSON.stringify(messagePayload));
-        message.destinationName = "nerfwar/story/state";
-        message.retained = true;
+            timestamp: Date.now()
+        }));
+        message.destinationName = "nerfwar/scene/advanced";
         mqttClient.send(message);
-
-        console.log("MQTT message sent to nerfwar/story/state");
     } catch (error) {
-        console.log("Error publishing dialogue step:", error);
+        console.log("Error publishing scene change:", error);
     }
 }
-
 
 // UPDATE MQTT STATUS: Show connection status to user
 function updateMQTTStatus(connected) {
@@ -790,29 +760,34 @@ function logStoryState() {
 // Enhanced Show Full Story function to display the complete interactive narrative
 function showFullStory() {
     // Hide navigation and audio controls while showing the full story
-    document.querySelector('.controls').style.display = 'none';
-    document.querySelector('.audio-controls').style.display = 'none';
+    const controlsRow1 = document.querySelector('.controls-row-1');
+    const controlsRow2 = document.querySelector('.controls-row-2');
+    const mainContent = document.querySelector('.main-content');
+    if (controlsRow1) controlsRow1.style.display = 'none';
+    if (controlsRow2) controlsRow2.style.display = 'none';
+    if (mainContent) mainContent.classList.add('full-story-mode');
     if (sceneCounterEl) sceneCounterEl.style.display = 'none';
     if (speakerNameEl) speakerNameEl.style.display = 'none';
 
-    // Make the dialogue box scrollable and expand it
+    // Make the dialogue box use screen space efficiently but leave room for button
     if (dialogueTextEl) {
-        dialogueTextEl.style.maxHeight = '70vh';
+        dialogueTextEl.style.maxHeight = '88vh';    // Leave room for button at bottom
         dialogueTextEl.style.overflowY = 'auto';
-        dialogueTextEl.style.padding = '20px';
-        dialogueTextEl.style.lineHeight = '1.6';
-        dialogueTextEl.style.fontSize = '16px';
+        dialogueTextEl.style.padding = '5px';       // Minimal padding
+        dialogueTextEl.style.lineHeight = '1.5';    // Tighter line spacing
+        dialogueTextEl.style.fontSize = '14px';     // Smaller font for more content
+        dialogueTextEl.style.margin = '0';          // Remove any margins
     }
 
     // Generate the complete story from storyData
-    // Create sticky header content
+    // Create compact sticky header content
     const stickyHeaderHtml = `
-        <div style="background: rgba(0, 0, 0, 0.95); padding: 15px 20px; border-bottom: 2px solid #4CAF50; backdrop-filter: blur(10px);">
-            <h1 style="text-align: center; color: #4CAF50; margin: 0; font-size: 24px;">
+        <div style="background: rgba(0, 0, 0, 0.95); padding: 8px 15px; border-bottom: 1px solid #4CAF50; backdrop-filter: blur(10px);">
+            <h1 style="text-align: center; color: #4CAF50; margin: 0; font-size: 18px;">
                 The Great Nerf War: A Capybara's Revenge
             </h1>
-            <p style="text-align: center; font-style: italic; margin: 10px 0 0 0; color: #aaa;">
-                The Complete Interactive Story featuring ${playerName}
+            <p style="text-align: center; font-style: italic; margin: 4px 0 0 0; color: #aaa; font-size: 12px;">
+                Complete Story featuring ${playerName}
             </p>
         </div>
     `;
@@ -834,15 +809,15 @@ function showFullStory() {
     ];
 
     let fullStoryHtml = `
-        <div style="font-size: 16px; line-height: 1.8; color: #e0e0e0; padding-top: 20px;">
+        <div style="font-size: 14px; line-height: 1.5; color: #e0e0e0; padding-top: 10px;">
     `;
 
-    // Add each scene with proper formatting
+    // Add each scene with compact formatting
     storyData.scenes.forEach((scene, sceneIndex) => {
         const sceneColor = sceneColors[sceneIndex % sceneColors.length];
         fullStoryHtml += `
-            <div style="margin-bottom: 40px; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 10px; border-left: 4px solid ${sceneColor};">
-                <h2 style="color: ${sceneColor}; margin-bottom: 20px; font-size: 20px;">
+            <div style="margin-bottom: 20px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px; border-left: 3px solid ${sceneColor};">
+                <h2 style="color: ${sceneColor}; margin-bottom: 12px; font-size: 16px;">
                     ${sceneIndex + 1}. ${scene.title}
                 </h2>
         `;
@@ -862,11 +837,11 @@ function showFullStory() {
             }
 
             fullStoryHtml += `
-                <div style="margin-bottom: 15px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 5px;">
-                    <div style="${speakerStyle} margin-bottom: 5px;">
+                <div style="margin-bottom: 8px; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 4px;">
+                    <div style="${speakerStyle} margin-bottom: 3px; font-size: 13px;">
                         ${personalizedSpeaker}:
                     </div>
-                    <div style="color: #e0e0e0; padding-left: 10px;">
+                    <div style="color: #e0e0e0; padding-left: 8px; font-size: 14px; line-height: 1.4;">
                         ${personalizedText}
                     </div>
                 </div>
@@ -877,8 +852,8 @@ function showFullStory() {
     });
 
     fullStoryHtml += `
-            <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 2px solid #4CAF50;">
-                <p style="font-style: italic; color: #aaa; margin-bottom: 20px;">
+            <div style="text-align: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid #4CAF50;">
+                <p style="font-style: italic; color: #aaa; margin-bottom: 10px; font-size: 14px;">
                     The End - A tale of friendship, understanding, and foam dart diplomacy.
                 </p>
             </div>
@@ -887,11 +862,13 @@ function showFullStory() {
 
     // Display the complete story
     if (dialogueTextEl) {
-        // Set up the dialogue container with relative positioning
+        // Set up the dialogue container efficiently but leave room for button
         dialogueTextEl.style.position = 'relative';
         dialogueTextEl.style.display = 'flex';
         dialogueTextEl.style.flexDirection = 'column';
-        dialogueTextEl.style.height = '70vh';
+        dialogueTextEl.style.height = '88vh';
+        dialogueTextEl.style.margin = '0';
+        dialogueTextEl.style.padding = '0';
         
         // Create sticky header section
         const stickyHeader = document.createElement('div');
@@ -904,26 +881,28 @@ function showFullStory() {
         `;
         stickyHeader.innerHTML = stickyHeaderHtml;
         
-        // Create scrollable content area
+        // Create scrollable content area with minimal padding
         const scrollableContent = document.createElement('div');
         scrollableContent.style.cssText = `
             flex: 1;
             overflow-y: auto;
-            padding: 0 20px 20px 20px;
+            padding: 5px 15px 10px 15px;
         `;
         scrollableContent.innerHTML = fullStoryHtml;
         
-        // Create fixed button section at bottom
+        // Create properly sized button section at bottom
         const buttonSection = document.createElement('div');
         buttonSection.id = 'stickyBackButtonSection';
         buttonSection.style.cssText = `
             flex-shrink: 0;
             background: rgba(0, 0, 0, 0.9);
             border-top: 1px solid #444;
-            padding: 25px 15px 15px 15px;
+            padding: 15px 15px 15px 15px;
             display: flex;
             justify-content: center;
             align-items: center;
+            margin: 0;
+            min-height: 60px;
         `;
         
         // Create the back button
@@ -937,16 +916,16 @@ function showFullStory() {
             color: white;
             border: none;
             border-radius: 8px;
-            padding: 12px 25px;
+            padding: 12px 20px;
             font-size: 1rem;
             font-weight: bold;
             cursor: pointer;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
             transition: all 0.3s ease;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            min-width: 200px;
-            max-width: 300px;
+            min-width: 180px;
+            max-width: 250px;
         `;
         
         // Add hover effect
@@ -990,8 +969,12 @@ function hideFullStory() {
     }
     
     // Restore navigation and audio controls
-    document.querySelector('.controls').style.display = '';
-    document.querySelector('.audio-controls').style.display = '';
+    const controlsRow1 = document.querySelector('.controls-row-1');
+    const controlsRow2 = document.querySelector('.controls-row-2');
+    const mainContent = document.querySelector('.main-content');
+    if (controlsRow1) controlsRow1.style.display = '';
+    if (controlsRow2) controlsRow2.style.display = '';
+    if (mainContent) mainContent.classList.remove('full-story-mode');
     if (sceneCounterEl) sceneCounterEl.style.display = '';
     if (speakerNameEl) speakerNameEl.style.display = '';
     
