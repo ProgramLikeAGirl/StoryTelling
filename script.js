@@ -71,7 +71,7 @@ const storyData = {
     scenes: [
         {
             title: "The Ordinary World: Target Practice Tradition",
-            background: "bg-park",
+            background: "bg-office",
             dialogue: [
                 { speaker: "Narrator", text: "Every Tuesday at dawn, the Veterans' Association transforms Briarwood Park into their personal battlefield. {playerName}, known for precision shooting and tactical thinking, has become a cornerstone of this sacred tradition." },
                 { speaker: "Jenkins", text: "Alright, veterans! Time for our weekly foam-dart warfare. {playerName}, you're team captain today—show these rookies how real soldiers handle a Nerf blaster!" },
@@ -83,7 +83,7 @@ const storyData = {
         },
         {
             title: "The Call to Adventure: Mysterious Capybara & Emu Patrols",
-            background: "bg-forest",
+            background: "bg-park",
             dialogue: [
                 { speaker: "Morales", text: "Something's wrong, {playerName}. There's this... creature by the equipment shed. Massive rodent, just sitting there like it's running surveillance on our operation." },
                 { speaker: "Jenkins", text: "Probably just a stray. Nothing a few warning shots can't handle." },
@@ -98,7 +98,7 @@ const storyData = {
         },
         {
             title: "The Refusal: Jenkins Denies the Threat",
-            background: "bg-park",
+            background: "bg-office",
             dialogue: [
                 { speaker: "Jenkins", text: "A talking rodent with military knowledge? {playerName}, I expected better from you. This is clearly some elaborate hoax." },
                 { speaker: "{playerName}", text: "Jenkins, that capybara knew my service record. It addressed me by rank. This isn't a kid with a walkie-talkie." },
@@ -113,7 +113,7 @@ const storyData = {
         },
         {
             title: "Meeting the Mentor: Morrison's Secret History",
-            background: "bg-forest",
+            background: "bg-office",
             dialogue: [
                 { speaker: "Narrator", text: "Morrison, the grizzled 30-year veteran, pulled {playerName} aside beneath the memorial oak. His weathered Nerf Longshot—a relic from the group's founding—lay across his knees like a sacred artifact." },
                 { speaker: "Morrison", text: "What you witnessed today, {playerName}... it's happened before. 1987. Operation Woodland Peace. We had first contact with Captain Cheeks' predecessor." },
@@ -128,7 +128,7 @@ const storyData = {
         },
         {
             title: "Crossing the Threshold: Entering Emu Territory",
-            background: "bg-forest",
+            background: "bg-park",
             dialogue: [
                 { speaker: "Narrator", text: "At dawn, {playerName} made the fateful decision to cross into the eastern sector—emu territory. Jenkins followed reluctantly, his skepticism warring with military discipline." },
                 { speaker: "Jenkins", text: "This is madness, {playerName}. We're treating a park like a combat zone because of some overgrown guinea pig." },
@@ -144,7 +144,7 @@ const storyData = {
         },
         {
             title: "Tests, Allies, Enemies: The Foam Dart Trials",
-            background: "bg-urban",
+            background: "bg-park",
             dialogue: [
                 { speaker: "Captain Cheeks", text: "Before we can trust you completely, {playerName}, you must prove your worthiness through the traditional trials of marksmanship and strategy." },
                 { speaker: "Teen Leader", text: "Wait up! I'm Alex, leader of the Emu Liberation Front. {playerName}, we've been monitoring your group—some of us think you veterans actually understand honor." },
@@ -160,7 +160,7 @@ const storyData = {
         },
         {
             title: "Approach to the Inmost Cave: The Capybara Command Bunker",
-            background: "bg-forest",
+            background: "bg-park",
             dialogue: [
                 { speaker: "Captain Cheeks", text: "Follow me, {playerName}. It's time you saw the true heart of our operation—the command center your predecessors helped design in 1987." },
                 { speaker: "Narrator", text: "Following a trail of tactical markers that only {playerName}'s trained eye could detect, the team discovered a sophisticated bunker beneath the ancient willow grove." },
@@ -175,7 +175,7 @@ const storyData = {
         },
         {
             title: "The Ordeal: The Great Foam-Dart Battle",
-            background: "bg-urban",
+            background: "bg-battlefield",
             dialogue: [
                 { speaker: "Captain Cheeks", text: "{playerName}, you've seen our history. But some of my troops remain skeptical. They demand proof of your commitment through trial by combat." },
                 { speaker: "Narrator", text: "As they emerged from the bunker, {playerName} and Jenkins found themselves surrounded by the elite Emu Defense Corps—six-foot-tall birds with tactical positions and foam-dart launchers." },
@@ -191,7 +191,7 @@ const storyData = {
         },
         {
             title: "The Reward: Discovering the Peace Treaty",
-            background: "bg-park",
+            background: "bg-peace",
             dialogue: [
                 { speaker: "Captain Cheeks", text: "Behold, {playerName}—the original Peace Dart Accords of 1987. Your military understands the sacred importance of written agreements." },
                 { speaker: "Narrator", text: "The ancient document outlined revolutionary concepts: shared training facilities, mutual respect protocols, joint defensive strategies, and interspecies communication standards." },
@@ -250,25 +250,25 @@ const storyData = {
    ========================================================================== */
 
 // PAGE LOAD EVENT: This runs when the browser finishes loading the page
-window.addEventListener('load', function() {
+window.addEventListener('load', function () {
     // Initialize all the DOM element references
     initializeElements();
-    
+
     // Set up MQTT communication
     initMQTT();
-    
+
     // Set up touch gestures for mobile
     setupTouchControls();
-    
+
     // Set up keyboard navigation
     setupKeyboardControls();
-    
+
     // Focus on the name input so user can start typing immediately
     const playerNameInput = document.getElementById('playerNameInput');
     if (playerNameInput) {
         playerNameInput.focus();
     }
-    
+
     // Set initial audio volume
     const backgroundAudio = document.getElementById('backgroundAudio');
     if (backgroundAudio) {
@@ -297,21 +297,21 @@ function initializeElements() {
 // NEXT SCENE FUNCTION: What happens when user clicks "Next" button
 function nextScene() {
     if (isSceneTransition) return;
-    
+
     const scene = storyData.scenes[currentScene];
     if (!scene) return;
-    
+
     // Move to next dialogue in current scene
     if (currentDialogue < scene.dialogue.length - 1) {
         currentDialogue++;
-    } 
+    }
     // Move to next scene
     else if (currentScene < storyData.scenes.length - 1) {
         currentScene++;
         currentDialogue = 0;
         showSceneTitle(storyData.scenes[currentScene].title);
     }
-    
+
     updateDisplay();
     publishDialogueStep();
 
@@ -320,7 +320,7 @@ function nextScene() {
 // PREVIOUS SCENE FUNCTION: What happens when user clicks "Previous" button
 function previousScene() {
     if (isSceneTransition) return;
-    
+
     // Move to previous dialogue in current scene
     if (currentDialogue > 0) {
         currentDialogue--;
@@ -331,7 +331,7 @@ function previousScene() {
         currentDialogue = storyData.scenes[currentScene].dialogue.length - 1;
         showSceneTitle(storyData.scenes[currentScene].title);
     }
-    
+
     updateDisplay();
     publishDialogueStep();
 
@@ -428,11 +428,11 @@ function updateProgressBar() {
 function updateNavigationButtons() {
     const prevButton = document.getElementById('prevButton');
     const nextButton = document.getElementById('nextButton');
-    
+
     const isAtStart = (currentScene === 0 && currentDialogue === 0);
-    const isAtEnd = (currentScene === storyData.scenes.length - 1 && 
-                    currentDialogue === storyData.scenes[currentScene].dialogue.length - 1);
-    
+    const isAtEnd = (currentScene === storyData.scenes.length - 1 &&
+        currentDialogue === storyData.scenes[currentScene].dialogue.length - 1);
+
     if (prevButton) prevButton.disabled = isAtStart;
     if (nextButton) nextButton.disabled = isAtEnd;
 }
@@ -440,14 +440,15 @@ function updateNavigationButtons() {
 // SHOW SCENE TITLE: Display animated scene title
 function showSceneTitle(title) {
     if (!sceneTitle) return;
-    
+
     sceneTitle.textContent = title;
     sceneTitle.style.display = 'block';
     
     // Hide it again after animation completes
     setTimeout(() => {
         sceneTitle.style.display = 'none';
-    }, 2000);
+        sceneTitle.style.transition = '';
+    }, 2300);
 }
 
 // UPDATE BACKGROUND: Change the visual theme based on current scene
@@ -471,20 +472,20 @@ function updateBackground(backgroundClass) {
 function startStory() {
     const playerNameInput = document.getElementById('playerNameInput');
     const nameModal = document.getElementById('nameModal');
-    
+
     // Get the player's name (or use default if empty)
     if (playerNameInput) {
         playerName = playerNameInput.value.trim() || "Brave Veteran";
     }
-    
+
     // Hide the name input modal
     if (nameModal) {
         nameModal.style.display = 'none';
     }
-    
+
     // Update the display with the new name
     updateDisplay();
-    
+
     // Try to start background audio (may be blocked by browser)
     if (audioEnabled) {
         const backgroundAudio = document.getElementById('backgroundAudio');
@@ -500,11 +501,11 @@ function startStory() {
 function toggleAudio() {
     const backgroundAudio = document.getElementById('backgroundAudio');
     const audioToggle = document.getElementById('audioToggle');
-    
+
     if (!backgroundAudio) return;
-    
+
     audioEnabled = !audioEnabled;
-    
+
     if (audioEnabled) {
         backgroundAudio.play().catch(e => {
             console.log("Audio play failed:", e);
@@ -530,11 +531,11 @@ function resetStory() {
     currentScene = 0;
     currentDialogue = 0;
     updateDisplay();
-    
+
     // Show the name modal again
     const nameModal = document.getElementById('nameModal');
     const playerNameInput = document.getElementById('playerNameInput');
-    
+
     if (nameModal) nameModal.style.display = 'flex';
     if (playerNameInput) {
         playerNameInput.value = '';
@@ -549,12 +550,12 @@ function resetStory() {
 // SETUP TOUCH CONTROLS: Enable swipe gestures on mobile devices
 function setupTouchControls() {
     // Listen for touch start (when finger touches screen)
-    document.addEventListener('touchstart', function(e) {
+    document.addEventListener('touchstart', function (e) {
         touchStartX = e.changedTouches[0].screenX;
     });
-    
+
     // Listen for touch end (when finger lifts off screen)
-    document.addEventListener('touchend', function(e) {
+    document.addEventListener('touchend', function (e) {
         touchEndX = e.changedTouches[0].screenX;
         handleSwipe();
     });
@@ -563,7 +564,7 @@ function setupTouchControls() {
 // HANDLE SWIPE: Determine if user swiped left or right
 function handleSwipe() {
     const diff = touchStartX - touchEndX;
-    
+
     // Only register as swipe if movement is significant
     if (Math.abs(diff) > 50) {
         if (diff > 0) {
@@ -582,11 +583,11 @@ function handleSwipe() {
 
 // SETUP KEYBOARD CONTROLS: Enable arrow key navigation
 function setupKeyboardControls() {
-    document.addEventListener('keydown', function(e) {
+    document.addEventListener('keydown', function (e) {
         // Don't interfere when user is typing in input fields
         if (e.target.tagName === 'INPUT') return;
-        
-        switch(e.key) {
+
+        switch (e.key) {
             case 'ArrowRight':
             case ' ': // Spacebar
                 e.preventDefault();
@@ -616,21 +617,21 @@ function initMQTT() {
     try {
         // Create unique client ID
         const clientId = "nerfwar_" + Math.random().toString(36).substr(2, 9);
-        
+
         // Connect to MQTT broker
         mqttClient = new Paho.MQTT.Client("mqtt.uvucs.org", 8080, clientId);
-        
+
         // Set up event handlers
         mqttClient.onConnectionLost = onConnectionLost;
         mqttClient.onMessageArrived = onMessageArrived;
-        
+
         // Try to connect
         mqttClient.connect({
             onSuccess: onConnect,
             onFailure: onConnectFailure,
             useSSL: true
         });
-        
+
     } catch (error) {
         console.log("MQTT initialization failed:", error);
         updateMQTTStatus(false);
@@ -641,7 +642,7 @@ function initMQTT() {
 function onConnect() {
     console.log("MQTT Connected");
     updateMQTTStatus(true);
-    
+
     // Subscribe to scene change messages
     mqttClient.subscribe("nerfwar/story/state");
 }
@@ -656,7 +657,7 @@ function onConnectFailure(error) {
 function onConnectionLost(responseObject) {
     updateMQTTStatus(false);
     console.log("MQTT Connection lost");
-    
+
     // Try to reconnect after 5 seconds
     setTimeout(() => initMQTT(), 5000);
 }
@@ -720,7 +721,7 @@ function publishDialogueStep() {
 function updateMQTTStatus(connected) {
     const mqttStatus = document.getElementById('mqttStatus');
     if (!mqttStatus) return;
-    
+
     if (connected) {
         mqttStatus.textContent = 'MQTT: Connected';
         mqttStatus.className = 'mqtt-status mqtt-connected';
@@ -850,7 +851,7 @@ function showFullStory() {
         scene.dialogue.forEach((dialogue, dialogueIndex) => {
             const personalizedText = personalizeText(dialogue.text);
             const personalizedSpeaker = personalizeText(dialogue.speaker);
-            
+
             // Style speakers differently
             let speakerStyle = 'color: #fff; font-weight: bold;';
             if (personalizedSpeaker === 'Captain Cheeks') {
@@ -892,7 +893,7 @@ function showFullStory() {
         dialogueTextEl.style.display = 'flex';
         dialogueTextEl.style.flexDirection = 'column';
         dialogueTextEl.style.height = '70vh';
-        
+
         // Create sticky header section
         const stickyHeader = document.createElement('div');
         stickyHeader.id = 'stickyHeader';
@@ -903,7 +904,7 @@ function showFullStory() {
             flex-shrink: 0;
         `;
         stickyHeader.innerHTML = stickyHeaderHtml;
-        
+
         // Create scrollable content area
         const scrollableContent = document.createElement('div');
         scrollableContent.style.cssText = `
@@ -912,7 +913,7 @@ function showFullStory() {
             padding: 0 20px 20px 20px;
         `;
         scrollableContent.innerHTML = fullStoryHtml;
-        
+
         // Create fixed button section at bottom
         const buttonSection = document.createElement('div');
         buttonSection.id = 'stickyBackButtonSection';
@@ -925,7 +926,7 @@ function showFullStory() {
             justify-content: center;
             align-items: center;
         `;
-        
+
         // Create the back button
         const stickyButton = document.createElement('button');
         stickyButton.id = 'stickyBackButton';
@@ -948,29 +949,29 @@ function showFullStory() {
             min-width: 200px;
             max-width: 300px;
         `;
-        
+
         // Add hover effect
-        stickyButton.addEventListener('mouseenter', function() {
+        stickyButton.addEventListener('mouseenter', function () {
             this.style.background = 'linear-gradient(135deg, #A0522D, #CD853F)';
             this.style.transform = 'translateY(-2px)';
             this.style.boxShadow = '0 5px 15px rgba(139, 69, 19, 0.4)';
         });
-        
-        stickyButton.addEventListener('mouseleave', function() {
+
+        stickyButton.addEventListener('mouseleave', function () {
             this.style.background = 'linear-gradient(135deg, #8B4513, #A0522D)';
             this.style.transform = 'translateY(0)';
             this.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.3)';
         });
-        
+
         // Append button to button section
         buttonSection.appendChild(stickyButton);
-        
+
         // Clear the dialogue container and add all sections
         dialogueTextEl.innerHTML = '';
         dialogueTextEl.appendChild(stickyHeader);
         dialogueTextEl.appendChild(scrollableContent);
         dialogueTextEl.appendChild(buttonSection);
-        
+
         // Scroll to top of content
         scrollableContent.scrollTop = 0;
     }
@@ -982,19 +983,19 @@ function hideFullStory() {
     if (stickyHeader) {
         stickyHeader.remove();
     }
-    
+
     // Remove button section if it exists
     const buttonSection = document.getElementById('stickyBackButtonSection');
     if (buttonSection) {
         buttonSection.remove();
     }
-    
+
     // Restore navigation and audio controls
     document.querySelector('.controls').style.display = '';
     document.querySelector('.audio-controls').style.display = '';
     if (sceneCounterEl) sceneCounterEl.style.display = '';
     if (speakerNameEl) speakerNameEl.style.display = '';
-    
+
     // Restore original dialogue box styling
     if (dialogueTextEl) {
         dialogueTextEl.style.maxHeight = '';
@@ -1008,7 +1009,7 @@ function hideFullStory() {
         dialogueTextEl.style.flexDirection = '';
         dialogueTextEl.style.height = '';
     }
-    
+
     // Restore the normal story view with current scene
     updateDisplay();
 }
