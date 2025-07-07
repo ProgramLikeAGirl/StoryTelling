@@ -101,21 +101,7 @@ body {
     z-index: 1;                      
 }
 
-/* SCENE IMAGE: Optional image for each scene */
-.scene-image {
-    position: static;         /* Don't layer it behind anymore */
-    width: 90%;               /* Responsive sizing */
-    max-width: 800px;         /* Cap size on large screens */
-    height: auto;             /* Keep natural aspect ratio */
-    margin: 0 auto 20px auto; /* Center and space below */
-    display: block;           /* Respect margins */
-    border-radius: 12px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-    z-index: 3;
-    transition: opacity 0.4s ease-in-out;
-}
-
-/* GRADIENT OVERLAY: Adds visual depth and improves text readability */
+/* GRADIENT OVERLAY: Subtle overlay that showcases artwork */
 .gradient-overlay {
     position: absolute;
     top: 0;
@@ -193,23 +179,18 @@ body {
    MAIN CONTENT AREA - BOTTOM-ANCHORED VN STYLE
    ========================================================================== */
 
-/* MAIN CONTENT: Flexible layout that supports both images and bottom-anchored dialogue */
+/* MAIN CONTENT: Bottom-anchored like professional VNs */
 .main-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;  /* Stack image and dialogue box */
-    align-items: center;     /* Center horizontally */
-    justify-content: flex-end; /* Bottom-anchor the dialogue for VN style */
-    padding: 15px;           /* Add some breathing room from edges */
-    z-index: 3;
-    text-align: center;
+    flex: 1;                    
+    display: flex;              
+    align-items: flex-end;      
+    padding: 15px;              /* Add some breathing room from edges */
 }
 
 /* MAIN CONTENT: Remove padding when showing full story */
 .main-content.full-story-mode {
     padding: 0;                 /* Remove all padding for full story view */
     align-items: stretch;       /* Use full height */
-    justify-content: stretch;   /* Use full height */
 }
 
 /* DIALOGUE BOX: Compact and elegant VN-style interface */

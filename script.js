@@ -21,8 +21,6 @@ let currentScene = 0;        // Which scene are we on? (0-11 for our 12 scenes)
 let currentDialogue = 0;     // Which dialogue within the current scene?
 let playerName = "Brave Veteran";  // The user's chosen name
 let audioEnabled = false;    // Is background music playing?
-let sceneImageEl; 
-
 
 // Get the current story scene and dialogue
 function getCurrentDialogue() {
@@ -287,7 +285,6 @@ function initializeElements() {
     progressFillEl = document.getElementById('progressFill');
     backgroundEl = document.getElementById('background');
     sceneTitle = document.getElementById('sceneTitle');
-    sceneImageEl = document.getElementById("sceneImage");
 }
 
 /* ==========================================================================
@@ -313,8 +310,7 @@ function nextScene() {
     }
     
     updateDisplay();
-    publishDialogueStep();
-
+    publishSceneChange(getCurrentPosition());
 }
 
 // PREVIOUS SCENE FUNCTION: What happens when user clicks "Previous" button
@@ -333,85 +329,68 @@ function previousScene() {
     }
     
     updateDisplay();
-    publishDialogueStep();
-
+    publishSceneChange(getCurrentPosition());
 }
 
 // UPDATE DISPLAY: Refresh everything shown on screen
 function updateDisplay() {
     const dialogue = getCurrentDialogue();
     if (!dialogue) return;
-
+    
     // Update the speaker name with color coding
     if (speakerNameEl) {
         const speaker = personalizeText(dialogue.speaker);
         speakerNameEl.textContent = speaker;
-
+        
         // Apply different colors for different speakers
         if (speaker === 'Captain Cheeks') {
-            speakerNameEl.style.color = '#FFB74D';
+            speakerNameEl.style.color = '#FFB74D'; // Orange for Captain Cheeks
         } else if (speaker === 'Narrator') {
-            speakerNameEl.style.color = '#90CAF9';
+            speakerNameEl.style.color = '#90CAF9'; // Light blue for narrator
         } else if (speaker === playerName) {
-            speakerNameEl.style.color = '#81C784';
+            speakerNameEl.style.color = '#81C784'; // Green for player
         } else if (speaker === 'Jenkins') {
-            speakerNameEl.style.color = '#F48FB1';
+            speakerNameEl.style.color = '#F48FB1'; // Pink for Jenkins
         } else if (speaker === 'Morales') {
-            speakerNameEl.style.color = '#CE93D8';
+            speakerNameEl.style.color = '#CE93D8'; // Purple for Morales
         } else if (speaker === 'Morrison') {
-            speakerNameEl.style.color = '#FFCC02';
+            speakerNameEl.style.color = '#FFCC02'; // Yellow for Morrison
         } else if (speaker === 'Alex' || speaker === 'Teen Leader') {
-            speakerNameEl.style.color = '#80CBC4';
+            speakerNameEl.style.color = '#80CBC4'; // Teal for Alex/Teen Leader
         } else if (speaker === 'Cassidy') {
-            speakerNameEl.style.color = '#FFAB91';
+            speakerNameEl.style.color = '#FFAB91'; // Orange for Cassidy
         } else if (speaker === 'Emu Commander') {
-            speakerNameEl.style.color = '#A5D6A7';
+            speakerNameEl.style.color = '#A5D6A7'; // Light green for Emu Commander
         } else if (speaker === 'Ernie') {
-            speakerNameEl.style.color = '#B39DDB';
+            speakerNameEl.style.color = '#B39DDB'; // Light purple for Ernie
         } else {
-            speakerNameEl.style.color = '#FFFFFF';
+            speakerNameEl.style.color = '#FFFFFF'; // White for any other speakers
         }
     }
-
+    
     // Update the dialogue text
     if (dialogueTextEl) {
         const text = personalizeText(dialogue.text);
         dialogueTextEl.textContent = text;
     }
-
+    
     // Update the scene counter
     if (sceneCounterEl) {
         const sceneNumber = currentScene + 1;
         const totalScenes = storyData.scenes.length;
         sceneCounterEl.textContent = `Scene ${sceneNumber} of ${totalScenes}`;
     }
-
+    
     // Update the progress bar
     updateProgressBar();
-
+    
     // Update navigation buttons
     updateNavigationButtons();
-
+    
     // Update background if scene has changed
     const scene = storyData.scenes[currentScene];
     if (scene && scene.background) {
         updateBackground(scene.background);
-    }
-
-    // ✅ Update the scene image based on dialogue index
-    if (sceneImageEl) {
-        const imageIndex = getCurrentPosition() + 1;
-        const imagePath = `assets/images/${imageIndex}.svg`;
-
-        // Optional: Fade image smoothly
-        sceneImageEl.style.opacity = 0; // Start fade out
-        setTimeout(() => {
-            sceneImageEl.src = imagePath;
-            sceneImageEl.alt = `Scene image ${imageIndex}`;
-            sceneImageEl.onload = () => {
-                sceneImageEl.style.opacity = 1; // Fade in after load
-            };
-        }, 150);
     }
 }
 
@@ -643,7 +622,7 @@ function onConnect() {
     updateMQTTStatus(true);
     
     // Subscribe to scene change messages
-    mqttClient.subscribe("nerfwar/story/state");
+    mqttClient.subscribe("nerfwar/scene/advanced");
 }
 
 // MQTT CONNECTION FAILED: Called when connection fails
@@ -665,16 +644,23 @@ function onConnectionLost(responseObject) {
 function onMessageArrived(message) {
     try {
         const data = JSON.parse(message.payloadString);
-        if (data.player === playerName) return;
-
-        if (data.action === "dialogue-step") {
-            const sceneIndex = Math.max(0, Math.min(data.sceneId, storyData.scenes.length - 1));
-            const dialogueIndex = Math.max(0, Math.min(data.dialogueIndex || 0, storyData.scenes[sceneIndex].dialogue.length - 1));
-
-            currentScene = sceneIndex;
-            currentDialogue = dialogueIndex;
-
-            updateBackground(data.background);
+        
+        // Only sync if message is from a different device
+        if (data.player !== playerName) {
+            // Convert position back to scene and dialogue
+            const position = Math.max(0, Math.min(data.position - 1, getTotalDialogueCount() - 1));
+            
+            // Find which scene this position corresponds to
+            let pos = 0;
+            for (let i = 0; i < storyData.scenes.length; i++) {
+                if (pos + storyData.scenes[i].dialogue.length > position) {
+                    currentScene = i;
+                    currentDialogue = position - pos;
+                    break;
+                }
+                pos += storyData.scenes[i].dialogue.length;
+            }
+            
             updateDisplay();
             showSceneTitle(storyData.scenes[currentScene].title);
         }
@@ -683,38 +669,22 @@ function onMessageArrived(message) {
     }
 }
 
-
-// PUBLISH DIALOGUE AND GRAPHIC CHANGE: Notify other devices about dialogue steps.
-function publishDialogueStep() {
-
-    if (!mqttClient || !mqttClient.isConnected()) {
-        console.log("MQTT client not connected — message not sent.");
-    }
-
+// PUBLISH SCENE CHANGE: Tell other devices about scene changes
+function publishSceneChange(position) {
+    if (!mqttClient || !mqttClient.isConnected()) return;
+    
     try {
-        const scene = storyData.scenes[currentScene];
-        const messagePayload = {
-            sceneId: currentScene,
-            dialogueIndex: currentDialogue,
-            background: scene.background,
+        const message = new Paho.MQTT.Message(JSON.stringify({
+            position: position + 1,
             player: playerName,
-            timestamp: Date.now(),
-            action: "dialogue-step"
-        };
-
-        console.log("Publishing MQTT message:", messagePayload);
-
-        const message = new Paho.MQTT.Message(JSON.stringify(messagePayload));
-        message.destinationName = "nerfwar/story/state";
-        message.retained = true;
+            timestamp: Date.now()
+        }));
+        message.destinationName = "nerfwar/scene/advanced";
         mqttClient.send(message);
-
-        console.log("MQTT message sent to nerfwar/story/state");
     } catch (error) {
-        console.log("Error publishing dialogue step:", error);
+        console.log("Error publishing scene change:", error);
     }
 }
-
 
 // UPDATE MQTT STATUS: Show connection status to user
 function updateMQTTStatus(connected) {
