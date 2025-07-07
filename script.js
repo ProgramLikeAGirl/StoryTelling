@@ -8,8 +8,7 @@ JavaScript makes our story come alive by handling:
 - Communicating with other devices through MQTT
 - Playing audio and handling user interactions
 
-Think of JavaScript as the "director" of our story - it tells all the 
-other parts (HTML and CSS) what to do and when to do it.
+Think of JavaScript as the "director" of our story - it tells all the parts (HTML and CSS) what to do and when to do it.
 */
 
 /* ==========================================================================
@@ -41,7 +40,13 @@ function getCurrentPosition() {
     for (let i = 0; i < currentScene; i++) {
         position += storyData.scenes[i].dialogue.length;
     }
-    return position + currentDialogue;
+    const finalPosition = position + currentDialogue;
+    console.log('Calculating position:', {
+        previousScenesLength: position,
+        currentDialogue: currentDialogue,
+        finalPosition: finalPosition
+    });
+    return finalPosition;
 }
 
 // Replace placeholders in text with player name
@@ -273,6 +278,10 @@ window.addEventListener('load', function() {
         backgroundAudio.volume = 0.7;
     }
     
+    // Initialize background element
+    backgroundEl = document.getElementById('background');
+    updateBackground();  // Set initial background
+    
     // Show the first scene
     updateDisplay();
 });
@@ -281,55 +290,56 @@ window.addEventListener('load', function() {
 function initializeElements() {
     dialogueTextEl = document.getElementById('dialogueText');
     speakerNameEl = document.getElementById('speakerName');
-    sceneCounterEl = document.getElementById('sceneCounter');
+    sceneCounterEl = document.querySelector('.scene-counter');
     progressFillEl = document.getElementById('progressFill');
     backgroundEl = document.getElementById('background');
     sceneTitle = document.getElementById('sceneTitle');
+    
+    console.log('Initialized elements:', {
+        dialogueTextEl: !!dialogueTextEl,
+        speakerNameEl: !!speakerNameEl,
+        sceneCounterEl: !!sceneCounterEl,
+        progressFillEl: !!progressFillEl,
+        backgroundEl: !!backgroundEl,
+        sceneTitle: !!sceneTitle
+    });
 }
 
-/* ==========================================================================
-   STORY NAVIGATION FUNCTIONS - Handle moving through the story
-   ========================================================================== */
+// Update background image based on current dialogue number
+function updateBackground() {
+    if (!backgroundEl) {
+        console.error('Background element not found');
+        return;
+    }
+    
+    // Get the current position (1-based for file naming)
+    const position = getCurrentPosition() + 1;
+    
+    // Clamp position between 1 and 101 (total number of images)
+    const clampedPosition = Math.max(1, Math.min(101, position));
+    const imageUrl = `assets/images/${clampedPosition}.svg`;
+    
+    console.log('Updating background:', {
+        currentScene,
+        currentDialogue,
+        position,
+        clampedPosition,
+        imageUrl
+    });
 
-// NEXT SCENE FUNCTION: What happens when user clicks "Next" button
-function nextScene() {
-    if (isSceneTransition) return;
-    
-    const scene = storyData.scenes[currentScene];
-    if (!scene) return;
-    
-    // Move to next dialogue in current scene
-    if (currentDialogue < scene.dialogue.length - 1) {
-        currentDialogue++;
-    } 
-    // Move to next scene
-    else if (currentScene < storyData.scenes.length - 1) {
-        currentScene++;
-        currentDialogue = 0;
-        showSceneTitle(storyData.scenes[currentScene].title);
-    }
-    
-    updateDisplay();
-    publishSceneChange(getCurrentPosition());
-}
-
-// PREVIOUS SCENE FUNCTION: What happens when user clicks "Previous" button
-function previousScene() {
-    if (isSceneTransition) return;
-    
-    // Move to previous dialogue in current scene
-    if (currentDialogue > 0) {
-        currentDialogue--;
-    }
-    // Move to previous scene
-    else if (currentScene > 0) {
-        currentScene--;
-        currentDialogue = storyData.scenes[currentScene].dialogue.length - 1;
-        showSceneTitle(storyData.scenes[currentScene].title);
-    }
-    
-    updateDisplay();
-    publishSceneChange(getCurrentPosition());
+    // Create a new image to preload
+    const img = new Image();
+    img.onload = () => {
+        // Once image is loaded, update the background
+        requestAnimationFrame(() => {
+            backgroundEl.style.backgroundImage = `url('${imageUrl}')`;
+            console.log('Background image updated successfully');
+        });
+    };
+    img.onerror = (err) => {
+        console.error('Failed to load background image:', imageUrl, err);
+    };
+    img.src = imageUrl;
 }
 
 // UPDATE DISPLAY: Refresh everything shown on screen
@@ -351,18 +361,6 @@ function updateDisplay() {
             speakerNameEl.style.color = '#81C784'; // Green for player
         } else if (speaker === 'Jenkins') {
             speakerNameEl.style.color = '#F48FB1'; // Pink for Jenkins
-        } else if (speaker === 'Morales') {
-            speakerNameEl.style.color = '#CE93D8'; // Purple for Morales
-        } else if (speaker === 'Morrison') {
-            speakerNameEl.style.color = '#FFCC02'; // Yellow for Morrison
-        } else if (speaker === 'Alex' || speaker === 'Teen Leader') {
-            speakerNameEl.style.color = '#80CBC4'; // Teal for Alex/Teen Leader
-        } else if (speaker === 'Cassidy') {
-            speakerNameEl.style.color = '#FFAB91'; // Orange for Cassidy
-        } else if (speaker === 'Emu Commander') {
-            speakerNameEl.style.color = '#A5D6A7'; // Light green for Emu Commander
-        } else if (speaker === 'Ernie') {
-            speakerNameEl.style.color = '#B39DDB'; // Light purple for Ernie
         } else {
             speakerNameEl.style.color = '#FFFFFF'; // White for any other speakers
         }
@@ -387,10 +385,56 @@ function updateDisplay() {
     // Update navigation buttons
     updateNavigationButtons();
     
-    // Update background if scene has changed
-    const scene = storyData.scenes[currentScene];
-    if (scene && scene.background) {
-        updateBackground(scene.background);
+    // Update background immediately
+    updateBackground();
+    
+    console.log('Display updated:', {
+        scene: currentScene,
+        dialogue: currentDialogue,
+        text: dialogue.text,
+        position: getCurrentPosition()
+    });
+}
+
+// NEXT SCENE FUNCTION: What happens when user clicks "Next" button
+function nextScene() {
+    if (isSceneTransition) return;
+    
+    const nextPosition = getCurrentPosition() + 1;
+    if (nextPosition < getTotalDialogueCount()) {
+        console.log('Moving to next scene:', {
+            fromScene: currentScene,
+            fromDialogue: currentDialogue
+        });
+        
+        currentDialogue++;
+        if (currentDialogue >= storyData.scenes[currentScene].dialogue.length) {
+            currentScene++;
+            currentDialogue = 0;
+        }
+        
+        console.log('New position:', {
+            toScene: currentScene,
+            toDialogue: currentDialogue
+        });
+        
+        updateDisplay();
+        playBellSound();
+    }
+}
+
+// PREVIOUS SCENE FUNCTION: What happens when user clicks "Previous" button
+function previousScene() {
+    if (isSceneTransition) return;
+    
+    if (currentScene > 0 || currentDialogue > 0) {
+        currentDialogue--;
+        if (currentDialogue < 0) {
+            currentScene--;
+            currentDialogue = storyData.scenes[currentScene].dialogue.length - 1;
+        }
+        updateDisplay();
+        playBellSound();
     }
 }
 
@@ -427,19 +471,6 @@ function showSceneTitle(title) {
     setTimeout(() => {
         sceneTitle.style.display = 'none';
     }, 2000);
-}
-
-// UPDATE BACKGROUND: Change the visual theme based on current scene
-function updateBackground(backgroundClass) {
-    if (!backgroundEl) return;
-    
-    // Remove all existing background classes
-    backgroundEl.className = 'background';
-    
-    // Add the new background class
-    if (backgroundClass) {
-        backgroundEl.classList.add(backgroundClass);
-    }
 }
 
 /* ==========================================================================
@@ -757,6 +788,17 @@ function logStoryState() {
     console.log('Current Story State:', getStoryState());
 }
 
+// Play a bell sound when navigating between scenes
+function playBellSound() {
+    const bellSound = document.getElementById('bellSound');
+    if (bellSound && audioEnabled) {
+        bellSound.currentTime = 0;
+        bellSound.play().catch(e => {
+            console.log("Bell sound play failed:", e);
+        });
+    }
+}
+
 // Enhanced Show Full Story function to display the complete interactive narrative
 function showFullStory() {
     // Hide navigation and audio controls while showing the full story
@@ -887,9 +929,9 @@ function showFullStory() {
         const buttonSection = document.createElement('div');
         buttonSection.id = 'stickyBackButtonSection';
         buttonSection.style.cssText = `
-            flex-shrink: 0;
-            background: rgba(0, 0, 0, 0.9);
-            border-top: 1px solid #444;
+                    The End - A tale of friendship, understanding, and foam dart diplomacy.
+                </p>0, 0, 0, 0.9);
+            </div>top: 1px solid #444;
             padding: 25px 15px 15px 15px;
             display: flex;
             justify-content: center;

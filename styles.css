@@ -56,7 +56,6 @@ body {
     background-position: center;      /* Center the background image */
     background-repeat: no-repeat;     /* Don't repeat the background */
     filter: brightness(0.7);         /* Darken slightly for text readability */
-    transition: all 1.5s ease-in-out; /* Smooth 1.5 second transitions */
     z-index: 1;                      /* Behind other content */
 }
 
@@ -349,28 +348,9 @@ body {
 
 /* Different background styles for different scenes */
 
-/* PARK SCENE: Green nature theme */
-.bg-park {
-    background: linear-gradient(135deg, #4CAF50, #8BC34A), 
-                radial-gradient(circle at 20% 80%, rgba(255,255,255,0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(255,255,255,0.1) 0%, transparent 50%);
-}
-
-/* OFFICE SCENE: Brown professional theme */
-.bg-office {
-    background: linear-gradient(135deg, #795548, #8D6E63),
-                repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px);
-}
-
-/* BATTLEFIELD SCENE: Red action theme */
-.bg-battlefield {
-    background: linear-gradient(135deg, #FF5722, #FF7043),
-                radial-gradient(circle at 30% 30%, rgba(255,255,0,0.1) 0%, transparent 50%);
-}
-
-/* PEACE SCENE: Blue harmonious theme */
-.bg-peace {
-    background: linear-gradient(135deg, #2196F3, #64B5F6, #81C784);
+/* Scene backgrounds will be loaded dynamically via JavaScript */
+.background {
+    background-image: url('assets/images/1.svg');  /* Default starting image */
 }
 
 /* ==========================================================================
