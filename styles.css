@@ -2,15 +2,53 @@
 🎨 STYLES.CSS - The Great Nerf War: A Capybara's Revenge
 
 This file contains all the visual styling for our interactive story.
-CSS (Cascading Style Sheets) is like the "makeup artist" for web pages -
-it makes plain HTML look beautiful and professional.
+*/
 
-Key concepts used here:
+/* Key concepts used:
 - Colors: Using hex codes like #1a1a1a (dark gray) and #fff (white)
 - Layout: Positioning elements exactly where we want them
 - Animations: Creating smooth transitions between scenes
 - Responsive Design: Making it look good on phones AND computers
 */
+
+/* DIALOGUE BOX: The main story interface */
+.dialogue-box {
+    background: rgba(0,0,0,0.75);              /* More transparent background */
+    border: 2px solid #8B4513;                 /* Brown border */
+    border-radius: 12px;                       /* Rounded corners */
+    padding: 1.2rem;                           /* Specified padding */
+    width: 100%;                               /* Full width */
+    max-width: 90%;                            /* Responsive max width */
+    min-width: 300px;                          /* Minimum width */
+    height: auto;                              /* Default height */
+    min-height: 200px;                         /* Minimum height */
+    margin: 0 auto;                            /* Center horizontally */
+    resize: both;                              /* Allow both width and height resizing */
+    overflow: auto;                            /* Add scrollbars when needed */
+    cursor: move;                              /* Show move cursor */
+    user-select: none;                         /* Prevent text selection while dragging */
+    transition: transform 0.05s ease-out;      /* Smooth transform updates */
+}
+
+/* Resize handle styling */
+.dialogue-box::-webkit-resizer {
+    background-color: #8B4513;
+    border: 2px solid #DAA520;
+    border-radius: 4px 0 12px 0;
+}
+
+/* Ensure content doesn't break layout when resizing */
+.dialogue-box > * {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Prevent text overflow */
+.dialogue-text {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    hyphens: auto;
+}
 
 /* ==========================================================================
    GLOBAL RESET & BASE STYLES
@@ -30,6 +68,20 @@ body {
     color: #fff;                    /* White text color */
     overflow: hidden;               /* Hide scrollbars (we want full-screen) */
     height: 100vh;                  /* Fill the entire viewport height */
+}
+
+/* Prevent selection background on images and backgrounds */
+img, .background {
+    -webkit-user-select: none;    /* Safari */
+    -moz-user-select: none;       /* Firefox */
+    -ms-user-select: none;        /* IE10+/Edge */
+    user-select: none;            /* Standard */
+    -webkit-tap-highlight-color: transparent;  /* Remove tap highlight on mobile */
+}
+
+/* Remove highlight on tap/click for all interactive elements */
+* {
+    -webkit-tap-highlight-color: transparent;
 }
 
 /* ==========================================================================
@@ -135,12 +187,21 @@ body {
     border: 2px solid #8B4513;                 /* Brown border */
     border-radius: 12px;                       /* Rounded corners */
     padding: 1.2rem;                           /* Specified padding */
-    width: 100%;                               /* Full width */
-    max-width: 650px;                          /* Specified max width */
+    width: 650px;                              /* Default width */
+    max-width: 90vw;                           /* Responsive max width */
     min-width: 300px;                          /* Minimum width */
     height: auto;                              /* Default height */
     min-height: 200px;                         /* Minimum height */
-    margin: 0 auto;                            /* Center horizontally */
+    max-height: 80vh;                          /* Maximum height */
+    position: absolute;                        /* Enable dragging */
+    bottom: 20px;                             /* Distance from bottom */
+    left: 50%;                                /* Center horizontally */
+    transform: translateX(-50%);               /* Offset for centering */
+    box-sizing: border-box;                    /* Include padding in size */
+    position: absolute;                        /* Enable dragging */
+    bottom: 20px;                             /* Position from bottom */
+    left: 50%;                                /* Center horizontally */
+    transform: translateX(-50%);              /* Adjust for center alignment */
     backdrop-filter: blur(8px);                /* Reduced blur for better visibility */
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);   /* Lighter shadow */
     animation: fadeInUp 0.5s ease-out;         /* Entrance animation */
@@ -151,6 +212,54 @@ body {
     user-select: none;                        /* Prevent text selection while dragging */
     resize: both;                             /* Allow resizing in both directions */
     overflow: auto;                           /* Add scrollbars when needed */
+}
+
+/* Drag handle for dialogue box */
+.dialogue-box::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 30px;
+    cursor: move;
+    background: transparent;
+    border-radius: 12px 12px 0 0;
+}
+
+/* Ensure content stays below drag handle */
+.dialogue-box > *:first-child {
+    margin-top: 10px;
+}
+
+/* Make sure the dialogue box keeps working while being dragged */
+.dialogue-box.dragging {
+    user-select: none;
+    cursor: move !important;
+    z-index: 1000;
+    opacity: 0.9;                              /* Slightly transparent while dragging */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);   /* Enhanced shadow while dragging */
+    transform-origin: center;                  /* For smooth scaling */
+}
+
+/* Resize handle styling */
+.dialogue-box::-webkit-resizer {
+    background-color: #8B4513;
+    border: 2px solid #DAA520;
+    border-radius: 4px 0 12px 0;
+}
+
+/* Ensure content doesn't break layout when resizing */
+.dialogue-box > * {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Prevent text overflow */
+.dialogue-text {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    hyphens: auto;
 }
 
 /* SPEAKER NAME: Shows who is talking */
@@ -180,24 +289,42 @@ body {
 .controls {
     display: flex;             /* Use flexbox */
     flex-direction: column;    /* Stack rows vertically */
-    gap: 1rem;                /* Space between rows */
+    gap: 0.8rem;              /* Space between rows */
     margin-top: 0.5rem;       /* Space above controls */
+    width: 100%;              /* Full width */
+    box-sizing: border-box;     /* Include padding in width */
 }
 
-/* Navigation buttons row */
+/* Navigation row with Previous/Next buttons and scene counter */
 .nav-buttons-row {
+    display: flex;               /* Use flexbox */
+    justify-content: space-between; /* Space items evenly */
+    align-items: center;         /* Center items vertically */
+    gap: 0.5rem;                /* Consistent spacing */
+    width: 100%;                /* Full width */
+    padding: 0.25rem;           /* Small padding */
+    box-sizing: border-box;     /* Include padding in width */
+    min-width: 0;              /* Allow container to shrink */
+}
+
+/* Separate style for other button groups */
+.button-group-row {
     display: flex;            /* Use flexbox */
-    justify-content: space-between; /* Space buttons evenly */
-    align-items: center;      /* Center buttons vertically */
+    flex-wrap: wrap;          /* Allow wrapping */
+    justify-content: center;  /* Center buttons */
+    align-items: center;      /* Center vertically */
+    gap: 0.5rem;             /* Consistent spacing */
     width: 100%;             /* Full width */
+    padding: 0.25rem;        /* Small padding */
 }
 
 /* Audio controls row */
 .audio-controls-row {
     display: flex;            /* Use flexbox */
+    flex-wrap: wrap;          /* Allow wrapping */
     justify-content: center;  /* Center items */
     align-items: center;      /* Center vertically */
-    gap: 1rem;               /* Space between items */
+    gap: 0.5rem;             /* Space between items */
     width: 100%;             /* Full width */
 }
 
@@ -206,7 +333,7 @@ body {
     background: linear-gradient(135deg, #8B4513, #A0522D); /* Brown gradient */
     color: white;                          /* White text */
     border: none;                          /* No border */
-    padding: 0.6rem 1.2rem;               /* Consistent padding */
+    padding: 0.6rem 1rem;                 /* Consistent padding */
     border-radius: 6px;                   /* Rounded corners */
     cursor: pointer;                      /* Hand cursor */
     font-size: 0.9rem;                    /* Smaller font */
@@ -214,8 +341,14 @@ body {
     transition: all 0.3s ease;            /* Smooth transitions */
     text-transform: uppercase;            /* Uppercase text */
     letter-spacing: 0.5px;               /* Letter spacing */
-    min-width: 100px;                    /* Minimum width */
+    min-width: 44px;                     /* Minimum touch target */
+    max-width: 100%;                     /* Prevent overflow */
     text-align: center;                  /* Center text */
+    white-space: nowrap;                 /* Keep text on one line */
+    overflow: hidden;                    /* Hide overflow */
+    text-overflow: ellipsis;            /* Show ellipsis for overflow */
+    flex: 0 0 auto;                     /* Don't grow or shrink */
+    margin: 0;                          /* Remove margin */
 }
 
 /* BUTTON HOVER EFFECTS: What happens when you hover over buttons */
@@ -235,9 +368,16 @@ body {
 
 /* SCENE COUNTER: Shows current position (e.g., "Scene 3 of 12") */
 .scene-counter {
-    color: #ccc;         /* Light gray text */
-    font-size: 0.9rem;   /* Slightly smaller text */
-    text-align: center;  /* Center the text */
+    color: #ccc;                /* Light gray text */
+    font-size: 0.9rem;          /* Slightly smaller text */
+    text-align: center;         /* Center the text */
+    flex: 1;                    /* Take remaining space */
+    min-width: 0;              /* Allow shrinking */
+    white-space: nowrap;       /* Keep on one line */
+    overflow: hidden;          /* Hide overflow */
+    text-overflow: ellipsis;   /* Show ellipsis when needed */
+    margin: 0 0.5rem;          /* Consistent spacing */
+    padding: 0 0.5rem;         /* Padding for spacing */
 }
 
 /* AUDIO CONTROLS: Volume and playback controls */
@@ -469,27 +609,68 @@ body {
     
     /* More compact dialogue box */
     .dialogue-box {
-        padding: 1rem;
-        margin: 0 0.8rem;
-    }
-    
-    /* Adjust navigation layout */
-    .nav-buttons-row,
-    .audio-controls-row {
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-    
-    /* Full-width buttons */
-    .nav-button {
-        width: 100%;
+        padding: 0.8rem;
+        margin: 0 0.5rem;
+        width: auto;
+        max-width: 90vw;
     }
 
+    /* Maintain nav row layout until very small */
+    .nav-buttons-row {
+        padding: 0.25rem;
+        gap: 0.3rem;
+    }
+
+    /* Adjust scene counter */
+    .scene-counter {
+        font-size: 0.8rem;
+        margin: 0 0.3rem;
+        padding: 0 0.3rem;
+    }
+
+    /* Button groups can stack */
+    .button-group-row {
+        flex-direction: column;
+        gap: 0.4rem;
+        padding: 0.25rem;
+    }
+    
+    /* Simplified buttons */
+    .nav-button {
+        padding: 0.5rem;
+        font-size: 0.85rem;
+        min-width: 40px;
+    }
+    
+    /* Show icons for all buttons */
+    .nav-button[data-action="previous"] { content: "←"; }
+    .nav-button[data-action="next"] { content: "→"; }
+    .nav-button[data-action="audio"] { content: "🔊"; }
+    .nav-button[data-action="restart"] { content: "↺"; }
+    .nav-button[data-action="fullstory"] { content: "📖"; }
+    
+    /* Hide button text on mobile */
+    .nav-button span {
+        display: none;
+    }
+    
     /* Stack audio controls */
     .audio-controls {
         flex-direction: column;
-        align-items: center;
-        gap: 0.5rem;
+        width: 100%;
+        gap: 0.4rem;
+    }
+    
+    /* Compact volume control */
+    .volume-control {
+        width: 100%;
+        justify-content: center;
+        padding: 0;
+    }
+    
+    /* Adjust spacing */
+    .controls {
+        gap: 0.4rem;
     }
 }
 
@@ -497,43 +678,247 @@ body {
 @media (max-width: 480px) {
     .dialogue-box {
         width: 90%;
-        padding: 1rem;
+        padding: 0.8rem;
     }
     
-    .speaker-name {
-        font-size: 1rem;
+    /* Stack nav row on very small screens */
+    .nav-buttons-row {
+        flex-direction: column;
+        gap: 0.4rem;
     }
-    
-    .dialogue-text {
-        font-size: 0.9rem;
+
+    /* Full width scene counter */
+    .scene-counter {
+        order: -1;
+        width: 100%;
+        margin: 0;
+        padding: 0.3rem;
     }
-    
+
+    /* Full width buttons */
     .nav-button {
+        width: 100%;
+        padding: 0.5rem;
         font-size: 0.85rem;
-        padding: 0.5rem 1rem;
     }
+
+    /* Replace text with icons */
+    .nav-button[data-action="previous"]::before { content: "←"; }
+    .nav-button[data-action="next"]::before { content: "→"; }
+    .nav-button[data-action="previous"] span,
+    .nav-button[data-action="next"] span { display: none; }
 }
 
-/* FULL STORY STYLES: Styles for the full story view */
+/* FULL STORY VIEW: Styles for the complete story display */
+.full-story-view {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Full story content container */
 .full-story-content {
-    padding-bottom: 80px; /* Add padding to prevent content from being hidden behind fixed button */
+    flex: 1;
+    overflow-y: auto;
+    padding: 2rem 1rem 100px;
+    margin: 0 auto;
+    max-width: 800px;
+    width: 90%;
+    color: #f0f0f0;
+    line-height: 1.6;
+    animation: slideUp 0.5s ease-out;
 }
 
-/* Fixed back button container for full story view */
+/* Individual scene in full story */
+.full-story-scene {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: rgba(139, 69, 19, 0.1);
+    border-radius: 12px;
+    border: 1px solid rgba(218, 165, 32, 0.3);
+}
+
+/* Scene title in full story */
+.full-story-scene-title {
+    color: #DAA520;
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid rgba(218, 165, 32, 0.3);
+    padding-bottom: 0.5rem;
+}
+
+/* Scene dialogue in full story */
+.full-story-dialogue {
+    margin-bottom: 1rem;
+    padding-left: 1rem;
+}
+
+/* Fixed back button container */
 .story-back-button {
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
-    padding: 15px;
-    background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.7));
-    backdrop-filter: blur(8px);
+    padding: 1rem;
+    background: linear-gradient(to top, rgba(0,0,0,0.95), rgba(0,0,0,0.8));
+    backdrop-filter: blur(10px);
     text-align: center;
-    z-index: 100;
-    border-top: 1px solid rgba(139, 69, 19, 0.3);
+    z-index: 1001;
+    border-top: 1px solid rgba(218, 165, 32, 0.3);
 }
 
 .story-back-button .nav-button {
     min-width: 200px;
     margin: 0 auto;
+}
+
+/* Back to story button */
+.story-back-button .nav-button {
+    background: linear-gradient(135deg, #8B4513, #A0522D);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    padding: 0.8rem 2rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 200px;
+    margin: 0 auto;
+    display: inline-block;
+}
+
+.story-back-button .nav-button:hover {
+    background: linear-gradient(135deg, #A0522D, #CD853F);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Content wrapper to prevent overflow */
+.dialogue-content {
+    width: 100%;
+    max-width: 100%;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+}
+
+/* Button wrapper for better organization */
+.button-group {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+/* Helper class for text truncation */
+.truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Ensure all interactive elements are properly sized */
+button, input, select {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Full story view transitions */
+.full-story-view {
+    animation: fadeIn 0.3s ease-out;
+}
+
+.full-story-content {
+    animation: slideUp 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Show/Hide full story view */
+.full-story-view.hidden {
+    display: none;
+}
+
+/* Visual separator between scenes */
+.full-story-scene:not(:last-child)::after {
+    content: "";
+    display: block;
+    width: 50%;
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(218, 165, 32, 0.5), transparent);
+    margin: 2rem auto;
+}
+
+/* Responsive adjustments for full story view */
+@media (max-width: 768px) {
+    .full-story-content {
+        padding: 1rem 0.5rem 80px;
+        width: 95%;
+    }
+
+    .full-story-scene {
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .full-story-scene-title {
+        font-size: 1.2rem;
+    }
+
+    .full-story-dialogue {
+        padding-left: 0.5rem;
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .full-story-scene {
+        padding: 0.8rem;
+    }
+
+    .story-back-button .nav-button {
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+        min-width: 150px;
+    }
+}
+
+/* Temporarily disable Show Full Story button functionality */
+.nav-button[data-action="fullstory"] {
+    pointer-events: none;     /* Disable click interactions */
+    opacity: 0.5;            /* Make it look disabled */
+    cursor: not-allowed;     /* Show not-allowed cursor */
+}
+
+/* Remove hover effects for the disabled button */
+.nav-button[data-action="fullstory"]:hover {
+    background: linear-gradient(135deg, #8B4513, #A0522D); /* Keep original background */
+    transform: none;          /* Remove hover animation */
+    box-shadow: none;        /* Remove hover shadow */
 }

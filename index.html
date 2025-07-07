@@ -74,6 +74,14 @@
         
         <!-- UI OVERLAY: Contains all the interactive elements users see -->
         <div class="ui-overlay">
+            <!-- FULL STORY PAGE: Completely separate view for showing the full story -->
+            <div class="full-story-page" style="display: none;">
+                <div class="full-story-header">
+                    <div class="full-story-title">The Great Nerf War: Full Story</div>
+                    <button class="back-to-story" onclick="hideFullStory()">Back to Interactive Story</button>
+                </div>
+                <div class="full-story-content"></div>
+            </div>
             <!-- TOP BAR: Shows title, subtitle, and progress through the story -->
             <div class="title-bar">
                 <div class="title">The Great Nerf War: A Capybara's Revenge</div>

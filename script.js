@@ -804,31 +804,42 @@ function playBellSound() {
 
 // Show the complete story in a scrollable view
 function showFullStory() {
-    const dialogueBox = document.querySelector('.dialogue-box');
+    document.body.classList.add('showing-full-story');
+    const fullStoryContainer = document.createElement('div');
+    fullStoryContainer.className = 'full-story-container';
     
-    // Store the original position and size
-    dialogueBox.dataset.originalTransform = dialogueBox.style.transform || '';
-    dialogueBox.style.transform = 'none';
+    // Add story content
+    const storyContent = document.createElement('div');
+    storyContent.className = 'full-story-content';
+    storyContent.innerHTML = generateFullStoryHTML();
+    fullStoryContainer.appendChild(storyContent);
     
-    // Hide navigation and audio controls while showing the full story
-    const navButtonsRow = document.querySelector('.nav-buttons-row');
-    const audioControlsRow = document.querySelector('.audio-controls-row');
-    if (navButtonsRow) navButtonsRow.style.display = 'none';
-    if (audioControlsRow) audioControlsRow.style.display = 'none';
-    if (sceneCounterEl) sceneCounterEl.style.display = 'none';
-    if (speakerNameEl) speakerNameEl.style.display = 'none';
+    // Add fixed back button
+    const backButton = document.createElement('button');
+    backButton.className = 'story-back-button';
+    backButton.textContent = 'Back to Interactive Story';
+    backButton.addEventListener('click', hideFullStory);
+    fullStoryContainer.appendChild(backButton);
+    
+    document.body.appendChild(fullStoryContainer);
+    
+    // Store the scroll position
+    fullStoryContainer.dataset.scrollPosition = window.scrollY;
+}
 
-    // Make the dialogue box scrollable and expand it
-    if (dialogueTextEl) {
-        dialogueTextEl.style.maxHeight = '70vh';
-        dialogueTextEl.style.overflowY = 'auto';
-        dialogueTextEl.style.lineHeight = '1.6';
-        dialogueTextEl.style.fontSize = '16px';
+// Hide the full story view
+function hideFullStory() {
+    const fullStoryContainer = document.querySelector('.full-story-container');
+    if (fullStoryContainer) {
+        document.body.classList.remove('showing-full-story');
+        fullStoryContainer.remove();
+        // Restore scroll position
+        window.scrollTo(0, parseInt(fullStoryContainer.dataset.scrollPosition || '0'));
     }
+}
 
-    // Temporarily disable dragging
-    dialogueBox.style.cursor = 'default';
-    
+// Generate the full story HTML for showing in the full story view
+function generateFullStoryHTML() {
     let fullStoryHtml = '<div class="full-story-content">';
     
     // Add header
@@ -866,51 +877,7 @@ function showFullStory() {
 
     fullStoryHtml += `</div>`;  // Close the full-story-content div
     
-    // Add fixed position back button outside the scrollable content
-    fullStoryHtml += `
-        <div class="story-back-button">
-            <button class="nav-button" onclick="hideFullStory()">
-                Back to Interactive Story
-            </button>
-        </div>
-    `;
-
-    // Update the dialogue text element with the full story
-    if (dialogueTextEl) {
-        dialogueTextEl.innerHTML = fullStoryHtml;
-    }
-}
-
-// Hide the full story view and restore the interactive mode
-function hideFullStory() {
-    const dialogueBox = document.querySelector('.dialogue-box');
-    
-    // Restore navigation and audio controls
-    const navButtonsRow = document.querySelector('.nav-buttons-row');
-    const audioControlsRow = document.querySelector('.audio-controls-row');
-    if (navButtonsRow) navButtonsRow.style.display = 'flex';
-    if (audioControlsRow) audioControlsRow.style.display = 'flex';
-    if (sceneCounterEl) sceneCounterEl.style.display = '';
-    if (speakerNameEl) speakerNameEl.style.display = '';
-    
-    // Restore original dialogue box styling
-    if (dialogueTextEl) {
-        dialogueTextEl.style.maxHeight = '';
-        dialogueTextEl.style.overflowY = '';
-        dialogueTextEl.style.lineHeight = '';
-        dialogueTextEl.style.fontSize = '';
-    }
-    
-    // Re-enable dragging
-    dialogueBox.style.cursor = 'move';
-    
-    // Restore original position
-    if (dialogueBox.dataset.originalTransform) {
-        dialogueBox.style.transform = dialogueBox.dataset.originalTransform;
-    }
-    
-    // Restore the normal story view with current scene
-    updateDisplay();
+    return fullStoryHtml;
 }
 
 /* ==========================================================================
@@ -1015,5 +982,120 @@ function makeDraggable() {
     });
 }
 
+// Initialize dialogue box dimensions from localStorage
+function initializeDialogueBox() {
+    const dialogueBox = document.querySelector('.dialogue-box');
+    const savedWidth = localStorage.getItem('dialogueBoxWidth');
+    const savedHeight = localStorage.getItem('dialogueBoxHeight');
+    
+    if (savedWidth && savedHeight) {
+        dialogueBox.style.width = savedWidth;
+        dialogueBox.style.height = savedHeight;
+    }
+
+    // Add resize event listener with debouncing
+    let resizeTimeout;
+    const observer = new ResizeObserver(() => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            localStorage.setItem('dialogueBoxWidth', dialogueBox.style.width);
+            localStorage.setItem('dialogueBoxHeight', dialogueBox.style.height);
+        }, 500); // Wait for 500ms after resizing stops
+    });
+    
+    observer.observe(dialogueBox);
+}
+
+// Call initializeDialogueBox after DOM content is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    // ...existing DOMContentLoaded code...
+    initializeDialogueBox();
+});
+
 // Call makeDraggable to enable dragging on the dialogue box
 makeDraggable();
+
+/* ==========================================================================
+   DIALOGUE BOX DRAGGING - Handle dragging functionality
+   ========================================================================== */
+
+let isDragging = false;
+let dragOffset = { x: 0, y: 0 };
+let dialogueBox;
+
+// Set up dragging functionality
+function initializeDragAndDrop() {
+    dialogueBox = document.querySelector('.dialogue-box');
+    if (!dialogueBox) return;
+
+    // Restore position from localStorage if available
+    const savedPosition = JSON.parse(localStorage.getItem('dialogueBoxPosition'));
+    if (savedPosition) {
+        dialogueBox.style.left = savedPosition.left;
+        dialogueBox.style.bottom = savedPosition.bottom;
+        dialogueBox.style.transform = 'none'; // Remove centering transform
+    }
+
+    dialogueBox.addEventListener('mousedown', startDragging);
+    document.addEventListener('mousemove', handleDrag);
+    document.addEventListener('mouseup', stopDragging);
+}
+
+function startDragging(e) {
+    // Don't drag if user is selecting text or clicking a button
+    if (e.target !== dialogueBox) return;
+
+    isDragging = true;
+    dialogueBox.classList.add('dragging');
+    
+    // Calculate offset from where user clicked to dialogue box edges
+    const rect = dialogueBox.getBoundingClientRect();
+    dragOffset.x = e.clientX - rect.left;
+    dragOffset.y = e.clientY - rect.top;
+    
+    // Remove centering transform if it exists
+    dialogueBox.style.transform = 'none';
+}
+
+function handleDrag(e) {
+    if (!isDragging) return;
+    
+    // Calculate new position
+    const x = e.clientX - dragOffset.x;
+    const y = e.clientY - dragOffset.y;
+    
+    // Keep dialogue box within viewport bounds
+    const rect = dialogueBox.getBoundingClientRect();
+    const maxX = window.innerWidth - rect.width;
+    const maxY = window.innerHeight - rect.height;
+    
+    const boundedX = Math.max(0, Math.min(x, maxX));
+    const boundedY = Math.max(0, Math.min(y, maxY));
+    
+    // Update position
+    dialogueBox.style.left = boundedX + 'px';
+    dialogueBox.style.top = boundedY + 'px';
+    dialogueBox.style.bottom = 'auto'; // Remove bottom positioning
+    
+    // Save position to localStorage
+    const position = {
+        left: boundedX + 'px',
+        top: boundedY + 'px'
+    };
+    localStorage.setItem('dialogueBoxPosition', JSON.stringify(position));
+}
+
+function stopDragging() {
+    if (!isDragging) return;
+    isDragging = false;
+    dialogueBox.classList.remove('dragging');
+}
+
+// Initialize dragging when DOM is loaded
+document.addEventListener('DOMContentLoaded', initializeDragAndDrop);
+
+// Ensure drag handlers are removed when navigating away
+window.addEventListener('beforeunload', () => {
+    document.removeEventListener('mousemove', handleDrag);
+    document.removeEventListener('mouseup', stopDragging);
+});
