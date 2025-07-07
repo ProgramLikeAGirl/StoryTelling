@@ -145,33 +145,35 @@ body {
 .dialogue-box {
     background: rgba(0,0,0,0.95);              /* Almost opaque black */
     border: 2px solid #8B4513;                 /* Brown border */
-    border-radius: 15px;                       /* Rounded corners */
-    padding: 25px;                             /* Internal spacing */
+    border-radius: 12px;                       /* Rounded corners */
+    padding: 1.2rem;                           /* Specified padding */
     width: 100%;                               /* Full width */
-    max-width: 900px;                          /* Don't get too wide */
+    max-width: 650px;                          /* Specified max width */
     margin: 0 auto;                            /* Center horizontally */
     backdrop-filter: blur(15px);               /* Blur behind box */
-    box-shadow: 0 10px 30px rgba(0,0,0,0.7);  /* Drop shadow */
+    box-shadow: 0 8px 20px rgba(0,0,0,0.7);   /* Subtle shadow */
     animation: fadeInUp 0.5s ease-out;         /* Entrance animation */
+    display: flex;                             /* Use flexbox */
+    flex-direction: column;                    /* Stack children vertically */
 }
 
 /* SPEAKER NAME: Shows who is talking */
 .speaker-name {
-    font-size: 1.2rem;           /* Slightly larger text */
-    font-weight: bold;           /* Make it bold */
-    color: #DAA520;             /* Gold color */
-    margin-bottom: 10px;        /* Space below */
-    text-transform: uppercase;   /* ALL CAPITAL LETTERS */
-    letter-spacing: 1px;        /* Space between letters */
+    font-size: 1.1rem;         /* Specified font size */
+    font-weight: bold;         /* Keep it bold */
+    color: #DAA520;           /* Gold color */
+    margin-bottom: 0.5rem;    /* Consistent spacing */
+    text-transform: uppercase; /* ALL CAPITAL LETTERS */
+    letter-spacing: 0.5px;    /* Slight letter spacing */
 }
 
 /* DIALOGUE TEXT: The actual story content */
 .dialogue-text {
-    font-size: 1.1rem;    /* Readable font size */
-    line-height: 1.6;     /* Space between lines */
-    color: #f0f0f0;       /* Light gray text */
-    margin-bottom: 15px;  /* Space below */
-    min-height: 60px;     /* Minimum height to prevent jumping */
+    font-size: 0.95rem;      /* Specified font size */
+    line-height: 1.4;        /* Comfortable line height */
+    color: #f0f0f0;         /* Light gray text */
+    margin-bottom: 1rem;    /* Consistent spacing */
+    min-height: 3rem;       /* Minimum height */
 }
 
 /* ==========================================================================
@@ -180,27 +182,44 @@ body {
 
 /* CONTROLS CONTAINER: Holds navigation buttons */
 .controls {
-    display: flex;              /* Use flexbox */
-    justify-content: space-between; /* Spread items apart */
-    align-items: center;        /* Center vertically */
-    margin-top: 15px;          /* Space above */
-    flex-wrap: wrap;           /* Allow wrapping on small screens */
-    gap: 10px;                 /* Space between items */
+    display: flex;             /* Use flexbox */
+    flex-direction: column;    /* Stack rows vertically */
+    gap: 1rem;                /* Space between rows */
+    margin-top: 0.5rem;       /* Space above controls */
+}
+
+/* Navigation buttons row */
+.nav-buttons-row {
+    display: flex;            /* Use flexbox */
+    justify-content: space-between; /* Space buttons evenly */
+    align-items: center;      /* Center buttons vertically */
+    width: 100%;             /* Full width */
+}
+
+/* Audio controls row */
+.audio-controls-row {
+    display: flex;            /* Use flexbox */
+    justify-content: center;  /* Center items */
+    align-items: center;      /* Center vertically */
+    gap: 1rem;               /* Space between items */
+    width: 100%;             /* Full width */
 }
 
 /* NAVIGATION BUTTONS: Previous/Next buttons */
 .nav-button {
     background: linear-gradient(135deg, #8B4513, #A0522D); /* Brown gradient */
     color: white;                          /* White text */
-    border: none;                          /* Remove default border */
-    padding: 12px 25px;                    /* Internal spacing */
-    border-radius: 8px;                    /* Rounded corners */
-    cursor: pointer;                       /* Show hand cursor on hover */
-    font-size: 1rem;                       /* Normal font size */
-    font-weight: bold;                     /* Bold text */
-    transition: all 0.3s ease;            /* Smooth hover effects */
-    text-transform: uppercase;             /* UPPERCASE TEXT */
-    letter-spacing: 1px;                   /* Letter spacing */
+    border: none;                          /* No border */
+    padding: 0.6rem 1.2rem;               /* Consistent padding */
+    border-radius: 6px;                   /* Rounded corners */
+    cursor: pointer;                      /* Hand cursor */
+    font-size: 0.9rem;                    /* Smaller font */
+    font-weight: bold;                    /* Bold text */
+    transition: all 0.3s ease;            /* Smooth transitions */
+    text-transform: uppercase;            /* Uppercase text */
+    letter-spacing: 0.5px;               /* Letter spacing */
+    min-width: 100px;                    /* Minimum width */
+    text-align: center;                  /* Center text */
 }
 
 /* BUTTON HOVER EFFECTS: What happens when you hover over buttons */
@@ -234,17 +253,43 @@ body {
     flex-wrap: wrap;    /* Allow wrapping */
 }
 
-/* VOLUME CONTROL CONTAINER */
+/* VOLUME CONTROL: Slider and label */
 .volume-control {
-    display: flex;       /* Use flexbox */
-    align-items: center; /* Center vertically */
-    gap: 8px;           /* Small space between items */
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0 0.5rem;
 }
 
 /* VOLUME SLIDER: The actual volume control */
 .volume-slider {
     width: 80px;           /* Fixed width */
-    accent-color: #DAA520; /* Gold color for slider */
+    height: 4px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: rgba(255,255,255,0.2);
+    border-radius: 2px;
+    outline: none;
+}
+
+/* Volume slider thumb */
+.volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    background: #DAA520;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.volume-slider::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    background: #DAA520;
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
 }
 
 /* ==========================================================================
@@ -428,24 +473,47 @@ body {
     
     /* More compact dialogue box */
     .dialogue-box {
-        padding: 20px;
-        margin: 0 10px;
+        padding: 1rem;
+        margin: 0 0.8rem;
     }
     
-    /* Stack controls vertically */
-    .controls {
+    /* Adjust navigation layout */
+    .nav-buttons-row,
+    .audio-controls-row {
         flex-direction: column;
-        align-items: stretch;
+        gap: 0.5rem;
     }
     
-    /* Full-width buttons on mobile */
+    /* Full-width buttons */
     .nav-button {
         width: 100%;
-        margin: 5px 0;
     }
 
-    /* Center audio controls */
+    /* Stack audio controls */
     .audio-controls {
-        justify-content: center;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
     }
-} 
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+    .dialogue-box {
+        width: 90%;
+        padding: 1rem;
+    }
+    
+    .speaker-name {
+        font-size: 1rem;
+    }
+    
+    .dialogue-text {
+        font-size: 0.9rem;
+    }
+    
+    .nav-button {
+        font-size: 0.85rem;
+        padding: 0.5rem 1rem;
+    }
+}
