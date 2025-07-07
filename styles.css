@@ -55,24 +55,12 @@ body {
     background-size: cover;           /* Make background image cover entire area */
     background-position: center;      /* Center the background image */
     background-repeat: no-repeat;     /* Don't repeat the background */
-    filter: brightness(0.7);         /* Darken slightly for text readability */
     z-index: 1;                      /* Behind other content */
 }
 
-/* GRADIENT OVERLAY: Adds visual depth and improves text readability */
+/* GRADIENT OVERLAY: Removed for clearer background visibility */
 .gradient-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-        to bottom,
-        rgba(0,0,0,0.3) 0%,    /* Light transparent black at top */
-        rgba(0,0,0,0.1) 40%,   /* Very light in middle */
-        rgba(0,0,0,0.8) 100%   /* Darker at bottom for text readability */
-    );
-    z-index: 2; /* Above background, below UI */
+    display: none; /* Hide the gradient overlay completely */
 }
 
 /* UI OVERLAY: Contains all interactive elements */
@@ -90,10 +78,10 @@ body {
 
 /* TITLE BAR: Top section with title and progress */
 .title-bar {
-    background: rgba(0,0,0,0.9);      /* Semi-transparent black background */
+    background: rgba(0,0,0,0.6);      /* More transparent background */
     padding: 15px 20px;               /* Internal spacing */
     border-bottom: 3px solid #8B4513; /* Brown bottom border */
-    backdrop-filter: blur(10px);      /* Blur effect behind the bar */
+    backdrop-filter: blur(8px);       /* Reduced blur effect */
 }
 
 /* MAIN TITLE: Large heading text */
@@ -143,18 +131,26 @@ body {
 
 /* DIALOGUE BOX: The main story interface */
 .dialogue-box {
-    background: rgba(0,0,0,0.95);              /* Almost opaque black */
+    background: rgba(0,0,0,0.75);              /* More transparent background */
     border: 2px solid #8B4513;                 /* Brown border */
     border-radius: 12px;                       /* Rounded corners */
     padding: 1.2rem;                           /* Specified padding */
     width: 100%;                               /* Full width */
     max-width: 650px;                          /* Specified max width */
+    min-width: 300px;                          /* Minimum width */
+    height: auto;                              /* Default height */
+    min-height: 200px;                         /* Minimum height */
     margin: 0 auto;                            /* Center horizontally */
-    backdrop-filter: blur(15px);               /* Blur behind box */
-    box-shadow: 0 8px 20px rgba(0,0,0,0.7);   /* Subtle shadow */
+    backdrop-filter: blur(8px);                /* Reduced blur for better visibility */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);   /* Lighter shadow */
     animation: fadeInUp 0.5s ease-out;         /* Entrance animation */
     display: flex;                             /* Use flexbox */
     flex-direction: column;                    /* Stack children vertically */
+    position: relative;                        /* For drag handle positioning */
+    cursor: move;                             /* Indicate draggable */
+    user-select: none;                        /* Prevent text selection while dragging */
+    resize: both;                             /* Allow resizing in both directions */
+    overflow: auto;                           /* Add scrollbars when needed */
 }
 
 /* SPEAKER NAME: Shows who is talking */
@@ -516,4 +512,28 @@ body {
         font-size: 0.85rem;
         padding: 0.5rem 1rem;
     }
+}
+
+/* FULL STORY STYLES: Styles for the full story view */
+.full-story-content {
+    padding-bottom: 80px; /* Add padding to prevent content from being hidden behind fixed button */
+}
+
+/* Fixed back button container for full story view */
+.story-back-button {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 15px;
+    background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.7));
+    backdrop-filter: blur(8px);
+    text-align: center;
+    z-index: 100;
+    border-top: 1px solid rgba(139, 69, 19, 0.3);
+}
+
+.story-back-button .nav-button {
+    min-width: 200px;
+    margin: 0 auto;
 }

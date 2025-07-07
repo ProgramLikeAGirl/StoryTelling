@@ -266,6 +266,9 @@ window.addEventListener('load', function() {
     // Set up keyboard navigation
     setupKeyboardControls();
     
+    // Make dialogue box draggable
+    makeDraggable();
+    
     // Focus on the name input so user can start typing immediately
     const playerNameInput = document.getElementById('playerNameInput');
     if (playerNameInput) {
@@ -799,11 +802,19 @@ function playBellSound() {
     }
 }
 
-// Enhanced Show Full Story function to display the complete interactive narrative
+// Show the complete story in a scrollable view
 function showFullStory() {
+    const dialogueBox = document.querySelector('.dialogue-box');
+    
+    // Store the original position and size
+    dialogueBox.dataset.originalTransform = dialogueBox.style.transform || '';
+    dialogueBox.style.transform = 'none';
+    
     // Hide navigation and audio controls while showing the full story
-    document.querySelector('.controls').style.display = 'none';
-    document.querySelector('.audio-controls').style.display = 'none';
+    const navButtonsRow = document.querySelector('.nav-buttons-row');
+    const audioControlsRow = document.querySelector('.audio-controls-row');
+    if (navButtonsRow) navButtonsRow.style.display = 'none';
+    if (audioControlsRow) audioControlsRow.style.display = 'none';
     if (sceneCounterEl) sceneCounterEl.style.display = 'none';
     if (speakerNameEl) speakerNameEl.style.display = 'none';
 
@@ -811,199 +822,74 @@ function showFullStory() {
     if (dialogueTextEl) {
         dialogueTextEl.style.maxHeight = '70vh';
         dialogueTextEl.style.overflowY = 'auto';
-        dialogueTextEl.style.padding = '20px';
         dialogueTextEl.style.lineHeight = '1.6';
         dialogueTextEl.style.fontSize = '16px';
     }
 
-    // Generate the complete story from storyData
-    // Create sticky header content
-    const stickyHeaderHtml = `
-        <div style="background: rgba(0, 0, 0, 0.95); padding: 15px 20px; border-bottom: 2px solid #4CAF50; backdrop-filter: blur(10px);">
-            <h1 style="text-align: center; color: #4CAF50; margin: 0; font-size: 24px;">
+    // Temporarily disable dragging
+    dialogueBox.style.cursor = 'default';
+    
+    let fullStoryHtml = '<div class="full-story-content">';
+    
+    // Add header
+    fullStoryHtml += `
+        <div class="story-header">
+            <h1 style="color: #DAA520; font-size: 24px; margin-bottom: 10px;">
                 The Great Nerf War: A Capybara's Revenge
             </h1>
-            <p style="text-align: center; font-style: italic; margin: 10px 0 0 0; color: #aaa;">
+            <p style="color: #aaa; font-style: italic;">
                 The Complete Interactive Story featuring ${playerName}
             </p>
         </div>
     `;
 
-    // Scene colors for variety
-    const sceneColors = [
-        '#4CAF50', // Green
-        '#2196F3', // Blue
-        '#FF9800', // Orange
-        '#9C27B0', // Purple
-        '#F44336', // Red
-        '#00BCD4', // Cyan
-        '#795548', // Brown
-        '#607D8B', // Blue Grey
-        '#8BC34A', // Light Green
-        '#3F51B5', // Indigo
-        '#E91E63', // Pink
-        '#FFC107'  // Amber
-    ];
-
-    let fullStoryHtml = `
-        <div style="font-size: 16px; line-height: 1.8; color: #e0e0e0; padding-top: 20px;">
-    `;
-
-    // Add each scene with proper formatting
+    // Add each scene
     storyData.scenes.forEach((scene, sceneIndex) => {
-        const sceneColor = sceneColors[sceneIndex % sceneColors.length];
         fullStoryHtml += `
-            <div style="margin-bottom: 40px; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 10px; border-left: 4px solid ${sceneColor};">
-                <h2 style="color: ${sceneColor}; margin-bottom: 20px; font-size: 20px;">
-                    ${sceneIndex + 1}. ${scene.title}
+            <div style="margin-bottom: 30px; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 10px;">
+                <h2 style="color: #DAA520; margin-bottom: 20px; font-size: 20px;">
+                    ${scene.title}
                 </h2>
+                ${scene.dialogue.map(dialogue => `
+                    <div style="margin-bottom: 15px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 5px;">
+                        <div style="color: #FFB74D; font-weight: bold; margin-bottom: 5px;">
+                            ${personalizeText(dialogue.speaker)}:
+                        </div>
+                        <div style="color: #e0e0e0; padding-left: 10px;">
+                            ${personalizeText(dialogue.text)}
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
         `;
-
-        scene.dialogue.forEach((dialogue, dialogueIndex) => {
-            const personalizedText = personalizeText(dialogue.text);
-            const personalizedSpeaker = personalizeText(dialogue.speaker);
-            
-            // Style speakers differently
-            let speakerStyle = 'color: #fff; font-weight: bold;';
-            if (personalizedSpeaker === 'Captain Cheeks') {
-                speakerStyle = 'color: #FFB74D; font-weight: bold;'; // Orange for Captain Cheeks
-            } else if (personalizedSpeaker === 'Narrator') {
-                speakerStyle = 'color: #90CAF9; font-style: italic;'; // Light blue for narrator
-            } else if (personalizedSpeaker === playerName) {
-                speakerStyle = 'color: #81C784; font-weight: bold;'; // Green for player
-            }
-
-            fullStoryHtml += `
-                <div style="margin-bottom: 15px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 5px;">
-                    <div style="${speakerStyle} margin-bottom: 5px;">
-                        ${personalizedSpeaker}:
-                    </div>
-                    <div style="color: #e0e0e0; padding-left: 10px;">
-                        ${personalizedText}
-                    </div>
-                </div>
-            `;
-        });
-
-        fullStoryHtml += '</div>';
     });
 
+    fullStoryHtml += `</div>`;  // Close the full-story-content div
+    
+    // Add fixed position back button outside the scrollable content
     fullStoryHtml += `
-            <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 2px solid #4CAF50;">
-                <p style="font-style: italic; color: #aaa; margin-bottom: 20px;">
-                    The End - A tale of friendship, understanding, and foam dart diplomacy.
-                </p>
-            </div>
+        <div class="story-back-button">
+            <button class="nav-button" onclick="hideFullStory()">
+                Back to Interactive Story
+            </button>
         </div>
     `;
 
-    // Display the complete story
+    // Update the dialogue text element with the full story
     if (dialogueTextEl) {
-        // Set up the dialogue container with relative positioning
-        dialogueTextEl.style.position = 'relative';
-        dialogueTextEl.style.display = 'flex';
-        dialogueTextEl.style.flexDirection = 'column';
-        dialogueTextEl.style.height = '70vh';
-        
-        // Create sticky header section
-        const stickyHeader = document.createElement('div');
-        stickyHeader.id = 'stickyHeader';
-        stickyHeader.style.cssText = `
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            flex-shrink: 0;
-        `;
-        stickyHeader.innerHTML = stickyHeaderHtml;
-        
-        // Create scrollable content area
-        const scrollableContent = document.createElement('div');
-        scrollableContent.style.cssText = `
-            flex: 1;
-            overflow-y: auto;
-            padding: 0 20px 20px 20px;
-        `;
-        scrollableContent.innerHTML = fullStoryHtml;
-        
-        // Create fixed button section at bottom
-        const buttonSection = document.createElement('div');
-        buttonSection.id = 'stickyBackButtonSection';
-        buttonSection.style.cssText = `
-                    The End - A tale of friendship, understanding, and foam dart diplomacy.
-                </p>0, 0, 0, 0.9);
-            </div>top: 1px solid #444;
-            padding: 25px 15px 15px 15px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        `;
-        
-        // Create the back button
-        const stickyButton = document.createElement('button');
-        stickyButton.id = 'stickyBackButton';
-        stickyButton.textContent = 'Back to Interactive Story';
-        stickyButton.onclick = hideFullStory;
-        stickyButton.className = 'nav-button';
-        stickyButton.style.cssText = `
-            background: linear-gradient(135deg, #8B4513, #A0522D);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 12px 25px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            min-width: 200px;
-            max-width: 300px;
-        `;
-        
-        // Add hover effect
-        stickyButton.addEventListener('mouseenter', function() {
-            this.style.background = 'linear-gradient(135deg, #A0522D, #CD853F)';
-            this.style.transform = 'translateY(-2px)';
-            this.style.boxShadow = '0 5px 15px rgba(139, 69, 19, 0.4)';
-        });
-        
-        stickyButton.addEventListener('mouseleave', function() {
-            this.style.background = 'linear-gradient(135deg, #8B4513, #A0522D)';
-            this.style.transform = 'translateY(0)';
-            this.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.3)';
-        });
-        
-        // Append button to button section
-        buttonSection.appendChild(stickyButton);
-        
-        // Clear the dialogue container and add all sections
-        dialogueTextEl.innerHTML = '';
-        dialogueTextEl.appendChild(stickyHeader);
-        dialogueTextEl.appendChild(scrollableContent);
-        dialogueTextEl.appendChild(buttonSection);
-        
-        // Scroll to top of content
-        scrollableContent.scrollTop = 0;
+        dialogueTextEl.innerHTML = fullStoryHtml;
     }
 }
 
+// Hide the full story view and restore the interactive mode
 function hideFullStory() {
-    // Remove sticky header if it exists
-    const stickyHeader = document.getElementById('stickyHeader');
-    if (stickyHeader) {
-        stickyHeader.remove();
-    }
-    
-    // Remove button section if it exists
-    const buttonSection = document.getElementById('stickyBackButtonSection');
-    if (buttonSection) {
-        buttonSection.remove();
-    }
+    const dialogueBox = document.querySelector('.dialogue-box');
     
     // Restore navigation and audio controls
-    document.querySelector('.controls').style.display = '';
-    document.querySelector('.audio-controls').style.display = '';
+    const navButtonsRow = document.querySelector('.nav-buttons-row');
+    const audioControlsRow = document.querySelector('.audio-controls-row');
+    if (navButtonsRow) navButtonsRow.style.display = 'flex';
+    if (audioControlsRow) audioControlsRow.style.display = 'flex';
     if (sceneCounterEl) sceneCounterEl.style.display = '';
     if (speakerNameEl) speakerNameEl.style.display = '';
     
@@ -1011,16 +897,123 @@ function hideFullStory() {
     if (dialogueTextEl) {
         dialogueTextEl.style.maxHeight = '';
         dialogueTextEl.style.overflowY = '';
-        dialogueTextEl.style.padding = '';
-        dialogueTextEl.style.paddingBottom = '';
         dialogueTextEl.style.lineHeight = '';
         dialogueTextEl.style.fontSize = '';
-        dialogueTextEl.style.position = '';
-        dialogueTextEl.style.display = '';
-        dialogueTextEl.style.flexDirection = '';
-        dialogueTextEl.style.height = '';
+    }
+    
+    // Re-enable dragging
+    dialogueBox.style.cursor = 'move';
+    
+    // Restore original position
+    if (dialogueBox.dataset.originalTransform) {
+        dialogueBox.style.transform = dialogueBox.dataset.originalTransform;
     }
     
     // Restore the normal story view with current scene
     updateDisplay();
 }
+
+/* ==========================================================================
+   DRAGGABLE FUNCTIONALITY
+   ========================================================================== */
+
+function makeDraggable() {
+    const dialogueBox = document.querySelector('.dialogue-box');
+    let isDragging = false;
+    let currentX;
+    let currentY;
+    let initialX;
+    let initialY;
+    let xOffset = 0;
+    let yOffset = 0;
+
+    // Reset position on window resize to prevent box from getting stuck offscreen
+    window.addEventListener('resize', () => {
+        xOffset = 0;
+        yOffset = 0;
+        dialogueBox.style.transform = 'translate(0px, 0px)';
+    });
+
+    function dragStart(e) {
+        if (e.type === "touchstart") {
+            initialX = e.touches[0].clientX - xOffset;
+            initialY = e.touches[0].clientY - yOffset;
+        } else {
+            initialX = e.clientX - xOffset;
+            initialY = e.clientY - yOffset;
+        }
+
+        // Only start dragging if we're clicking the dialogue box directly (not its children)
+        if (e.target === dialogueBox) {
+            isDragging = true;
+        }
+    }
+
+    function dragEnd(e) {
+        initialX = currentX;
+        initialY = currentY;
+        isDragging = false;
+    }
+
+    function drag(e) {
+        if (isDragging) {
+            e.preventDefault();
+
+            if (e.type === "touchmove") {
+                currentX = e.touches[0].clientX - initialX;
+                currentY = e.touches[0].clientY - initialY;
+            } else {
+                currentX = e.clientX - initialX;
+                currentY = e.clientY - initialY;
+            }
+
+            xOffset = currentX;
+            yOffset = currentY;
+
+            // Get box boundaries
+            const box = dialogueBox.getBoundingClientRect();
+            const parentBox = dialogueBox.parentElement.getBoundingClientRect();
+
+            // Prevent dragging outside the window
+            if (box.left < 0) currentX -= box.left;
+            if (box.right > window.innerWidth) currentX -= (box.right - window.innerWidth);
+            if (box.top < 0) currentY -= box.top;
+            if (box.bottom > window.innerHeight) currentY -= (box.bottom - window.innerHeight);
+
+            setTranslate(currentX, currentY, dialogueBox);
+        }
+    }
+
+    function setTranslate(xPos, yPos, el) {
+        el.style.transform = `translate(${xPos}px, ${yPos}px)`;
+    }
+
+    // Desktop Events
+    dialogueBox.addEventListener('mousedown', dragStart, false);
+    document.addEventListener('mousemove', drag, false);
+    document.addEventListener('mouseup', dragEnd, false);
+
+    // Mobile Events
+    dialogueBox.addEventListener('touchstart', dragStart, false);
+    document.addEventListener('touchmove', drag, { passive: false });
+    document.addEventListener('touchend', dragEnd, false);
+
+    // Add double-click to reset position
+    dialogueBox.addEventListener('dblclick', (e) => {
+        if (e.target === dialogueBox) {
+            xOffset = 0;
+            yOffset = 0;
+            setTranslate(0, 0, dialogueBox);
+        }
+    });
+
+    // Prevent text selection during drag
+    dialogueBox.addEventListener('selectstart', (e) => {
+        if (isDragging) {
+            e.preventDefault();
+        }
+    });
+}
+
+// Call makeDraggable to enable dragging on the dialogue box
+makeDraggable();
