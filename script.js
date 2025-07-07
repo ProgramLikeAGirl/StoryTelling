@@ -69,7 +69,7 @@ const storyData = {
     scenes: [
         {
             title: "The Ordinary World: Target Practice Tradition",
-            background: "bg-park",
+            background: "bg-office",
             dialogue: [
                 { speaker: "Narrator", text: "Every Tuesday at dawn, the Veterans' Association transforms Briarwood Park into their personal battlefield. {playerName}, known for precision shooting and tactical thinking, has become a cornerstone of this sacred tradition." },
                 { speaker: "Jenkins", text: "Alright, veterans! Time for our weekly foam-dart warfare. {playerName}, you're team captain today—show these rookies how real soldiers handle a Nerf blaster!" },
@@ -81,7 +81,7 @@ const storyData = {
         },
         {
             title: "The Call to Adventure: Mysterious Capybara & Emu Patrols",
-            background: "bg-forest",
+            background: "bg-park",
             dialogue: [
                 { speaker: "Morales", text: "Something's wrong, {playerName}. There's this... creature by the equipment shed. Massive rodent, just sitting there like it's running surveillance on our operation." },
                 { speaker: "Jenkins", text: "Probably just a stray. Nothing a few warning shots can't handle." },
@@ -96,7 +96,7 @@ const storyData = {
         },
         {
             title: "The Refusal: Jenkins Denies the Threat",
-            background: "bg-park",
+            background: "bg-office",
             dialogue: [
                 { speaker: "Jenkins", text: "A talking rodent with military knowledge? {playerName}, I expected better from you. This is clearly some elaborate hoax." },
                 { speaker: "{playerName}", text: "Jenkins, that capybara knew my service record. It addressed me by rank. This isn't a kid with a walkie-talkie." },
@@ -111,7 +111,7 @@ const storyData = {
         },
         {
             title: "Meeting the Mentor: Morrison's Secret History",
-            background: "bg-forest",
+            background: "bg-office",
             dialogue: [
                 { speaker: "Narrator", text: "Morrison, the grizzled 30-year veteran, pulled {playerName} aside beneath the memorial oak. His weathered Nerf Longshot—a relic from the group's founding—lay across his knees like a sacred artifact." },
                 { speaker: "Morrison", text: "What you witnessed today, {playerName}... it's happened before. 1987. Operation Woodland Peace. We had first contact with Captain Cheeks' predecessor." },
@@ -126,7 +126,7 @@ const storyData = {
         },
         {
             title: "Crossing the Threshold: Entering Emu Territory",
-            background: "bg-forest",
+            background: "bg-park",
             dialogue: [
                 { speaker: "Narrator", text: "At dawn, {playerName} made the fateful decision to cross into the eastern sector—emu territory. Jenkins followed reluctantly, his skepticism warring with military discipline." },
                 { speaker: "Jenkins", text: "This is madness, {playerName}. We're treating a park like a combat zone because of some overgrown guinea pig." },
@@ -142,7 +142,7 @@ const storyData = {
         },
         {
             title: "Tests, Allies, Enemies: The Foam Dart Trials",
-            background: "bg-urban",
+            background: "bg-park",
             dialogue: [
                 { speaker: "Captain Cheeks", text: "Before we can trust you completely, {playerName}, you must prove your worthiness through the traditional trials of marksmanship and strategy." },
                 { speaker: "Teen Leader", text: "Wait up! I'm Alex, leader of the Emu Liberation Front. {playerName}, we've been monitoring your group—some of us think you veterans actually understand honor." },
@@ -158,7 +158,7 @@ const storyData = {
         },
         {
             title: "Approach to the Inmost Cave: The Capybara Command Bunker",
-            background: "bg-forest",
+            background: "bg-park",
             dialogue: [
                 { speaker: "Captain Cheeks", text: "Follow me, {playerName}. It's time you saw the true heart of our operation—the command center your predecessors helped design in 1987." },
                 { speaker: "Narrator", text: "Following a trail of tactical markers that only {playerName}'s trained eye could detect, the team discovered a sophisticated bunker beneath the ancient willow grove." },
@@ -173,7 +173,7 @@ const storyData = {
         },
         {
             title: "The Ordeal: The Great Foam-Dart Battle",
-            background: "bg-urban",
+            background: "bg-battlefield",
             dialogue: [
                 { speaker: "Captain Cheeks", text: "{playerName}, you've seen our history. But some of my troops remain skeptical. They demand proof of your commitment through trial by combat." },
                 { speaker: "Narrator", text: "As they emerged from the bunker, {playerName} and Jenkins found themselves surrounded by the elite Emu Defense Corps—six-foot-tall birds with tactical positions and foam-dart launchers." },
@@ -189,7 +189,7 @@ const storyData = {
         },
         {
             title: "The Reward: Discovering the Peace Treaty",
-            background: "bg-park",
+            background: "bg-peace",
             dialogue: [
                 { speaker: "Captain Cheeks", text: "Behold, {playerName}—the original Peace Dart Accords of 1987. Your military understands the sacred importance of written agreements." },
                 { speaker: "Narrator", text: "The ancient document outlined revolutionary concepts: shared training facilities, mutual respect protocols, joint defensive strategies, and interspecies communication standards." },
@@ -273,8 +273,19 @@ window.addEventListener('load', function() {
         backgroundAudio.volume = 0.7;
     }
     
+    // Initialize background system
+    initializeBackgroundSystem();
+    
+    // Initialize draggable dialogue box
+    initializeDraggableDialogue();
+    restoreDialoguePosition();
+    
     // Show the first scene
     updateDisplay();
+    
+    // Save dialogue position when leaving page
+    window.addEventListener('beforeunload', saveDialoguePosition);
+    initializeBackgroundSystem();
 });
 
 // INITIALIZE DOM ELEMENTS: Get references to all the HTML elements we need
@@ -306,6 +317,12 @@ function nextScene() {
     else if (currentScene < storyData.scenes.length - 1) {
         currentScene++;
         currentDialogue = 0;
+        
+        // Prevent rapid clicking during transitions
+        isSceneTransition = true;
+        setTimeout(() => isSceneTransition = false, 2000);
+        
+        // Show the new scene title with animation
         showSceneTitle(storyData.scenes[currentScene].title);
     }
     
@@ -325,6 +342,12 @@ function previousScene() {
     else if (currentScene > 0) {
         currentScene--;
         currentDialogue = storyData.scenes[currentScene].dialogue.length - 1;
+        
+        // Prevent rapid clicking during transitions
+        isSceneTransition = true;
+        setTimeout(() => isSceneTransition = false, 2000);
+        
+        // Show the scene title
         showSceneTitle(storyData.scenes[currentScene].title);
     }
     
@@ -387,11 +410,8 @@ function updateDisplay() {
     // Update navigation buttons
     updateNavigationButtons();
     
-    // Update background if scene has changed
-    const scene = storyData.scenes[currentScene];
-    if (scene && scene.background) {
-        updateBackground(scene.background);
-    }
+    // Update background image
+    updateBackground();
 }
 
 // UPDATE PROGRESS BAR: Show how far through the story we are
@@ -422,24 +442,83 @@ function showSceneTitle(title) {
     
     sceneTitle.textContent = title;
     sceneTitle.style.display = 'block';
+    sceneTitle.style.opacity = '0';
+    sceneTitle.style.transform = 'translate(-50%, -50%) scale(0.8)';
     
-    // Hide it again after animation completes
+    // Animate in
+    setTimeout(() => {
+        sceneTitle.style.transition = 'all 0.8s ease-in-out';
+        sceneTitle.style.opacity = '1';
+        sceneTitle.style.transform = 'translate(-50%, -50%) scale(1)';
+    }, 100);
+    
+    // Hold for a moment, then animate out
+    setTimeout(() => {
+        sceneTitle.style.opacity = '0';
+        sceneTitle.style.transform = 'translate(-50%, -50%) scale(1.1)';
+    }, 1500);
+    
+    // Hide completely
     setTimeout(() => {
         sceneTitle.style.display = 'none';
-    }, 2000);
+        sceneTitle.style.transition = '';
+    }, 2300);
 }
 
-// UPDATE BACKGROUND: Change the visual theme based on current scene
-function updateBackground(backgroundClass) {
-    if (!backgroundEl) return;
-    
-    // Remove all existing background classes
-    backgroundEl.className = 'background';
-    
-    // Add the new background class
-    if (backgroundClass) {
-        backgroundEl.classList.add(backgroundClass);
+// BACKGROUND IMAGE SYSTEM - Handle background image loading and transitions
+// Track which background div is currently active
+let currentBackgroundIndex = 0;
+const backgroundDivs = ['background-current', 'background-next'];
+let preloadedImages = new Map();
+
+// Calculate which image to show based on current position
+function getBackgroundImageNumber() {
+    const totalDialogues = getTotalDialogueCount();
+    const currentPosition = getCurrentPosition();
+    // Map current position to image number (1-101)
+    return Math.floor((currentPosition / totalDialogues) * 101) + 1;
+}
+
+// Preload the next few images
+function preloadImages(startNumber) {
+    const imagesToPreload = 3; // Preload next 3 images
+    for (let i = 0; i < imagesToPreload; i++) {
+        const imageNumber = startNumber + i;
+        if (imageNumber <= 101 && !preloadedImages.has(imageNumber)) {
+            const img = new Image();
+            img.src = `assets/images/${imageNumber}.svg`;
+            preloadedImages.set(imageNumber, img);
+        }
     }
+}
+
+// Update the background with new image
+function updateBackground() {
+    const imageNumber = getBackgroundImageNumber();
+    
+    // Preload next few images
+    preloadImages(imageNumber);
+    
+    // Get the background div
+    const backgroundDiv = document.getElementById('background-current');
+    if (!backgroundDiv) return;
+
+    // Set the new background image immediately
+    backgroundDiv.style.backgroundImage = `url(assets/images/${imageNumber}.svg)`;
+}
+
+// INITIALIZE BACKGROUND SYSTEM: Set up the background image handling
+function initializeBackgroundSystem() {
+    // Create preload container
+    const preloadContainer = document.createElement('div');
+    preloadContainer.id = 'preload-container';
+    document.body.appendChild(preloadContainer);
+    
+    // Preload first few images
+    preloadImages(1);
+    
+    // Set initial background
+    updateBackground();
 }
 
 /* ==========================================================================
@@ -982,3 +1061,140 @@ function hideFullStory() {
     // Restore the normal story view with current scene
     updateDisplay();
 }
+
+/* ==========================================================================
+   DRAGGABLE DIALOGUE BOX - Handle dialogue box movement
+   ========================================================================== */
+
+let isDragging = false;
+let startX = 0;
+let startY = 0;
+let startLeft = 0;
+let startBottom = 0;
+let dragOffset = { x: 0, y: 0 };
+
+function initializeDraggableDialogue() {
+    const dialogueBox = document.querySelector('.dialogue-box');
+    if (!dialogueBox) return;
+
+    // Mouse events
+    dialogueBox.addEventListener('mousedown', startDragging);
+    document.addEventListener('mousemove', handleDrag);
+    document.addEventListener('mouseup', stopDragging);
+
+    // Touch events for mobile
+    dialogueBox.addEventListener('touchstart', handleTouchStart);
+    document.addEventListener('touchmove', handleTouchMove);
+    document.addEventListener('touchend', stopDragging);
+
+    // Double click to center
+    dialogueBox.addEventListener('dblclick', centerDialogueBox);
+}
+
+function startDragging(e) {
+    if (e.target.tagName === 'BUTTON') return; // Don't drag if clicking buttons
+    
+    isDragging = true;
+    const dialogueBox = document.querySelector('.dialogue-box');
+    const rect = dialogueBox.getBoundingClientRect();
+    
+    // Get the starting positions
+    startX = e.clientX || e.touches[0].clientX;
+    startY = e.clientY || e.touches[0].clientY;
+    
+    // Calculate the distance from the pointer to the box edges
+    dragOffset.x = startX - rect.left;
+    dragOffset.y = rect.bottom - startY;
+    
+    // Remove transform to work with absolute positioning
+    dialogueBox.style.transform = 'none';
+    dialogueBox.style.left = rect.left + 'px';
+    
+    // Add dragging class
+    dialogueBox.classList.add('dragging');
+}
+
+function handleDrag(e) {
+    if (!isDragging) return;
+    e.preventDefault();
+    
+    const dialogueBox = document.querySelector('.dialogue-box');
+    const currentX = e.clientX || e.touches[0].clientX;
+    const currentY = e.clientY || e.touches[0].clientY;
+    
+    // Calculate new position
+    let newLeft = currentX - dragOffset.x;
+    let newBottom = window.innerHeight - currentY - dragOffset.y;
+    
+    // Limit the dragging range
+    const boxWidth = dialogueBox.offsetWidth;
+    const minLeft = 10;
+    const maxLeft = window.innerWidth - boxWidth - 10;
+    newLeft = Math.max(minLeft, Math.min(maxLeft, newLeft));
+    newBottom = Math.max(20, Math.min(window.innerHeight - 200, newBottom));
+    
+    // Update position
+    dialogueBox.style.left = `${newLeft}px`;
+    dialogueBox.style.bottom = `${newBottom}px`;
+}
+
+function handleTouchStart(e) {
+    if (e.target.tagName === 'BUTTON') return;
+    startDragging(e.touches[0]);
+}
+
+function handleTouchMove(e) {
+    handleDrag(e.touches[0]);
+}
+
+function stopDragging() {
+    if (!isDragging) return;
+    
+    const dialogueBox = document.querySelector('.dialogue-box');
+    dialogueBox.classList.remove('dragging');
+    isDragging = false;
+    saveDialoguePosition();
+}
+
+function centerDialogueBox() {
+    const dialogueBox = document.querySelector('.dialogue-box');
+    if (!dialogueBox) return;
+    
+    dialogueBox.style.left = '50%';
+    dialogueBox.style.transform = 'translateX(-50%)';
+    saveDialoguePosition();
+}
+
+function saveDialoguePosition() {
+    const dialogueBox = document.querySelector('.dialogue-box');
+    if (dialogueBox) {
+        const position = {
+            left: dialogueBox.style.left,
+            bottom: dialogueBox.style.bottom,
+            transform: dialogueBox.style.transform
+        };
+        localStorage.setItem('dialogueBoxPosition', JSON.stringify(position));
+    }
+}
+
+function restoreDialoguePosition() {
+    const dialogueBox = document.querySelector('.dialogue-box');
+    const savedPosition = localStorage.getItem('dialogueBoxPosition');
+    if (dialogueBox && savedPosition) {
+        const position = JSON.parse(savedPosition);
+        dialogueBox.style.left = position.left;
+        dialogueBox.style.bottom = position.bottom;
+        dialogueBox.style.transform = position.transform;
+    }
+}
+
+// Initialize draggable dialogue box on page load
+initializeDraggableDialogue();
+
+// Restore dialogue box position if available
+restoreDialoguePosition();
+
+// Save dialogue box position on window unload
+window.addEventListener('unload', saveDialoguePosition);
+
+// End of script.js

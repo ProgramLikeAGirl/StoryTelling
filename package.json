@@ -1,0 +1,8 @@
+{
+  "name": "nerf-war-story",
+  "version": "1.0.0",
+  "description": "Interactive storytelling experience about The Great Nerf War",
+  "scripts": {
+    "start": "python3 -m http.server 3000"
+  }
+}

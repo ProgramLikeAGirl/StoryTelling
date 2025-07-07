@@ -45,19 +45,36 @@ body {
     flex-direction: column; /* Stack children vertically */
 }
 
-/* BACKGROUND LAYER: The visual backdrop that changes with each scene */
-.background {
-    position: absolute;               /* Position relative to story-container */
+/* BACKGROUND CONTAINER: Holds both background layers for cross-fading */
+.background-container {
+    position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-size: cover;           /* Make background image cover entire area */
-    background-position: center;      /* Center the background image */
-    background-repeat: no-repeat;     /* Don't repeat the background */
-    filter: brightness(0.7);         /* Darken slightly for text readability */
-    transition: all 1.5s ease-in-out; /* Smooth 1.5 second transitions */
-    z-index: 1;                      /* Behind other content */
+    z-index: 1;
+}
+
+/* BACKGROUND LAYER: The visual backdrop that changes with each scene */
+.background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: #1a1a1a; /* Dark background color */
+}
+
+/* Preload container for images */
+#preload-container {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+    z-index: -1;
 }
 
 /* GRADIENT OVERLAY: Adds visual depth and improves text readability */
@@ -142,18 +159,34 @@ body {
     padding: 20px;              /* Internal spacing */
 }
 
-/* DIALOGUE BOX: The main story interface */
+/* DIALOGUE BOX: The main story interface without resize functionality */
 .dialogue-box {
-    background: rgba(0,0,0,0.95);              /* Almost opaque black */
-    border: 2px solid #8B4513;                 /* Brown border */
-    border-radius: 15px;                       /* Rounded corners */
-    padding: 25px;                             /* Internal spacing */
-    width: 100%;                               /* Full width */
-    max-width: 900px;                          /* Don't get too wide */
-    margin: 0 auto;                            /* Center horizontally */
-    backdrop-filter: blur(15px);               /* Blur behind box */
-    box-shadow: 0 10px 30px rgba(0,0,0,0.7);  /* Drop shadow */
-    animation: fadeInUp 0.5s ease-out;         /* Entrance animation */
+    position: fixed;
+    background: rgba(0,0,0,0.95);
+    border: 2px solid #8B4513;
+    border-radius: 15px;
+    padding: 25px;
+    width: 90%;
+    max-width: 900px;
+    margin: 0 auto;
+    cursor: move;
+    user-select: none;
+    z-index: 1000;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 20px;
+    transition: transform 0.1s ease-out;
+}
+
+/* Content wrapper to maintain aspect ratio */
+.dialogue-content {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transform-origin: center center;
 }
 
 /* SPEAKER NAME: Shows who is talking */
@@ -164,6 +197,8 @@ body {
     margin-bottom: 10px;        /* Space below */
     text-transform: uppercase;   /* ALL CAPITAL LETTERS */
     letter-spacing: 1px;        /* Space between letters */
+    width: 100%;
+    transform-origin: center center;
 }
 
 /* DIALOGUE TEXT: The actual story content */
@@ -173,6 +208,8 @@ body {
     color: #f0f0f0;       /* Light gray text */
     margin-bottom: 15px;  /* Space below */
     min-height: 60px;     /* Minimum height to prevent jumping */
+    width: 100%;
+    transform-origin: center center;
 }
 
 /* ==========================================================================
@@ -187,6 +224,10 @@ body {
     margin-top: 15px;          /* Space above */
     flex-wrap: wrap;           /* Allow wrapping on small screens */
     gap: 10px;                 /* Space between items */
+    margin-top: auto;
+    width: 100%;
+    transform-origin: center center;
+    padding-top: 20px;
 }
 
 /* NAVIGATION BUTTONS: Previous/Next buttons */
@@ -461,11 +502,49 @@ body {
     /* Full-width buttons on mobile */
     .nav-button {
         width: 100%;
-        margin: 5px 0;
+        padding: 15px;
+        font-size: 1.1rem;
     }
+    
+    /* Smaller volume slider */
+    .volume-slider {
+        width: 60px;
+    }
+    
+    /* Adjust modal content */
+    .modal-content {
+        padding: 30px;
+        width: 95%;
+    }
+    
+    /* Hide scene title on mobile */
+    .scene-title {
+        display: none;
+    }
+}
 
-    /* Center audio controls */
-    .audio-controls {
-        justify-content: center;
+/* TABLET STYLES: Adjustments for medium screens */
+@media (min-width: 769px) and (max-width: 1024px) {
+    /* Medium title size */
+    .title {
+        font-size: 1.6rem;
     }
-} 
+    
+    /* Tablet dialogue box */
+    .dialogue-box {
+        padding: 22px;
+        width: 85%;
+    }
+    
+    /* Medium buttons */
+    .nav-button {
+        padding: 12px;
+        font-size: 1rem;
+    }
+    
+    /* Adjust modal content */
+    .modal-content {
+        padding: 35px;
+        width: 90%;
+    }
+}
