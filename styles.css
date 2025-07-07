@@ -6,48 +6,11 @@ CSS (Cascading Style Sheets) is like the "makeup artist" for web pages -
 it makes plain HTML look beautiful and professional.
 
 Key concepts used here:
-- Modern Visual Novel UI principles inspired by professional games
-- Sophisticated color palette with warm yellows and rich browns
-- Minimalist design that lets content shine through
-- Clean typography hierarchy for maximum readability
+- Colors: Using hex codes like #1a1a1a (dark gray) and #fff (white)
+- Layout: Positioning elements exactly where we want them
+- Animations: Creating smooth transitions between scenes
+- Responsive Design: Making it look good on phones AND computers
 */
-
-/* ==========================================================================
-   GOOGLE FONTS IMPORT
-   ========================================================================== */
-
-/* INTER & MERRIWEATHER: Modern UI font + Literary serif for storytelling */
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&display=swap');
-
-/* ==========================================================================
-   DESIGN SYSTEM - VISUAL NOVEL COLOR PALETTE
-   ========================================================================== */
-
-:root {
-    /* Primary Colors - Warm Golden Palette */
-    --canary: #ffe500;          /* Bright accent yellow */
-    --mikado-yellow: #ffc800;   /* Primary golden yellow */
-    --vanilla: #fff4ac;         /* Light cream highlights */
-    --russet: #834a29;          /* Medium brown */
-    --kobicha: #674019;         /* Dark brown shadows */
-    
-    /* UI Colors - Minimal & Clean */
-    --ui-black: #000000;        /* Pure black for clean UI elements */
-    --ui-dark: #1a1a1a;         /* Dark background */
-    --ui-overlay: rgba(0,0,0,0.85); /* Semi-transparent overlays */
-    --ui-border: rgba(255, 228, 0, 0.3); /* Subtle golden borders */
-    --text-primary: #ffffff;     /* Pure white text */
-    --text-secondary: #f0f0f0;   /* Slightly dimmed text */
-    --text-muted: #cccccc;       /* Muted text for less important info */
-    
-    /* Interactive States */
-    --hover-glow: rgba(255, 200, 0, 0.4); /* Golden glow on hover */
-    --focus-ring: rgba(255, 228, 0, 0.6); /* Focus indicators */
-    
-    /* Typography System */
-    --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    --font-story: 'Merriweather', Georgia, 'Times New Roman', serif;
-}
 
 /* ==========================================================================
    GLOBAL RESET & BASE STYLES
@@ -55,22 +18,18 @@ Key concepts used here:
 
 /* GLOBAL RESET: Remove default spacing that browsers add */
 * {
-    margin: 0;              
-    padding: 0;             
-    box-sizing: border-box; 
+    margin: 0;              /* Remove default margins */
+    padding: 0;             /* Remove default padding */
+    box-sizing: border-box; /* Make sizing calculations easier */
 }
 
 /* MAIN PAGE STYLING: Sets up the overall appearance */
 body {
-    font-family: var(--font-story);        /* Merriweather for default reading */
-    font-optical-sizing: auto;      
-    -webkit-font-smoothing: antialiased; 
-    -moz-osx-font-smoothing: grayscale;  
-    text-rendering: optimizeLegibility;   
-    background: var(--ui-dark);           
-    color: var(--text-primary);                    
-    overflow: hidden;               
-    height: 100vh;                  
+    font-family: 'Georgia', serif; /* Use an elegant, readable font */
+    background: #1a1a1a;           /* Dark background color (hex code) */
+    color: #fff;                    /* White text color */
+    overflow: hidden;               /* Hide scrollbars (we want full-screen) */
+    height: 100vh;                  /* Fill the entire viewport height */
 }
 
 /* ==========================================================================
@@ -79,29 +38,45 @@ body {
 
 /* STORY CONTAINER: Main wrapper for the entire application */
 .story-container {
-    position: relative;     
-    width: 100%;           
-    height: 100vh;         
-    display: flex;         
-    flex-direction: column; 
+    position: relative;     /* Allow child elements to be positioned relative to this */
+    width: 100%;           /* Fill the full width */
+    height: 100vh;         /* Fill the full viewport height */
+    display: flex;         /* Use flexbox for layout */
+    flex-direction: column; /* Stack children vertically */
 }
 
 /* BACKGROUND LAYER: The visual backdrop that changes with each scene */
 .background {
-    position: absolute;               
+    position: absolute;               /* Position relative to story-container */
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-size: cover;           
-    background-position: center;      
-    background-repeat: no-repeat;     
-    filter: brightness(0.6);         /* Darker for better text contrast */
-    transition: all 1.5s ease-in-out; 
-    z-index: 1;                      
+    background-size: cover;           /* Make background image cover entire area */
+    background-position: center;      /* Center the background image */
+    background-repeat: no-repeat;     /* Don't repeat the background */
+    filter: brightness(0.7);         /* Darken slightly for text readability */
+    transition: all 1.5s ease-in-out; /* Smooth 1.5 second transitions */
+    z-index: 1;                      /* Behind other content */
 }
 
-/* GRADIENT OVERLAY: Subtle overlay that showcases artwork */
+/* SCENE IMAGE: Optional image for each scene */
+.scene-image {
+    position: static;         /* Don't layer it behind anymore */
+    width: 90%;               /* Responsive sizing */
+    max-width: 800px;         /* Cap size on large screens */
+    height: auto;             /* Keep natural aspect ratio */
+    margin: 0 auto 20px auto; /* Center and space below */
+    display: block;           /* Respect margins */
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    z-index: 3;
+    transition: opacity 0.4s ease-in-out;
+}
+
+
+
+/* GRADIENT OVERLAY: Adds visual depth and improves text readability */
 .gradient-overlay {
     position: absolute;
     top: 0;
@@ -110,510 +85,408 @@ body {
     height: 100%;
     background: linear-gradient(
         to bottom,
-        rgba(0,0,0,0.1) 0%,    /* Very minimal at top for artwork visibility */
-        rgba(0,0,0,0.05) 70%,  /* Almost transparent in middle */
-        rgba(0,0,0,0.7) 100%   /* Darker only at bottom for dialogue readability */
+        rgba(0,0,0,0.3) 0%,    /* Light transparent black at top */
+        rgba(0,0,0,0.1) 40%,   /* Very light in middle */
+        rgba(0,0,0,0.8) 100%   /* Darker at bottom for text readability */
     );
-    z-index: 2; 
+    z-index: 2; /* Above background, below UI */
 }
 
 /* UI OVERLAY: Contains all interactive elements */
 .ui-overlay {
-    position: relative; 
-    z-index: 10;       
-    height: 100%;      
-    display: flex;     
-    flex-direction: column; 
+    position: relative; /* Normal document flow */
+    z-index: 10;       /* Above background layers */
+    height: 100%;      /* Fill available height */
+    display: flex;     /* Use flexbox layout */
+    flex-direction: column; /* Stack children vertically */
 }
 
 /* ==========================================================================
-   HEADER COMPONENTS - MINIMAL TOP BAR
+   HEADER COMPONENTS
    ========================================================================== */
 
-/* TITLE BAR: Minimal and unobtrusive */
+/* TITLE BAR: Top section with title and progress */
 .title-bar {
-    background: rgba(0,0,0,0.7);              /* Less opaque */
-    padding: 8px 15px;                        /* More compact padding */
-    border-bottom: 1px solid var(--ui-border); 
-    backdrop-filter: blur(6px);               /* Less blur */
-    text-align: center;                       /* Center all text content */
+    background: rgba(0,0,0,0.9);      /* Semi-transparent black background */
+    padding: 15px 20px;               /* Internal spacing */
+    border-bottom: 3px solid #8B4513; /* Brown bottom border */
+    backdrop-filter: blur(10px);      /* Blur effect behind the bar */
 }
 
-/* MAIN TITLE: Compact typography */
+/* MAIN TITLE: Large heading text */
 .title {
-    font-family: var(--font-ui);               
-    font-size: 1.4rem;                        /* Slightly smaller */
-    font-weight: 700;                          
-    color: var(--mikado-yellow);                           
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.8); 
+    font-size: 1.8rem;                        /* Large font size */
+    font-weight: bold;                         /* Make text bold */
+    color: #DAA520;                           /* Gold color */
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8); /* Drop shadow for depth */
 }
 
-/* SUBTITLE: More subtle secondary text */
+/* SUBTITLE: Smaller descriptive text */
 .subtitle {
-    font-family: var(--font-ui);               
-    font-size: 0.8rem;                        /* Smaller */
-    color: var(--text-muted);        
-    font-style: italic; 
-    margin-top: 2px;                          /* Less space */
+    font-size: 1rem;    /* Medium font size */
+    color: #ccc;        /* Light gray color */
+    font-style: italic; /* Italicized text */
+    margin-top: 5px;    /* Small space above */
 }
 
-/* PROGRESS BAR: More subtle progress indicator */
+/* PROGRESS BAR: Shows story completion */
 .progress-bar {
-    height: 3px;                              /* Thinner */
-    background: rgba(255,255,255,0.1);  
-    margin-top: 6px;                          /* Less space */
-    border-radius: 2px;                 
-    overflow: hidden;                   
+    height: 4px;                        /* Thin bar */
+    background: rgba(255,255,255,0.2);  /* Light transparent background */
+    margin-top: 10px;                   /* Space above */
+    border-radius: 2px;                 /* Slightly rounded corners */
+    overflow: hidden;                   /* Hide overflowing content */
 }
 
-/* PROGRESS FILL: Warm golden fill */
+/* PROGRESS FILL: The actual progress indicator */
 .progress-fill {
-    height: 100%;                                    
-    background: linear-gradient(90deg, var(--mikado-yellow), var(--canary)); /* Golden gradient */
-    transition: width 0.8s ease;                    
-    width: 0%;                                       
-    border-radius: 2px;                              /* Rounded for charm */
+    height: 100%;                                    /* Fill the bar height */
+    background: linear-gradient(90deg, #DAA520, #FFD700); /* Gold gradient */
+    transition: width 0.8s ease;                    /* Smooth width changes */
+    width: 0%;                                       /* Start at 0% */
 }
 
 /* ==========================================================================
-   MAIN CONTENT AREA - BOTTOM-ANCHORED VN STYLE
+   MAIN CONTENT AREA
    ========================================================================== */
 
-/* MAIN CONTENT: Bottom-anchored like professional VNs */
+/* MAIN CONTENT: Where the story dialogue appears */
 .main-content {
-    flex: 1;                    
-    display: flex;              
-    align-items: flex-end;      
-    padding: 15px;              /* Add some breathing room from edges */
-}
-
-/* MAIN CONTENT: Remove padding when showing full story */
-.main-content.full-story-mode {
-    padding: 0;                 /* Remove all padding for full story view */
-    align-items: stretch;       /* Use full height */
-}
-
-/* DIALOGUE BOX: Compact and elegant VN-style interface */
-.dialogue-box {
-    background: rgba(0,0,0,0.85);             /* More transparent to show artwork */
-    border: none;                             
-    border-radius: 12px;                      /* Slightly more rounded for elegance */
-    padding: 20px;                            /* Much more compact padding */
-    width: 100%;                               
-    max-width: 800px;                         /* Prevent it from being too wide */
-    margin: 0 auto;                           /* Center it */
-    backdrop-filter: blur(8px);               /* Add subtle blur for depth */
-    box-shadow: 0 8px 32px rgba(0,0,0,0.4);   /* Softer, more diffused shadow */
-    animation: fadeInUp 0.3s ease-out;       
-    border-top: 1px solid var(--ui-border);  
-}
-
-/* SPEAKER NAME: More compact character identification */
-.speaker-name {
-    font-family: var(--font-story);            
-    font-size: 1rem;                          /* Slightly smaller */
-    font-weight: 600;            
-    color: var(--canary);        
-    margin-bottom: 8px;                       /* Less space below */
-    text-transform: uppercase;   
-    letter-spacing: 0.5px;      
-}
-
-/* DIALOGUE TEXT: More compact storytelling */
-.dialogue-text {
-    font-family: var(--font-story);            
-    font-size: 1rem;                          /* Slightly smaller for compactness */
-    line-height: 1.6;                         /* Tighter line spacing */
-    color: var(--text-secondary);       
-    margin-bottom: 15px;                      /* Less space below */
-    min-height: 48px;                         /* Smaller minimum height */
-}
-
-/* CONTROLS CONTAINER: Compact single-line layout */
-.controls {
-    display: flex;              
-    justify-content: space-between; 
-    align-items: center;        
-    margin-top: 0;                            /* Remove top margin */
-    flex-wrap: wrap;           
-    gap: 10px;                                /* Tighter spacing */
-}
-
-/* NAVIGATION BUTTONS: More compact buttons */
-.nav-button {
-    font-family: var(--font-ui);               
-    background: var(--ui-black);               
-    color: var(--text-primary);               
-    border: 1px solid var(--ui-border);       
-    padding: 8px 16px;                        /* Much more compact padding */
-    border-radius: 6px;                       /* Subtle rounding */
-    cursor: pointer;                       
-    font-size: 0.85rem;                       /* Smaller font */
-    font-weight: 500;                      
-    transition: all 0.2s ease;               
-    text-transform: uppercase;             
-    letter-spacing: 0.3px;                    /* Less aggressive spacing */
-    min-width: 80px;                          /* Smaller minimum width */
-}
-
-/* BUTTON HOVER EFFECTS: Subtle glow effect */
-.nav-button:hover {
-    background: var(--ui-black);              /* Keep black background */
-    border-color: var(--mikado-yellow);      /* Golden border on hover */
-    box-shadow: 0 0 10px var(--hover-glow);  /* Subtle glow */
-    transform: none;                          /* Remove movement for cleaner feel */
-}
-
-/* DISABLED BUTTONS: Muted state */
-.nav-button:disabled {
-    background: var(--ui-black);    
-    color: var(--text-muted);
-    border-color: rgba(255,255,255,0.1);
-    cursor: not-allowed; 
-    box-shadow: none;    
-}
-
-/* SCENE COUNTER: More compact information display */
-.scene-counter {
-    font-family: var(--font-ui);               
-    color: var(--text-muted);         
-    font-size: 0.8rem;                        /* Smaller font */
+    flex: 1;
+    display: flex;
+    flex-direction: column;  /* Stack image and dialogue box */
+    align-items: center;     /* Center horizontally */
+    justify-content: center; /* Center vertically */
+    padding: 20px;
+    z-index: 3;
     text-align: center;
-    white-space: nowrap;                      /* Prevent wrapping */
 }
 
-/* AUDIO CONTROLS: Compact inline layout */
-.audio-controls {
-    display: flex;       
-    align-items: center; 
-    gap: 8px;                                 /* Tighter spacing */
-    margin-top: 0;                            /* Remove top margin */
-    flex-wrap: nowrap;                        /* Keep inline */
+
+/* DIALOGUE BOX: The main story interface */
+.dialogue-box {
+    background: rgba(0,0,0,0.95);              /* Almost opaque black */
+    border: 2px solid #8B4513;                 /* Brown border */
+    border-radius: 15px;                       /* Rounded corners */
+    padding: 25px;                             /* Internal spacing */
+    width: 100%;                               /* Full width */
+    max-width: 900px;                          /* Don't get too wide */
+    margin: 0 auto;                            /* Center horizontally */
+    backdrop-filter: blur(15px);               /* Blur behind box */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.7);  /* Drop shadow */
+    animation: fadeInUp 0.5s ease-out;         /* Entrance animation */
 }
 
-/* VOLUME CONTROL: More compact volume */
-.volume-control {
-    display: flex;       
-    align-items: center; 
-    gap: 6px;                                 /* Tighter spacing */
+/* SPEAKER NAME: Shows who is talking */
+.speaker-name {
+    font-size: 1.2rem;           /* Slightly larger text */
+    font-weight: bold;           /* Make it bold */
+    color: #DAA520;             /* Gold color */
+    margin-bottom: 10px;        /* Space below */
+    text-transform: uppercase;   /* ALL CAPITAL LETTERS */
+    letter-spacing: 1px;        /* Space between letters */
 }
 
-.volume-control span {
-    font-size: 0.7rem;                        /* Smaller label */
-    color: var(--text-muted);
-    white-space: nowrap;
-}
-
-/* VOLUME SLIDER: Smaller slider */
-.volume-slider {
-    width: 60px;                              /* Smaller slider */
-    accent-color: var(--mikado-yellow); 
-}
-
-/* COMPACT LAYOUT: Group controls more efficiently */
-.controls-row-1 {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    margin-bottom: 8px;                       /* Small gap between rows */
-}
-
-.controls-row-2 {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
+/* DIALOGUE TEXT: The actual story content */
+.dialogue-text {
+    font-size: 1.1rem;    /* Readable font size */
+    line-height: 1.6;     /* Space between lines */
+    color: #f0f0f0;       /* Light gray text */
+    margin-bottom: 15px;  /* Space below */
+    min-height: 60px;     /* Minimum height to prevent jumping */
 }
 
 /* ==========================================================================
-   MODAL DIALOGS - CHARMING & WARM
+   CONTROLS & NAVIGATION
    ========================================================================== */
 
-/* MODAL BACKGROUND: Professional overlay */
+/* CONTROLS CONTAINER: Holds navigation buttons */
+.controls {
+    display: flex;              /* Use flexbox */
+    justify-content: space-between; /* Spread items apart */
+    align-items: center;        /* Center vertically */
+    margin-top: 15px;          /* Space above */
+    flex-wrap: wrap;           /* Allow wrapping on small screens */
+    gap: 10px;                 /* Space between items */
+}
+
+/* NAVIGATION BUTTONS: Previous/Next buttons */
+.nav-button {
+    background: linear-gradient(135deg, #8B4513, #A0522D); /* Brown gradient */
+    color: white;                          /* White text */
+    border: none;                          /* Remove default border */
+    padding: 12px 25px;                    /* Internal spacing */
+    border-radius: 8px;                    /* Rounded corners */
+    cursor: pointer;                       /* Show hand cursor on hover */
+    font-size: 1rem;                       /* Normal font size */
+    font-weight: bold;                     /* Bold text */
+    transition: all 0.3s ease;            /* Smooth hover effects */
+    text-transform: uppercase;             /* UPPERCASE TEXT */
+    letter-spacing: 1px;                   /* Letter spacing */
+}
+
+/* BUTTON HOVER EFFECTS: What happens when you hover over buttons */
+.nav-button:hover {
+    background: linear-gradient(135deg, #A0522D, #CD853F); /* Lighter gradient */
+    transform: translateY(-2px);           /* Move up slightly */
+    box-shadow: 0 5px 15px rgba(139, 69, 19, 0.4); /* Add shadow */
+}
+
+/* DISABLED BUTTONS: When buttons can't be clicked */
+.nav-button:disabled {
+    background: #555;    /* Gray background */
+    cursor: not-allowed; /* Show "not allowed" cursor */
+    transform: none;     /* No hover movement */
+    box-shadow: none;    /* No shadow */
+}
+
+/* SCENE COUNTER: Shows current position (e.g., "Scene 3 of 12") */
+.scene-counter {
+    color: #ccc;         /* Light gray text */
+    font-size: 0.9rem;   /* Slightly smaller text */
+    text-align: center;  /* Center the text */
+}
+
+/* AUDIO CONTROLS: Volume and playback controls */
+.audio-controls {
+    display: flex;       /* Use flexbox */
+    align-items: center; /* Center vertically */
+    gap: 15px;          /* Space between items */
+    margin-top: 15px;   /* Space above */
+    flex-wrap: wrap;    /* Allow wrapping */
+}
+
+/* VOLUME CONTROL CONTAINER */
+.volume-control {
+    display: flex;       /* Use flexbox */
+    align-items: center; /* Center vertically */
+    gap: 8px;           /* Small space between items */
+}
+
+/* VOLUME SLIDER: The actual volume control */
+.volume-slider {
+    width: 80px;           /* Fixed width */
+    accent-color: #DAA520; /* Gold color for slider */
+}
+
+/* ==========================================================================
+   MODAL DIALOGS
+   ========================================================================== */
+
+/* MODAL BACKGROUND: Full-screen overlay */
 .modal {
-    position: fixed;                    
+    position: fixed;                    /* Stay in place when scrolling */
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.95);       /* Darker overlay */
-    display: flex;                     
-    justify-content: center;           
-    align-items: center;               
-    z-index: 1000;                     
-    backdrop-filter: blur(8px);        /* More blur for charm */
+    background: rgba(0,0,0,0.9);       /* Dark semi-transparent background */
+    display: flex;                     /* Use flexbox */
+    justify-content: center;           /* Center horizontally */
+    align-items: center;               /* Center vertically */
+    z-index: 1000;                     /* Above everything else */
+    backdrop-filter: blur(10px);       /* Blur the background */
 }
 
-/* MODAL CONTENT BOX: Warm and charming dialog */
+/* MODAL CONTENT BOX: The actual dialog */
 .modal-content {
-    background: linear-gradient(135deg, #2c1810, #3d2317); /* Warm brown gradient */
-    padding: 40px;                      
-    border-radius: 20px;                /* Charming rounded corners */
-    border: 3px solid var(--mikado-yellow);  /* Prominent golden border */
-    text-align: center;                 
-    max-width: 500px;                   
-    width: 90%;                         
-    box-shadow: 0 20px 40px rgba(0,0,0,0.8); /* Warmer shadow */
-    animation: modalSlideIn 0.5s ease-out;   /* Slightly slower, more charming */
+    background: linear-gradient(135deg, #2c1810, #3d2317); /* Brown gradient */
+    padding: 40px;                      /* Internal spacing */
+    border-radius: 20px;                /* Rounded corners */
+    border: 3px solid #DAA520;          /* Gold border */
+    text-align: center;                 /* Center all text */
+    max-width: 500px;                   /* Don't get too wide */
+    width: 90%;                         /* Take up 90% of available width */
+    box-shadow: 0 20px 40px rgba(0,0,0,0.8); /* Large shadow */
+    animation: modalSlideIn 0.5s ease-out;    /* Entrance animation */
 }
 
-/* MODAL HEADING: UI heading with Inter */
+/* MODAL HEADING: Large title text */
 .modal h2 {
-    font-family: var(--font-ui);               /* Inter for UI elements */
-    color: var(--canary);        
-    margin-bottom: 20px;   
-    font-size: 1.8rem;     
-    font-weight: 700;      
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.8); /* Warmer shadow */
+    color: #DAA520;        /* Gold color */
+    margin-bottom: 20px;   /* Space below */
+    font-size: 1.8rem;     /* Large font */
 }
 
-/* MODAL PARAGRAPH: Story content with Merriweather */
+/* MODAL PARAGRAPH: Body text */
 .modal p {
-    font-family: var(--font-story);            /* Merriweather for story content */
-    color: #f0f0f0;          /* Warmer text color */
-    margin-bottom: 25px;   
-    line-height: 1.6;      
+    color: #ccc;           /* Light gray */
+    margin-bottom: 25px;   /* Space below */
+    line-height: 1.5;      /* Line spacing */
 }
 
-/* MODAL INPUT: UI element with Inter */
+/* MODAL INPUT: Text input field */
 .modal input {
-    font-family: var(--font-ui);               /* Inter for UI elements */
-    width: 100%;                        
-    padding: 15px;                      
-    border: 2px solid var(--russet);           /* Brown border */
-    border-radius: 12px;                       /* Rounded corners */
-    background: rgba(0,0,0,0.7);               /* Semi-transparent */
-    color: var(--text-primary);                       
-    font-size: 1.1rem;                  
-    margin-bottom: 20px;                
-    text-align: center;                 
+    width: 100%;                        /* Full width */
+    padding: 15px;                      /* Internal spacing */
+    border: 2px solid #8B4513;          /* Brown border */
+    border-radius: 10px;                /* Rounded corners */
+    background: rgba(0,0,0,0.5);        /* Semi-transparent black */
+    color: white;                       /* White text */
+    font-size: 1.1rem;                  /* Readable font size */
+    margin-bottom: 20px;                /* Space below */
+    text-align: center;                 /* Center the text */
 }
 
-/* INPUT FOCUS EFFECT: Charming focus state */
+/* INPUT FOCUS EFFECT: When user clicks in input field */
 .modal input:focus {
-    outline: none;                             
-    border-color: var(--mikado-yellow);                     
-    box-shadow: 0 0 15px rgba(255, 200, 0, 0.4); /* Golden glow */
-}
-
-/* MODAL BUTTONS: Charming button styling */
-.modal .nav-button {
-    font-family: var(--font-ui);               /* Inter for UI elements */
-    background: linear-gradient(135deg, var(--russet), #A0522D); /* Brown gradient */
-    color: white;                          
-    border: none;                          
-    padding: 15px 30px;                    
-    border-radius: 12px;                   /* Rounded corners */
-    cursor: pointer;                       
-    font-size: 1rem;                       
-    font-weight: 600;                      
-    transition: all 0.3s ease;            
-    text-transform: uppercase;             
-    letter-spacing: 0.8px;                 
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-}
-
-/* MODAL BUTTON HOVER: Charming hover effect */
-.modal .nav-button:hover {
-    background: linear-gradient(135deg, #A0522D, #CD853F); /* Lighter gradient */
-    transform: translateY(-2px);           /* Playful movement */
-    box-shadow: 0 6px 18px rgba(139, 69, 19, 0.4); /* Warm shadow */
+    outline: none;                             /* Remove default outline */
+    border-color: #DAA520;                     /* Gold border */
+    box-shadow: 0 0 10px rgba(218, 165, 32, 0.3); /* Gold glow */
 }
 
 /* ==========================================================================
-   STATUS INDICATORS - MINIMAL DESIGN
+   STATUS INDICATORS
    ========================================================================== */
 
-/* MQTT STATUS: Clean status indicator with Inter */
+/* MQTT STATUS: Shows connection status */
 .mqtt-status {
-    font-family: var(--font-ui);               /* Inter for UI elements */
-    position: fixed;      
-    top: 15px;           
-    right: 15px;         
-    padding: 6px 12px;  
-    border-radius: 4px; 
-    font-size: 0.75rem;   
-    font-weight: 600;     
-    z-index: 100;        
-    transition: all 0.3s ease; 
+    position: fixed;      /* Stay in place */
+    top: 20px;           /* Distance from top */
+    right: 20px;         /* Distance from right */
+    padding: 10px 15px;  /* Internal spacing */
+    border-radius: 20px; /* Rounded pill shape */
+    font-size: 0.8rem;   /* Small font */
+    font-weight: bold;   /* Bold text */
+    z-index: 100;        /* Above most content */
+    transition: all 0.3s ease; /* Smooth changes */
 }
 
-/* CONNECTED STATUS: Minimal green indicator */
+/* CONNECTED STATUS: Green indicator */
 .mqtt-connected {
-    background: rgba(0, 150, 0, 0.9); 
-    color: white;                      
+    background: rgba(0, 200, 0, 0.8); /* Semi-transparent green */
+    color: white;                      /* White text */
 }
 
-/* DISCONNECTED STATUS: Minimal red indicator */
+/* DISCONNECTED STATUS: Red indicator */
 .mqtt-disconnected {
-    background: rgba(150, 0, 0, 0.9); 
-    color: white;                      
+    background: rgba(200, 0, 0, 0.8); /* Semi-transparent red */
+    color: white;                      /* White text */
 }
 
 /* ==========================================================================
-   BACKGROUND THEMES - REFINED GRADIENTS
+   BACKGROUND THEMES
    ========================================================================== */
 
-/* PARK SCENE: Subtle green theme */
+/* Different background styles for different scenes */
+
+/* PARK SCENE: Green nature theme */
 .bg-park {
-    background: linear-gradient(135deg, #2e5c2e, #4a7c59);
+    background: linear-gradient(135deg, #4CAF50, #8BC34A), 
+                radial-gradient(circle at 20% 80%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255,255,255,0.1) 0%, transparent 50%);
 }
 
-/* OFFICE SCENE: Warm brown theme using new palette */
+/* OFFICE SCENE: Brown professional theme */
 .bg-office {
-    background: linear-gradient(135deg, var(--kobicha), var(--russet));
+    background: linear-gradient(135deg, #795548, #8D6E63),
+                repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px);
 }
 
-/* BATTLEFIELD SCENE: Dramatic red theme */
+/* BATTLEFIELD SCENE: Red action theme */
 .bg-battlefield {
-    background: linear-gradient(135deg, #8B2635, #A84A3B);
+    background: linear-gradient(135deg, #FF5722, #FF7043),
+                radial-gradient(circle at 30% 30%, rgba(255,255,0,0.1) 0%, transparent 50%);
 }
 
-/* PEACE SCENE: Calming blue theme */
+/* PEACE SCENE: Blue harmonious theme */
 .bg-peace {
-    background: linear-gradient(135deg, #2C5F6C, #4A9DB0);
+    background: linear-gradient(135deg, #2196F3, #64B5F6, #81C784);
 }
 
 /* ==========================================================================
-   ANIMATIONS & EFFECTS - SUBTLE & PROFESSIONAL
+   ANIMATIONS & EFFECTS
    ========================================================================== */
 
-/* FADE IN UP: Subtle entrance animation */
+/* FADE IN UP: Entrance animation for dialogue box */
 @keyframes fadeInUp {
     from {
-        opacity: 0;                    
-        transform: translateY(10px);   /* Less dramatic movement */
+        opacity: 0;                    /* Start invisible */
+        transform: translateY(20px);   /* Start lower */
     }
     to {
-        opacity: 1;                    
-        transform: translateY(0);      
+        opacity: 1;                    /* End visible */
+        transform: translateY(0);      /* End in normal position */
     }
 }
 
-/* MODAL SLIDE IN: Clean modal entrance */
+/* MODAL SLIDE IN: Entrance animation for modals */
 @keyframes modalSlideIn {
     from {
-        opacity: 0;              
-        transform: scale(0.95);   /* Less dramatic scaling */
+        opacity: 0;              /* Start invisible */
+        transform: scale(0.8);   /* Start smaller */
     }
     to {
-        opacity: 1;              
-        transform: scale(1);     
+        opacity: 1;              /* End visible */
+        transform: scale(1);     /* End normal size */
     }
 }
 
-/* SCENE TITLE ANIMATION: Story title with Merriweather */
+/* TYPEWRITER EFFECT: Makes text appear letter by letter */
+.typewriter-effect {
+    overflow: hidden;                              /* Hide text beyond container */
+    white-space: nowrap;                           /* Don't wrap text */
+    animation: typewriter 1.5s steps(40) forwards; /* Letter-by-letter animation */
+}
+
+@keyframes typewriter {
+    from { width: 0 }     /* Start with no width */
+    to { width: 100% }    /* End with full width */
+}
+
+/* SCENE TITLE ANIMATION: Shows scene names with dramatic effect */
 .scene-title {
-    font-family: var(--font-story);            /* Merriweather for story titles */
-    position: absolute;                              
-    top: 50%;                                       
-    left: 50%;                                      
-    transform: translate(-50%, -50%);               
-    font-size: 1.8rem;                              
-    color: var(--canary);                                 
-    text-shadow: 2px 2px 8px rgba(0,0,0,0.9);     
-    opacity: 0;                                     
-    animation: sceneTitleFade 1.5s ease-out;      /* Faster animation */
-    pointer-events: none;                           
-    z-index: 5;                                     
-    font-weight: 400;                              /* Regular weight for serif */
-    font-style: italic;                            /* Elegant italic for scene titles */
+    position: absolute;                              /* Position relative to container */
+    top: 50%;                                       /* Center vertically */
+    left: 50%;                                      /* Center horizontally */
+    transform: translate(-50%, -50%);               /* Adjust for exact center */
+    font-size: 2rem;                                /* Large font */
+    color: #DAA520;                                 /* Gold color */
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.8);     /* Strong shadow */
+    opacity: 0;                                     /* Start invisible */
+    animation: sceneTitleFade 2s ease-in-out;      /* Fade in and out */
+    pointer-events: none;                           /* Don't block clicks */
+    z-index: 5;                                     /* Above background */
 }
 
 @keyframes sceneTitleFade {
-    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }  
-    25% { opacity: 1; transform: translate(-50%, -50%) scale(1); }   
-    75% { opacity: 1; transform: translate(-50%, -50%) scale(1); }   
-    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.05); } 
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }  /* Start: invisible, small */
+    20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }   /* Fade in, normal size */
+    80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }   /* Stay visible */
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.1); } /* Fade out, slightly larger */
 }
 
 /* ==========================================================================
-   RESPONSIVE DESIGN - MOBILE OPTIMIZATION
+   RESPONSIVE DESIGN
    ========================================================================== */
 
-/* MOBILE STYLES: Compact mobile adaptations */
+/* MOBILE STYLES: Adjustments for smaller screens */
 @media (max-width: 768px) {
+    /* Smaller title on mobile */
     .title {
-        font-size: 1.2rem;                        /* Proportionally smaller */
+        font-size: 1.4rem;
     }
     
-    .title-bar {
-        padding: 6px 12px;                        /* Even more compact on mobile */
-    }
-    
-    .main-content {
-        padding: 10px;                            /* Even tighter on mobile */
-    }
-    
+    /* More compact dialogue box */
     .dialogue-box {
-        padding: 15px;                            /* More compact on mobile */
-        border-radius: 8px;                       /* Less rounding on mobile */
+        padding: 20px;
+        margin: 0 10px;
     }
     
-    .dialogue-text {
-        font-size: 0.95rem;                       /* Slightly smaller on mobile */
-        line-height: 1.5;                         /* Tighter line spacing */
-        min-height: 40px;                         /* Smaller minimum height */
+    /* Stack controls vertically */
+    .controls {
+        flex-direction: column;
+        align-items: stretch;
     }
     
-    .speaker-name {
-        font-size: 0.9rem;                        /* Smaller on mobile */
-        margin-bottom: 6px;                       /* Less space */
-    }
-    
-    .controls-row-1 {
-        margin-bottom: 6px;                       /* Tighter spacing */
-    }
-    
-    .controls-row-2 {
-        gap: 8px;                                 /* Tighter gap on mobile */
-    }
-    
+    /* Full-width buttons on mobile */
     .nav-button {
-        padding: 6px 10px;                        /* Even more compact on mobile */
-        font-size: 0.8rem;                        /* Smaller font */
-        min-width: 60px;                          /* Smaller buttons */
+        width: 100%;
+        margin: 5px 0;
     }
-    
-    .nav-button#audioToggle,
-    .nav-button[onclick="resetStory()"],
-    .nav-button[onclick="showFullStory()"] {
-        padding: 5px 8px;                         /* Very compact special buttons */
-        font-size: 0.7rem;                        /* Smaller font */
-        min-width: 45px;                          /* Smaller minimum width */
-    }
-    
-    .volume-slider {
-        width: 50px;                              /* Smaller slider on mobile */
-    }
-    
-    .scene-counter {
-        font-size: 0.75rem;                       /* Smaller on mobile */
-    }
-}
 
-/* AUDIO TOGGLE & RESTART BUTTONS: Compact special buttons */
-.nav-button#audioToggle,
-.nav-button[onclick="resetStory()"],
-.nav-button[onclick="showFullStory()"] {
-    font-family: var(--font-ui);               
-    background: linear-gradient(135deg, var(--russet), #A0522D); 
-    border: 1px solid var(--mikado-yellow);       
-    border-radius: 6px;                           /* Match other buttons */
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);        
-    padding: 6px 12px;                            /* Even more compact */
-    font-size: 0.75rem;                           /* Smaller font */
-    min-width: 60px;                              /* Smaller minimum width */
-}
-
-/* SPECIAL BUTTON HOVER: Charming hover for audio/restart buttons */
-.nav-button#audioToggle:hover,
-.nav-button[onclick="resetStory()"]:hover,
-.nav-button[onclick="showFullStory()"]:hover {
-    background: linear-gradient(135deg, #A0522D, #CD853F); /* Lighter gradient */
-    border-color: var(--canary);                          /* Bright border */
-    box-shadow: 0 4px 12px rgba(139, 69, 19, 0.4);       /* Warm glow */
-    transform: translateY(-1px);                          /* Subtle lift */
+    /* Center audio controls */
+    .audio-controls {
+        justify-content: center;
+    }
 } 
