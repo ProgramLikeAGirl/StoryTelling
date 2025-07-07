@@ -376,9 +376,9 @@ function updateDisplay() {
     
     // Update the scene counter
     if (sceneCounterEl) {
-        const position = getCurrentPosition() + 1;
-        const total = getTotalDialogueCount();
-        sceneCounterEl.textContent = `Line ${position} of ${total} - ${storyData.scenes[currentScene].title}`;
+        const sceneNumber = currentScene + 1;
+        const totalScenes = storyData.scenes.length;
+        sceneCounterEl.textContent = `Scene ${sceneNumber} of ${totalScenes}`;
     }
     
     // Update the progress bar
@@ -760,29 +760,34 @@ function logStoryState() {
 // Enhanced Show Full Story function to display the complete interactive narrative
 function showFullStory() {
     // Hide navigation and audio controls while showing the full story
-    document.querySelector('.controls').style.display = 'none';
-    document.querySelector('.audio-controls').style.display = 'none';
+    const controlsRow1 = document.querySelector('.controls-row-1');
+    const controlsRow2 = document.querySelector('.controls-row-2');
+    const mainContent = document.querySelector('.main-content');
+    if (controlsRow1) controlsRow1.style.display = 'none';
+    if (controlsRow2) controlsRow2.style.display = 'none';
+    if (mainContent) mainContent.classList.add('full-story-mode');
     if (sceneCounterEl) sceneCounterEl.style.display = 'none';
     if (speakerNameEl) speakerNameEl.style.display = 'none';
 
-    // Make the dialogue box scrollable and expand it
+    // Make the dialogue box use screen space efficiently but leave room for button
     if (dialogueTextEl) {
-        dialogueTextEl.style.maxHeight = '70vh';
+        dialogueTextEl.style.maxHeight = '88vh';    // Leave room for button at bottom
         dialogueTextEl.style.overflowY = 'auto';
-        dialogueTextEl.style.padding = '20px';
-        dialogueTextEl.style.lineHeight = '1.6';
-        dialogueTextEl.style.fontSize = '16px';
+        dialogueTextEl.style.padding = '5px';       // Minimal padding
+        dialogueTextEl.style.lineHeight = '1.5';    // Tighter line spacing
+        dialogueTextEl.style.fontSize = '14px';     // Smaller font for more content
+        dialogueTextEl.style.margin = '0';          // Remove any margins
     }
 
     // Generate the complete story from storyData
-    // Create sticky header content
+    // Create compact sticky header content
     const stickyHeaderHtml = `
-        <div style="background: rgba(0, 0, 0, 0.95); padding: 15px 20px; border-bottom: 2px solid #4CAF50; backdrop-filter: blur(10px);">
-            <h1 style="text-align: center; color: #4CAF50; margin: 0; font-size: 24px;">
+        <div style="background: rgba(0, 0, 0, 0.95); padding: 8px 15px; border-bottom: 1px solid #4CAF50; backdrop-filter: blur(10px);">
+            <h1 style="text-align: center; color: #4CAF50; margin: 0; font-size: 18px;">
                 The Great Nerf War: A Capybara's Revenge
             </h1>
-            <p style="text-align: center; font-style: italic; margin: 10px 0 0 0; color: #aaa;">
-                The Complete Interactive Story featuring ${playerName}
+            <p style="text-align: center; font-style: italic; margin: 4px 0 0 0; color: #aaa; font-size: 12px;">
+                Complete Story featuring ${playerName}
             </p>
         </div>
     `;
@@ -804,15 +809,15 @@ function showFullStory() {
     ];
 
     let fullStoryHtml = `
-        <div style="font-size: 16px; line-height: 1.8; color: #e0e0e0; padding-top: 20px;">
+        <div style="font-size: 14px; line-height: 1.5; color: #e0e0e0; padding-top: 10px;">
     `;
 
-    // Add each scene with proper formatting
+    // Add each scene with compact formatting
     storyData.scenes.forEach((scene, sceneIndex) => {
         const sceneColor = sceneColors[sceneIndex % sceneColors.length];
         fullStoryHtml += `
-            <div style="margin-bottom: 40px; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 10px; border-left: 4px solid ${sceneColor};">
-                <h2 style="color: ${sceneColor}; margin-bottom: 20px; font-size: 20px;">
+            <div style="margin-bottom: 20px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px; border-left: 3px solid ${sceneColor};">
+                <h2 style="color: ${sceneColor}; margin-bottom: 12px; font-size: 16px;">
                     ${sceneIndex + 1}. ${scene.title}
                 </h2>
         `;
@@ -832,11 +837,11 @@ function showFullStory() {
             }
 
             fullStoryHtml += `
-                <div style="margin-bottom: 15px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 5px;">
-                    <div style="${speakerStyle} margin-bottom: 5px;">
+                <div style="margin-bottom: 8px; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 4px;">
+                    <div style="${speakerStyle} margin-bottom: 3px; font-size: 13px;">
                         ${personalizedSpeaker}:
                     </div>
-                    <div style="color: #e0e0e0; padding-left: 10px;">
+                    <div style="color: #e0e0e0; padding-left: 8px; font-size: 14px; line-height: 1.4;">
                         ${personalizedText}
                     </div>
                 </div>
@@ -847,8 +852,8 @@ function showFullStory() {
     });
 
     fullStoryHtml += `
-            <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 2px solid #4CAF50;">
-                <p style="font-style: italic; color: #aaa; margin-bottom: 20px;">
+            <div style="text-align: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid #4CAF50;">
+                <p style="font-style: italic; color: #aaa; margin-bottom: 10px; font-size: 14px;">
                     The End - A tale of friendship, understanding, and foam dart diplomacy.
                 </p>
             </div>
@@ -857,11 +862,13 @@ function showFullStory() {
 
     // Display the complete story
     if (dialogueTextEl) {
-        // Set up the dialogue container with relative positioning
+        // Set up the dialogue container efficiently but leave room for button
         dialogueTextEl.style.position = 'relative';
         dialogueTextEl.style.display = 'flex';
         dialogueTextEl.style.flexDirection = 'column';
-        dialogueTextEl.style.height = '70vh';
+        dialogueTextEl.style.height = '88vh';
+        dialogueTextEl.style.margin = '0';
+        dialogueTextEl.style.padding = '0';
         
         // Create sticky header section
         const stickyHeader = document.createElement('div');
@@ -874,26 +881,28 @@ function showFullStory() {
         `;
         stickyHeader.innerHTML = stickyHeaderHtml;
         
-        // Create scrollable content area
+        // Create scrollable content area with minimal padding
         const scrollableContent = document.createElement('div');
         scrollableContent.style.cssText = `
             flex: 1;
             overflow-y: auto;
-            padding: 0 20px 20px 20px;
+            padding: 5px 15px 10px 15px;
         `;
         scrollableContent.innerHTML = fullStoryHtml;
         
-        // Create fixed button section at bottom
+        // Create properly sized button section at bottom
         const buttonSection = document.createElement('div');
         buttonSection.id = 'stickyBackButtonSection';
         buttonSection.style.cssText = `
             flex-shrink: 0;
             background: rgba(0, 0, 0, 0.9);
             border-top: 1px solid #444;
-            padding: 25px 15px 15px 15px;
+            padding: 15px 15px 15px 15px;
             display: flex;
             justify-content: center;
             align-items: center;
+            margin: 0;
+            min-height: 60px;
         `;
         
         // Create the back button
@@ -907,16 +916,16 @@ function showFullStory() {
             color: white;
             border: none;
             border-radius: 8px;
-            padding: 12px 25px;
+            padding: 12px 20px;
             font-size: 1rem;
             font-weight: bold;
             cursor: pointer;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
             transition: all 0.3s ease;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            min-width: 200px;
-            max-width: 300px;
+            min-width: 180px;
+            max-width: 250px;
         `;
         
         // Add hover effect
@@ -960,8 +969,12 @@ function hideFullStory() {
     }
     
     // Restore navigation and audio controls
-    document.querySelector('.controls').style.display = '';
-    document.querySelector('.audio-controls').style.display = '';
+    const controlsRow1 = document.querySelector('.controls-row-1');
+    const controlsRow2 = document.querySelector('.controls-row-2');
+    const mainContent = document.querySelector('.main-content');
+    if (controlsRow1) controlsRow1.style.display = '';
+    if (controlsRow2) controlsRow2.style.display = '';
+    if (mainContent) mainContent.classList.remove('full-story-mode');
     if (sceneCounterEl) sceneCounterEl.style.display = '';
     if (speakerNameEl) speakerNameEl.style.display = '';
     
