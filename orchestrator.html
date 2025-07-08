@@ -13,31 +13,6 @@
     
     <!-- Local Stylesheets and Scripts -->
     <link rel="stylesheet" href="orchestrator.css">
-
-<script>
-    // Detect production environment and adjust settings
-    window.PRODUCTION_CONFIG = {
-        isProduction: window.location.hostname.includes('vercel.app') || 
-                     window.location.hostname !== 'localhost',
-        baseUrl: window.location.origin,
-        mqttBroker: "mqtt.uvucs.org",
-        mqttPort: 8080,
-        useSSL: true
-    };
-    
-    // Add environment indicator
-    if (window.PRODUCTION_CONFIG.isProduction) {
-        console.log('🌐 Running in production mode on:', window.location.hostname);
-        // Add production indicator to dashboard
-        document.addEventListener('DOMContentLoaded', function() {
-            const header = document.querySelector('.header h1');
-            if (header) {
-                header.innerHTML += ' <span style="font-size: 0.7em; color: #90CAF9;">[LIVE]</span>';
-            }
-        });
-    }
-</script>
-
     <script src="orchestrator.js" defer></script>
 </head>
 <body>
@@ -176,14 +151,25 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Quick Actions -->
+            <!-- Scene Management -->
             <div class="control-group">
-                <h3>⚡ Quick Actions</h3>
-                <button class="btn" onclick="resetAllClients()">🔄 Reset All Clients</button>
-                <button class="btn" onclick="exportStory()">💾 Export Story</button>
-                <button class="btn" onclick="importStory()">📁 Import Story</button>
-                <button class="btn" onclick="showPreview()">👁️ Preview Mode</button>
+                <h3>📖 Scene Management</h3>
+                <button class="btn btn-large btn-success" onclick="addNewScene()">➕ Add New Scene</button>
+                <button class="btn btn-large btn-danger" onclick="deleteCurrentScene()" id="deleteSceneBtn">🗑️ Delete Current Scene</button>
+                <div class="scene-info" id="sceneInfo">
+                    <div style="font-size: 0.8rem; color: #ccc; margin-top: 10px;">
+                        <div>Current: Scene <span id="currentSceneNumber">1</span> of <span id="totalScenes">12</span></div>
+                        <div>Dialogues in scene: <span id="dialoguesInScene">6</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Story Export/Import -->
+            <div class="control-group">
+                <h3>💾 Story Data</h3>
+                <button class="btn" onclick="exportStory()">📤 Export Story</button>
+                <button class="btn" onclick="importStoryFile()">📥 Import Story</button>
+                <input type="file" id="storyImport" accept=".json" style="display: none;" onchange="handleStoryImport(event)">
             </div>
 
             <!-- Debug Actions (hidden by default) -->
@@ -191,7 +177,6 @@
                 <h3>🐛 Debug Actions</h3>
                 <button class="btn btn-small" onclick="logOrchestratorState()">📊 Log State</button>
                 <button class="btn btn-small" onclick="exportDebugInfo()">📋 Export Debug</button>
-                <button class="btn btn-small btn-danger" onclick="emergencyReset()">🆘 Emergency Reset</button>
             </div>
         </div>
     </div>

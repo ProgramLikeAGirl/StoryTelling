@@ -49,9 +49,8 @@ class StoryOrchestrator {
         }
     }
 
-    async loadStoryData() {
-        // In a real implementation, this would fetch from the main application
-        // For now, we'll use the embedded story data
+async loadStoryData() {
+        // Updated story data with one dialogue per scene for better orchestrator display
         this.storyData = {
             scenes: [
                 {
@@ -62,12 +61,24 @@ class StoryOrchestrator {
                             speaker: "Narrator", 
                             text: "Every Tuesday at dawn, the Veterans' Association transforms Briarwood Park into their personal battlefield. {playerName}, known for precision shooting and tactical thinking, has become a cornerstone of this sacred tradition.",
                             media: {}
-                        },
+                        }
+                    ]
+                },
+                {
+                    title: "Jenkins' Leadership",
+                    background: "bg-office", 
+                    dialogue: [
                         { 
                             speaker: "Jenkins", 
                             text: "Alright, veterans! Time for our weekly foam-dart warfare. {playerName}, you're team captain today—show these rookies how real soldiers handle a Nerf blaster!",
                             media: {}
-                        },
+                        }
+                    ]
+                },
+                {
+                    title: "Morales' Praise",
+                    background: "bg-office",
+                    dialogue: [
                         { 
                             speaker: "Morales", 
                             text: "Last week {playerName} hit every target from 50 yards. That's some serious marksmanship right there.",
@@ -75,7 +86,105 @@ class StoryOrchestrator {
                         }
                     ]
                 },
-                // Additional scenes would be loaded here...
+                {
+                    title: "The Tradition Continues",
+                    background: "bg-office",
+                    dialogue: [
+                        { 
+                            speaker: "Narrator", 
+                            text: "For these aging warriors, Tuesday target practice isn't just recreation—it's a lifeline to their military heritage. {playerName} understands this better than most.",
+                            media: {}
+                        }
+                    ]
+                },
+                {
+                    title: "Player's Commitment",
+                    background: "bg-office",
+                    dialogue: [
+                        { 
+                            speaker: "{playerName}", 
+                            text: "This tradition keeps us sharp, keeps us connected. Every dart fired is a reminder of who we were... and who we still are.",
+                            media: {}
+                        }
+                    ]
+                },
+                {
+                    title: "Call to Adventure: Mysterious Sightings",
+                    background: "bg-park",
+                    dialogue: [
+                        { 
+                            speaker: "Morales", 
+                            text: "Something's wrong, {playerName}. There's this... creature by the equipment shed. Massive rodent, just sitting there like it's running surveillance on our operation.",
+                            media: {}
+                        }
+                    ]
+                },
+                {
+                    title: "Jenkins' Dismissal",
+                    background: "bg-park",
+                    dialogue: [
+                        { 
+                            speaker: "Jenkins", 
+                            text: "Probably just a stray. Nothing a few warning shots can't handle.",
+                            media: {}
+                        }
+                    ]
+                },
+                {
+                    title: "Ernie's Evidence",
+                    background: "bg-park",
+                    dialogue: [
+                        { 
+                            speaker: "Ernie", 
+                            text: "No sir, this is different. Look at this photo—that's a capybara, and it's got backup. Emus. Lots of them.",
+                            media: {}
+                        }
+                    ]
+                },
+                {
+                    title: "The Pattern Emerges",
+                    background: "bg-park",
+                    dialogue: [
+                        { 
+                            speaker: "Narrator", 
+                            text: "Within 48 hours, emu patrols materialized throughout Briarwood Park. {playerName} recognized the tactical significance immediately—flanking positions, elevated observation posts, coordinated movement patterns.",
+                            media: {}
+                        }
+                    ]
+                },
+                {
+                    title: "Player's Tactical Assessment",
+                    background: "bg-park",
+                    dialogue: [
+                        { 
+                            speaker: "{playerName}", 
+                            text: "Jenkins, these aren't random animal encounters. Look at their formation—perimeter security, rotating watch schedules. Someone's commanding them.",
+                            media: {}
+                        }
+                    ]
+                },
+                {
+                    title: "Morales' Doubt",
+                    background: "bg-park",
+                    dialogue: [
+                        { 
+                            speaker: "Morales", 
+                            text: "You're saying they're organized? {playerName}, that's impossible.",
+                            media: {}
+                        }
+                    ]
+                },
+                {
+                    title: "Captain Cheeks Reveals Himself",
+                    background: "bg-park",
+                    dialogue: [
+                        { 
+                            speaker: "Captain Cheeks", 
+                            text: "*Steps out from behind an oak tree, wearing a tiny military beret* Impossible? Perhaps. But true nonetheless, Sergeant {playerName}.",
+                            media: {}
+                        }
+                    ]
+                }
             ]
         };
     }
@@ -146,13 +255,229 @@ class StoryOrchestrator {
         return dialogueElement;
     }
 
+    // Scene Management Methods
+    addNewScene() {
+        const newScene = {
+            title: `New Scene ${this.storyData.scenes.length + 1}`,
+            background: "bg-park",
+            dialogue: [
+                {
+                    speaker: "Narrator",
+                    text: "This is a new scene. Edit this dialogue to customize your story.",
+                    media: {}
+                }
+            ]
+        };
+
+        // Add after current scene
+        const insertIndex = this.currentScene + 1;
+        this.storyData.scenes.splice(insertIndex, 0, newScene);
+
+        // Move to new scene
+        this.currentScene = insertIndex;
+        this.currentDialogue = 0;
+
+        // Update UI
+        this.populateSceneList();
+        this.updateActiveStates();
+        this.updateLivePreview();
+        this.loadDialogueIntoEditor();
+        this.updateSceneInfo();
+
+        // Broadcast changes
+        this.broadcastStoryUpdate();
+        this.showNotification(`New scene added: "${newScene.title}"`);
+    }
+
+    deleteCurrentScene() {
+        if (this.storyData.scenes.length <= 1) {
+            this.showNotification('Cannot delete the only remaining scene', 'error');
+            return;
+        }
+
+        const sceneToDelete = this.storyData.scenes[this.currentScene];
+        const confirmed = confirm(`Are you sure you want to delete "${sceneToDelete.title}"?\n\nThis action cannot be undone.`);
+        
+        if (!confirmed) return;
+
+        // Remove the scene
+        this.storyData.scenes.splice(this.currentScene, 1);
+
+        // Adjust current position
+        if (this.currentScene >= this.storyData.scenes.length) {
+            this.currentScene = this.storyData.scenes.length - 1;
+        }
+        this.currentDialogue = 0;
+
+        // Update UI
+        this.populateSceneList();
+        this.updateActiveStates();
+        this.updateLivePreview();
+        this.loadDialogueIntoEditor();
+        this.updateSceneInfo();
+
+        // Broadcast changes
+        this.broadcastStoryUpdate();
+        this.showNotification(`Scene "${sceneToDelete.title}" deleted`);
+    }
+
+    updateSceneInfo() {
+        const sceneNumberEl = document.getElementById('currentSceneNumber');
+        const totalScenesEl = document.getElementById('totalScenes');
+        const dialoguesInSceneEl = document.getElementById('dialoguesInScene');
+        const deleteBtn = document.getElementById('deleteSceneBtn');
+
+        if (sceneNumberEl) sceneNumberEl.textContent = this.currentScene + 1;
+        if (totalScenesEl) totalScenesEl.textContent = this.storyData.scenes.length;
+        
+        if (dialoguesInSceneEl) {
+            const currentScene = this.storyData.scenes[this.currentScene];
+            dialoguesInSceneEl.textContent = currentScene ? currentScene.dialogue.length : 0;
+        }
+
+        // Disable delete button if only one scene remains
+        if (deleteBtn) {
+            deleteBtn.disabled = this.storyData.scenes.length <= 1;
+            deleteBtn.style.opacity = this.storyData.scenes.length <= 1 ? '0.5' : '1';
+        }
+    }
+
+    // Story Import/Export Methods
+    exportStory() {
+        const storyJson = JSON.stringify(this.storyData, null, 2);
+        const blob = new Blob([storyJson], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `nerf-war-story-${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        this.showNotification('Story exported successfully');
+    }
+
+    importStoryFile() {
+        const fileInput = document.getElementById('storyImport');
+        if (fileInput) {
+            fileInput.click();
+        }
+    }
+
+    handleStoryImport(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const importedStory = JSON.parse(e.target.result);
+                
+                // Validate story structure
+                if (!importedStory.scenes || !Array.isArray(importedStory.scenes)) {
+                    throw new Error('Invalid story format: missing scenes array');
+                }
+
+                // Validate each scene
+                importedStory.scenes.forEach((scene, index) => {
+                    if (!scene.title || !scene.dialogue || !Array.isArray(scene.dialogue)) {
+                        throw new Error(`Invalid scene format at index ${index}`);
+                    }
+                });
+
+                const confirmed = confirm(
+                    `Import story with ${importedStory.scenes.length} scenes?\n\n` +
+                    'This will replace the current story. Make sure to export your current story first if you want to keep it.'
+                );
+
+                if (confirmed) {
+                    this.storyData = importedStory;
+                    this.currentScene = 0;
+                    this.currentDialogue = 0;
+
+                    // Update UI
+                    this.populateSceneList();
+                    this.updateActiveStates();
+                    this.updateLivePreview();
+                    this.loadDialogueIntoEditor();
+                    this.updateSceneInfo();
+
+                    // Broadcast changes
+                    this.broadcastStoryUpdate();
+                    this.showNotification('Story imported successfully');
+                }
+            } catch (error) {
+                console.error('Story import error:', error);
+                this.showNotification(`Import failed: ${error.message}`, 'error');
+            }
+        };
+
+        reader.onerror = () => {
+            this.showNotification('Error reading file', 'error');
+        };
+
+        reader.readAsText(file);
+        
+        // Reset file input
+        event.target.value = '';
+    }
+
+    // Debug Methods (simplified)
+    logOrchestratorState() {
+        const state = {
+            currentScene: this.currentScene,
+            currentDialogue: this.currentDialogue,
+            totalScenes: this.storyData.scenes.length,
+            totalDialogues: this.getTotalDialogueCount(),
+            connectedDevices: this.connectedDevices.size,
+            mqttConnected: this.isConnected,
+            storyTitle: this.storyData.scenes[this.currentScene]?.title || 'Unknown'
+        };
+        
+        console.log('📊 Orchestrator State:', state);
+        this.showNotification('State logged to console');
+        return state;
+    }
+
+    exportDebugInfo() {
+        const debugInfo = {
+            timestamp: new Date().toISOString(),
+            orchestratorState: this.logOrchestratorState(),
+            storyData: this.storyData,
+            connectedDevices: Array.from(this.connectedDevices.entries()),
+            browserInfo: {
+                userAgent: navigator.userAgent,
+                url: window.location.href,
+                viewport: `${window.innerWidth}x${window.innerHeight}`
+            }
+        };
+
+        const debugJson = JSON.stringify(debugInfo, null, 2);
+        const blob = new Blob([debugJson], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `nerf-war-debug-${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        this.showNotification('Debug info exported');
+    }
+
     selectScene(sceneIndex) {
         this.currentScene = sceneIndex;
         this.currentDialogue = 0;
         this.updateActiveStates();
         this.updateLivePreview();
         this.loadDialogueIntoEditor();
+        this.updateSceneInfo(); // Add this line
     }
+
 
     selectDialogue(sceneIndex, dialogueIndex) {
         this.currentScene = sceneIndex;
@@ -160,6 +485,7 @@ class StoryOrchestrator {
         this.updateActiveStates();
         this.updateLivePreview();
         this.loadDialogueIntoEditor();
+        this.updateSceneInfo(); // Add this line
     }
 
     updateActiveStates() {
@@ -462,11 +788,13 @@ class StoryOrchestrator {
         this.updateActiveStates();
         this.updateLivePreview();
         this.loadDialogueIntoEditor();
+        this.updateSceneInfo(); // Add this line
 
         // Broadcast to clients
         this.broadcastCurrentPage();
         this.showNotification('Advanced to next page');
     }
+
 
     broadcastPrevious() {
         let prevScene = this.currentScene;
@@ -489,12 +817,12 @@ class StoryOrchestrator {
         this.updateActiveStates();
         this.updateLivePreview();
         this.loadDialogueIntoEditor();
+        this.updateSceneInfo(); // Add this line
 
         // Broadcast to clients
         this.broadcastCurrentPage();
         this.showNotification('Moved to previous page');
     }
-
     // Content Editing Methods
     saveDialogue() {
         const speakerInput = document.getElementById('speakerInput');
@@ -934,3 +1262,16 @@ window.handleAudioUpload = (event) => {
         orchestrator.handleAudioUpload(event.target.files[0]);
     }
 };
+
+// Scene Management
+window.addNewScene = () => orchestrator?.addNewScene();
+window.deleteCurrentScene = () => orchestrator?.deleteCurrentScene();
+
+// Story Import/Export  
+window.exportStory = () => orchestrator?.exportStory();
+window.importStoryFile = () => orchestrator?.importStoryFile();
+window.handleStoryImport = (event) => orchestrator?.handleStoryImport(event);
+
+// Debug Functions
+window.logOrchestratorState = () => orchestrator?.logOrchestratorState();
+window.exportDebugInfo = () => orchestrator?.exportDebugInfo();
