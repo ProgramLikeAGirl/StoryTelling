@@ -59,6 +59,14 @@ let isSceneTransition = false; // Prevent rapid clicking during transitions
 let touchStartX = 0;         // Where did the touch start?
 let touchEndX = 0;           // Where did the touch end?
 
+// DRAG FUNCTIONALITY: For dialogue box dragging
+let isDragging = false;      // Is the dialogue box being dragged?
+let dragStartX = 0;          // Mouse X position when drag started
+let dragStartY = 0;          // Mouse Y position when drag started
+let dialogueBoxStartX = 0;   // Dialogue box X position when drag started
+let dialogueBoxStartY = 0;   // Dialogue box Y position when drag started
+let dialogueBoxEl = null;    // Reference to dialogue box element
+
 // DOM ELEMENTS: Get references to HTML elements we'll need to control
 let dialogueTextEl, speakerNameEl, sceneCounterEl, progressFillEl, backgroundEl, sceneTitle;
 
@@ -450,6 +458,9 @@ window.addEventListener('load', function () {
 
     // Set up keyboard navigation
     setupKeyboardControls();
+    
+    // Set up dialogue box dragging
+    setupDialogueBoxDrag();
 
     // Focus on the name input so user can start typing immediately
     const playerNameInput = document.getElementById('playerNameInput');
@@ -476,6 +487,7 @@ function initializeElements() {
     backgroundEl = document.getElementById('background');
     sceneTitle = document.getElementById('sceneTitle');
     sceneImageEl = document.getElementById("sceneImage");
+    dialogueBoxEl = document.querySelector('.dialogue-box');
 }
 
 /* ==========================================================================
@@ -778,6 +790,177 @@ function handleSwipe() {
 }
 
 /* ==========================================================================
+   DIALOGUE BOX DRAG FUNCTIONALITY - Allow users to drag the dialogue box around
+   ========================================================================== */
+
+// SETUP DIALOGUE BOX DRAG: Initialize drag event listeners
+function setupDialogueBoxDrag() {
+    if (!dialogueBoxEl) return;
+    
+    // Mouse events for desktop
+    dialogueBoxEl.addEventListener('mousedown', startDrag);
+    document.addEventListener('mousemove', onDrag);
+    document.addEventListener('mouseup', endDrag);
+    
+    // Touch events for mobile (separate from swipe navigation)
+    dialogueBoxEl.addEventListener('touchstart', startTouchDrag, { passive: false });
+    document.addEventListener('touchmove', onTouchDrag, { passive: false });
+    document.addEventListener('touchend', endTouchDrag);
+    
+    console.log('🖱️ Dialogue box drag functionality enabled');
+}
+
+// START DRAG: Begin dragging when mouse/touch down on dialogue box
+function startDrag(e) {
+    // Don't start drag if clicking on buttons or inputs
+    if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.tagName === 'SPAN') {
+        return;
+    }
+    
+    e.preventDefault();
+    isDragging = true;
+    
+    // Record starting positions
+    dragStartX = e.clientX;
+    dragStartY = e.clientY;
+    
+    // Get current dialogue box position
+    const rect = dialogueBoxEl.getBoundingClientRect();
+    dialogueBoxStartX = rect.left;
+    dialogueBoxStartY = rect.top;
+    
+    // Add visual feedback
+    dialogueBoxEl.style.transition = 'none'; // Disable transition during drag
+    dialogueBoxEl.style.cursor = 'grabbing';
+    document.body.style.userSelect = 'none'; // Prevent text selection
+}
+
+// START TOUCH DRAG: Begin dragging for touch devices
+function startTouchDrag(e) {
+    // Don't start drag if touching buttons or inputs
+    if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.tagName === 'SPAN') {
+        return;
+    }
+    
+    // Check if this is a single finger touch (not a swipe gesture)
+    if (e.touches.length !== 1) return;
+    
+    e.preventDefault();
+    isDragging = true;
+    
+    const touch = e.touches[0];
+    dragStartX = touch.clientX;
+    dragStartY = touch.clientY;
+    
+    // Get current dialogue box position
+    const rect = dialogueBoxEl.getBoundingClientRect();
+    dialogueBoxStartX = rect.left;
+    dialogueBoxStartY = rect.top;
+    
+    // Add visual feedback
+    dialogueBoxEl.style.transition = 'none';
+    dialogueBoxEl.style.cursor = 'grabbing';
+    document.body.style.userSelect = 'none';
+}
+
+// ON DRAG: Handle dragging movement
+function onDrag(e) {
+    if (!isDragging) return;
+    
+    e.preventDefault();
+    
+    // Calculate new position
+    const deltaX = e.clientX - dragStartX;
+    const deltaY = e.clientY - dragStartY;
+    
+    const newX = dialogueBoxStartX + deltaX;
+    const newY = dialogueBoxStartY + deltaY;
+    
+    // Apply minimal constraints (keep at least 100px of the box visible)
+    const minVisible = 100;
+    const maxX = window.innerWidth - minVisible;
+    const maxY = window.innerHeight - minVisible;
+    const minX = -(dialogueBoxEl.offsetWidth - minVisible);
+    const minY = -50; // Allow moving above viewport slightly
+    
+    const constrainedX = Math.max(minX, Math.min(maxX, newX));
+    const constrainedY = Math.max(minY, Math.min(maxY, newY));
+    
+    // Update position
+    dialogueBoxEl.style.left = `${constrainedX}px`;
+    dialogueBoxEl.style.top = `${constrainedY}px`;
+    dialogueBoxEl.style.transform = 'none'; // Remove centering transform
+    dialogueBoxEl.style.bottom = 'auto'; // Remove bottom positioning
+}
+
+// ON TOUCH DRAG: Handle touch dragging movement
+function onTouchDrag(e) {
+    if (!isDragging || e.touches.length !== 1) return;
+    
+    e.preventDefault();
+    
+    const touch = e.touches[0];
+    const deltaX = touch.clientX - dragStartX;
+    const deltaY = touch.clientY - dragStartY;
+    
+    const newX = dialogueBoxStartX + deltaX;
+    const newY = dialogueBoxStartY + deltaY;
+    
+    // Apply minimal constraints
+    const minVisible = 100;
+    const maxX = window.innerWidth - minVisible;
+    const maxY = window.innerHeight - minVisible;
+    const minX = -(dialogueBoxEl.offsetWidth - minVisible);
+    const minY = -50;
+    
+    const constrainedX = Math.max(minX, Math.min(maxX, newX));
+    const constrainedY = Math.max(minY, Math.min(maxY, newY));
+    
+    // Update position
+    dialogueBoxEl.style.left = `${constrainedX}px`;
+    dialogueBoxEl.style.top = `${constrainedY}px`;
+    dialogueBoxEl.style.transform = 'none';
+    dialogueBoxEl.style.bottom = 'auto';
+}
+
+// END DRAG: Finish dragging
+function endDrag(e) {
+    if (!isDragging) return;
+    
+    isDragging = false;
+    
+    // Restore visual feedback
+    dialogueBoxEl.style.transition = 'transform 0.1s ease-out';
+    dialogueBoxEl.style.cursor = 'move';
+    document.body.style.userSelect = '';
+}
+
+// END TOUCH DRAG: Finish touch dragging
+function endTouchDrag(e) {
+    if (!isDragging) return;
+    
+    isDragging = false;
+    
+    // Restore visual feedback
+    dialogueBoxEl.style.transition = 'transform 0.1s ease-out';
+    dialogueBoxEl.style.cursor = 'move';
+    document.body.style.userSelect = '';
+}
+
+// RESET DIALOGUE BOX POSITION: Return to default position
+function resetDialogueBoxPosition() {
+    if (!dialogueBoxEl) return;
+    
+    dialogueBoxEl.style.left = '50%';
+    dialogueBoxEl.style.top = 'auto';
+    dialogueBoxEl.style.bottom = '20px';
+    dialogueBoxEl.style.transform = 'translateX(-50%)';
+    dialogueBoxEl.style.transition = 'all 0.3s ease';
+    
+    console.log('📍 Dialogue box position reset to default');
+}
+
+/* ==========================================================================
    KEYBOARD CONTROLS - Handle keyboard navigation
    ========================================================================== */
 
@@ -802,6 +985,13 @@ function setupKeyboardControls() {
                 if (e.ctrlKey) {
                     e.preventDefault();
                     resetStory();
+                }
+                break;
+            case 'c':
+            case 'C':
+                if (e.ctrlKey) {
+                    e.preventDefault();
+                    resetDialogueBoxPosition();
                 }
                 break;
         }
@@ -948,10 +1138,10 @@ function updateMQTTStatus(connected) {
     if (!mqttStatus) return;
 
     if (connected) {
-        mqttStatus.textContent = 'MQTT: Connected';
+        mqttStatus.textContent = 'MQTT';
         mqttStatus.className = 'mqtt-status mqtt-connected';
     } else {
-        mqttStatus.textContent = 'MQTT: Disconnected';
+        mqttStatus.textContent = 'MQTT';
         mqttStatus.className = 'mqtt-status mqtt-disconnected';
     }
 }
@@ -1709,6 +1899,8 @@ window.setStoryPosition = function(sceneId, dialogueIndex) {
     updateDisplay();
     return true;
 };
+
+window.resetDialogueBoxPosition = resetDialogueBoxPosition;
 
 // Add initialization message
 console.log('🎭 Orchestrator support enabled in main story application');
