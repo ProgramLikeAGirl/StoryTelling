@@ -1,0 +1,47 @@
+{
+  "version": 2,
+  "public": true,
+  "functions": {},
+  "routes": [
+    {
+      "src": "/orchestrator",
+      "dest": "/orchestrator.html"
+    },
+    {
+      "src": "/dashboard",
+      "dest": "/orchestrator.html"
+    },
+    {
+      "src": "/control",
+      "dest": "/orchestrator.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        }
+      ]
+    },
+    {
+      "source": "/orchestrator.html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    }
+  ]
+}

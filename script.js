@@ -311,9 +311,11 @@ function nextScene() {
         currentDialogue = 0;
         showSceneTitle(storyData.scenes[currentScene].title);
     }
-
+    const wasUserInitiated = !orchestratorConnected;
     updateDisplay();
+    if (wasUserInitiated) {
     publishDialogueStep();
+}
 
 }
 
@@ -331,11 +333,14 @@ function previousScene() {
         currentDialogue = storyData.scenes[currentScene].dialogue.length - 1;
         showSceneTitle(storyData.scenes[currentScene].title);
     }
-
+    const wasUserInitiated = !orchestratorConnected;
     updateDisplay();
+    if (wasUserInitiated) {
     publishDialogueStep();
-
 }
+}
+
+
 
 // UPDATE DISPLAY: Refresh everything shown on screen
 function updateDisplay() {
@@ -643,8 +648,16 @@ function onConnect() {
     console.log("MQTT Connected");
     updateMQTTStatus(true);
 
-    // Subscribe to scene change messages
+    // Existing subscription
     mqttClient.subscribe("nerfwar/story/state");
+    
+    // NEW: Add orchestrator subscriptions
+    mqttClient.subscribe("nerfwar/orchestrator/commands");
+    mqttClient.subscribe("nerfwar/orchestrator/media");
+    mqttClient.subscribe("nerfwar/orchestrator/announce");
+    
+    // Start sending heartbeat for device tracking
+    startHeartbeat();
 }
 
 // MQTT CONNECTION FAILED: Called when connection fails
@@ -666,8 +679,12 @@ function onConnectionLost(responseObject) {
 function onMessageArrived(message) {
     try {
         const data = JSON.parse(message.payloadString);
-        if (data.player === playerName) return;
+        const topic = message.destinationName;
 
+        // Ignore messages from self (except orchestrator commands)
+        if (data.player === playerName && !topic.includes('orchestrator')) return;
+
+        // Handle different message types
         if (data.action === "dialogue-step") {
             const sceneIndex = Math.max(0, Math.min(data.sceneId, storyData.scenes.length - 1));
             const dialogueIndex = Math.max(0, Math.min(data.dialogueIndex || 0, storyData.scenes[sceneIndex].dialogue.length - 1));
@@ -679,6 +696,19 @@ function onMessageArrived(message) {
             updateDisplay();
             showSceneTitle(storyData.scenes[currentScene].title);
         }
+        // NEW: Handle orchestrator messages
+        else if (topic === "nerfwar/orchestrator/commands") {
+            handleOrchestratorCommand(data);
+        } else if (topic === "nerfwar/orchestrator/media") {
+            handleMediaUpdate(data);
+        } else if (topic === "nerfwar/orchestrator/announce") {
+            handleOrchestratorAnnouncement(data);
+        }
+        // Handle orchestrator-controlled story updates
+        else if (data.action === "orchestrator-sync" || data.action === "orchestrator-next" || data.action === "orchestrator-previous") {
+            handleOrchestratorStoryUpdate(data);
+        }
+
     } catch (error) {
         console.log("Error processing MQTT message:", error);
     }
@@ -729,6 +759,449 @@ function updateMQTTStatus(connected) {
         mqttStatus.textContent = 'MQTT: Disconnected';
         mqttStatus.className = 'mqtt-status mqtt-disconnected';
     }
+}
+
+
+function handleOrchestratorCommand(data) {
+    // Ignore commands from self
+    if (data.orchestratorId === mqttClient?.clientId) return;
+    
+    console.log("Received orchestrator command:", data.command);
+    
+    switch(data.command) {
+        case "pause":
+            pauseAllMedia();
+            showOrchestratorNotification("⏸️ Paused by orchestrator");
+            break;
+            
+        case "resume":
+            resumeAllMedia();
+            showOrchestratorNotification("▶️ Resumed by orchestrator");
+            break;
+            
+        case "reset":
+            resetStory();
+            showOrchestratorNotification("🔄 Reset by orchestrator");
+            break;
+            
+        case "story-update":
+            if (data.storyData) {
+                updateStoryData(data.storyData);
+                showOrchestratorNotification("📚 Story updated by orchestrator");
+            }
+            break;
+            
+        case "disconnect":
+            if (data.targetDevice === mqttClient?.clientId) {
+                handleForcedDisconnect();
+            }
+            break;
+            
+        default:
+            console.log("Unknown orchestrator command:", data.command);
+    }
+}
+
+/**
+ * Handle media updates from orchestrator
+ */
+function handleMediaUpdate(data) {
+    // Only apply media updates for current scene/dialogue
+    if (data.sceneId === currentScene && data.dialogueIndex === currentDialogue) {
+        console.log("Applying media update:", data.media);
+        
+        // Update scene image
+        if (data.media.image) {
+            updateSceneImage(data.media.image);
+        }
+        
+        // Update background audio
+        if (data.media.audio) {
+            updateBackgroundAudio(data.media.audio);
+        }
+        
+        showOrchestratorNotification("🎨 Media updated by orchestrator");
+    }
+}
+
+/**
+ * Handle orchestrator announcements
+ */
+function handleOrchestratorAnnouncement(data) {
+    if (data.type === "orchestrator_online") {
+        console.log("Orchestrator came online:", data.orchestratorId);
+        showOrchestratorNotification("🎭 Orchestrator connected");
+        updateOrchestratorStatus(true);
+        
+        // Send current state to new orchestrator
+        sendCurrentStateToOrchestrator();
+    }
+}
+
+/**
+ * Handle story updates from orchestrator
+ */
+function handleOrchestratorStoryUpdate(data) {
+    // Ignore updates from self
+    if (data.orchestratorId === mqttClient?.clientId) return;
+    
+    console.log("Received orchestrator story update:", data);
+    
+    // Update current position
+    currentScene = Math.max(0, Math.min(data.sceneId || 0, storyData.scenes.length - 1));
+    currentDialogue = Math.max(0, Math.min(data.dialogueIndex || 0, storyData.scenes[currentScene].dialogue.length - 1));
+    
+    // Update display
+    updateBackground(data.background);
+    updateDisplay();
+    
+    // Apply any media updates
+    if (data.media) {
+        if (data.media.image) updateSceneImage(data.media.image);
+        if (data.media.audio) updateBackgroundAudio(data.media.audio);
+    }
+    
+    // Show scene title for major transitions
+    if (data.action === "orchestrator-next" || data.action === "orchestrator-previous") {
+        showSceneTitle(storyData.scenes[currentScene].title);
+    }
+    
+    showOrchestratorNotification(`📖 ${data.action.replace('orchestrator-', '').toUpperCase()} by orchestrator`);
+}
+
+/**
+ * Pause all media elements
+ */
+function pauseAllMedia() {
+    // Pause background audio
+    const backgroundAudio = document.getElementById('backgroundAudio');
+    if (backgroundAudio && !backgroundAudio.paused) {
+        backgroundAudio.pause();
+        backgroundAudio.dataset.orchestratorPaused = 'true';
+    }
+    
+    // Pause any other media elements
+    document.querySelectorAll('audio, video').forEach(media => {
+        if (!media.paused) {
+            media.pause();
+            media.dataset.orchestratorPaused = 'true';
+        }
+    });
+}
+
+/**
+ * Resume all media elements
+ */
+function resumeAllMedia() {
+    // Resume background audio if it was playing and user has audio enabled
+    const backgroundAudio = document.getElementById('backgroundAudio');
+    if (backgroundAudio && backgroundAudio.dataset.orchestratorPaused === 'true' && audioEnabled) {
+        backgroundAudio.play().catch(e => console.log("Audio resume failed:", e));
+        delete backgroundAudio.dataset.orchestratorPaused;
+    }
+    
+    // Resume other media
+    document.querySelectorAll('audio, video').forEach(media => {
+        if (media.dataset.orchestratorPaused === 'true') {
+            media.play().catch(e => console.log("Media resume failed:", e));
+            delete media.dataset.orchestratorPaused;
+        }
+    });
+}
+
+/**
+ * Update scene image from orchestrator
+ */
+function updateSceneImage(imageData) {
+    const sceneImageEl = document.getElementById('sceneImage');
+    if (sceneImageEl && imageData.data) {
+        // Fade out current image
+        sceneImageEl.style.opacity = '0';
+        
+        setTimeout(() => {
+            sceneImageEl.src = imageData.data;
+            sceneImageEl.alt = `Scene image: ${imageData.fileName || 'Orchestrator upload'}`;
+            
+            // Fade in new image
+            sceneImageEl.onload = () => {
+                sceneImageEl.style.opacity = '1';
+            };
+        }, 200);
+    }
+}
+
+/**
+ * Update background audio from orchestrator
+ */
+function updateBackgroundAudio(audioData) {
+    const backgroundAudio = document.getElementById('backgroundAudio');
+    if (backgroundAudio && audioData.data) {
+        // Store current state
+        const wasPlaying = !backgroundAudio.paused;
+        
+        // Update source
+        backgroundAudio.src = audioData.data;
+        
+        // Auto-play if specified and audio is enabled
+        if (audioData.autoplay && audioEnabled) {
+            backgroundAudio.play().catch(e => console.log("Auto-play failed:", e));
+        } else if (wasPlaying && audioEnabled) {
+            // Resume if it was playing before
+            backgroundAudio.play().catch(e => console.log("Audio resume failed:", e));
+        }
+    }
+}
+
+/**
+ * Update story data from orchestrator
+ */
+function updateStoryData(newStoryData) {
+    // Backup current state
+    const currentSceneBackup = currentScene;
+    const currentDialogueBackup = currentDialogue;
+    
+    try {
+        // Validate new story data
+        if (!newStoryData.scenes || !Array.isArray(newStoryData.scenes)) {
+            throw new Error("Invalid story data format");
+        }
+        
+        // Update story data
+        Object.assign(storyData, newStoryData);
+        
+        // Ensure current position is still valid
+        if (currentScene >= storyData.scenes.length) {
+            currentScene = storyData.scenes.length - 1;
+            currentDialogue = 0;
+        }
+        
+        const scene = storyData.scenes[currentScene];
+        if (currentDialogue >= scene.dialogue.length) {
+            currentDialogue = scene.dialogue.length - 1;
+        }
+        
+        // Refresh display
+        updateDisplay();
+        
+    } catch (error) {
+        console.error("Failed to update story data:", error);
+        // Restore backup state
+        currentScene = currentSceneBackup;
+        currentDialogue = currentDialogueBackup;
+        showOrchestratorNotification("❌ Story update failed", 'error');
+    }
+}
+
+/**
+ * Handle forced disconnect from orchestrator
+ */
+function handleForcedDisconnect() {
+    showOrchestratorNotification("🚫 Disconnected by orchestrator", 'error');
+    
+    // Show reconnection option
+    setTimeout(() => {
+        if (confirm("You were disconnected by the orchestrator. Would you like to reconnect?")) {
+            initMQTT();
+        }
+    }, 2000);
+}
+
+// ==========================================================================
+// DEVICE TRACKING & HEARTBEAT SYSTEM
+// ==========================================================================
+
+/**
+ * Enhanced publish message function with orchestrator support
+ */
+function publishMessage(topic, payload) {
+    if (!mqttClient || !mqttClient.isConnected()) {
+        console.log("MQTT client not connected — message not sent.");
+        return false;
+    }
+
+    try {
+        const message = new Paho.MQTT.Message(JSON.stringify(payload));
+        message.destinationName = topic;
+        // Retain state and media messages for new clients
+        message.retained = (topic.includes('state') || topic.includes('media')); 
+        mqttClient.send(message);
+        
+        console.log(`Published to ${topic}:`, payload);
+        return true;
+    } catch (error) {
+        console.log("Error publishing message:", error);
+        return false;
+    }
+}
+
+/**
+ * Start sending heartbeat messages for device tracking
+ */
+function startHeartbeat() {
+    // Send heartbeat every 15 seconds
+    setInterval(() => {
+        if (mqttClient && mqttClient.isConnected()) {
+            const heartbeatData = {
+                clientId: mqttClient.clientId,
+                playerName: playerName,
+                currentScene: currentScene,
+                currentDialogue: currentDialogue,
+                audioEnabled: audioEnabled,
+                timestamp: Date.now(),
+                userAgent: navigator.userAgent.substring(0, 100), // Truncated for privacy
+                type: "client_heartbeat"
+            };
+            
+            publishMessage("nerfwar/clients/heartbeat", heartbeatData);
+        }
+    }, 15000);
+}
+
+/**
+ * Send current state to orchestrator
+ */
+function sendCurrentStateToOrchestrator() {
+    // Send current state when orchestrator comes online
+    const stateData = {
+        clientId: mqttClient.clientId,
+        playerName: playerName,
+        currentScene: currentScene,
+        currentDialogue: currentDialogue,
+        audioEnabled: audioEnabled,
+        timestamp: Date.now(),
+        type: "client_state_report"
+    };
+    
+    publishMessage("nerfwar/orchestrator/response", stateData);
+}
+
+/**
+ * Update orchestrator status indicator
+ */
+let orchestratorConnected = false;
+
+function updateOrchestratorStatus(connected) {
+    orchestratorConnected = connected;
+    
+    // Add visual indicator if orchestrator is connected
+    const existingIndicator = document.getElementById('orchestrator-indicator');
+    if (existingIndicator) {
+        existingIndicator.remove();
+    }
+    
+    if (connected) {
+        const indicator = document.createElement('div');
+        indicator.id = 'orchestrator-indicator';
+        indicator.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(139, 69, 19, 0.9);
+            color: #DAA520;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            border: 1px solid #DAA520;
+            backdrop-filter: blur(10px);
+            z-index: 100;
+        `;
+        indicator.textContent = '🎭 Orchestrator Active';
+        document.body.appendChild(indicator);
+    }
+}
+
+// ==========================================================================
+// ORCHESTRATOR NOTIFICATION SYSTEM
+// ==========================================================================
+
+/**
+ * Show orchestrator-specific notifications
+ */
+function showOrchestratorNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    
+    let backgroundColor, borderColor;
+    switch(type) {
+        case 'error':
+            backgroundColor = '#dc3545';
+            borderColor = '#dc3545';
+            break;
+        case 'warning':
+            backgroundColor = '#ffc107';
+            borderColor = '#ffc107';
+            break;
+        default:
+            backgroundColor = 'rgba(139, 69, 19, 0.9)';
+            borderColor = '#DAA520';
+    }
+    
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: ${backgroundColor};
+        color: white;
+        padding: 12px 20px;
+        border-radius: 25px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        z-index: 9999;
+        font-weight: bold;
+        border: 2px solid ${borderColor};
+        animation: orchestratorNotificationSlide 0.4s ease-out;
+        font-size: 0.9rem;
+        max-width: 80%;
+        text-align: center;
+        backdrop-filter: blur(10px);
+    `;
+    notification.textContent = message;
+
+    // Add animation styles if not already present
+    if (!document.getElementById('orchestrator-notification-styles')) {
+        const style = document.createElement('style');
+        style.id = 'orchestrator-notification-styles';
+        style.textContent = `
+            @keyframes orchestratorNotificationSlide {
+                from { 
+                    transform: translateX(-50%) translateY(-20px); 
+                    opacity: 0; 
+                    scale: 0.8;
+                }
+                to { 
+                    transform: translateX(-50%) translateY(0); 
+                    opacity: 1; 
+                    scale: 1;
+                }
+            }
+            @keyframes orchestratorNotificationExit {
+                from { 
+                    transform: translateX(-50%) translateY(0); 
+                    opacity: 1; 
+                    scale: 1;
+                }
+                to { 
+                    transform: translateX(-50%) translateY(-20px); 
+                    opacity: 0; 
+                    scale: 0.8;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    document.body.appendChild(notification);
+
+    // Remove after 3 seconds
+    setTimeout(() => {
+        notification.style.animation = 'orchestratorNotificationExit 0.4s ease-in';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 400);
+    }, 3000);
 }
 
 /* ==========================================================================
@@ -1012,4 +1485,41 @@ function hideFullStory() {
 
     // Restore the normal story view with current scene
     updateDisplay();
+}
+
+
+// ==========================================================================
+// GLOBAL EXPORTS FOR ORCHESTRATOR INTEGRATION
+// ==========================================================================
+
+/**
+ * Export functions for orchestrator dashboard to access
+ */
+window.getStoryState = function() {
+    return {
+        currentScene: currentScene,
+        currentDialogue: currentDialogue,
+        playerName: playerName,
+        audioEnabled: audioEnabled,
+        storyData: storyData,
+        totalScenes: storyData.scenes.length,
+        totalDialogues: getTotalDialogueCount(),
+        isConnected: mqttClient ? mqttClient.isConnected() : false
+    };
+};
+
+window.setStoryPosition = function(sceneId, dialogueIndex) {
+    currentScene = Math.max(0, Math.min(sceneId, storyData.scenes.length - 1));
+    currentDialogue = Math.max(0, Math.min(dialogueIndex, storyData.scenes[currentScene].dialogue.length - 1));
+    updateDisplay();
+    return true;
+};
+
+// Add initialization message
+console.log('🎭 Orchestrator support enabled in main story application');
+
+// Check for orchestrator query parameter
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('orchestrated') === 'true') {
+    showOrchestratorNotification('🎭 Connected to orchestrator');
 }

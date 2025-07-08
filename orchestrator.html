@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Great Nerf War - Story Orchestration Dashboard</title>
+    
+    <!-- External Dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎭</text></svg>">
+    
+    <!-- Local Stylesheets and Scripts -->
+    <link rel="stylesheet" href="orchestrator.css">
+
+<script>
+    // Detect production environment and adjust settings
+    window.PRODUCTION_CONFIG = {
+        isProduction: window.location.hostname.includes('vercel.app') || 
+                     window.location.hostname !== 'localhost',
+        baseUrl: window.location.origin,
+        mqttBroker: "mqtt.uvucs.org",
+        mqttPort: 8080,
+        useSSL: true
+    };
+    
+    // Add environment indicator
+    if (window.PRODUCTION_CONFIG.isProduction) {
+        console.log('🌐 Running in production mode on:', window.location.hostname);
+        // Add production indicator to dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            const header = document.querySelector('.header h1');
+            if (header) {
+                header.innerHTML += ' <span style="font-size: 0.7em; color: #90CAF9;">[LIVE]</span>';
+            }
+        });
+    }
+</script>
+
+    <script src="orchestrator.js" defer></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🎭 Story Orchestration Dashboard</h1>
+            <div class="mqtt-status mqtt-disconnected" id="mqttStatus">MQTT: Connecting...</div>
+        </div>
+
+        <!-- Story Navigator -->
+        <div class="story-navigator">
+            <div class="navigator-header">
+                📖 Story Navigator
+            </div>
+            <div class="scene-list" id="sceneList">
+                <!-- Scenes will be populated by JavaScript -->
+                <div class="scene-item loading">
+                    <div class="scene-title">Loading story data...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Editor -->
+        <div class="main-editor">
+            <!-- Live Preview -->
+            <div class="live-preview">
+                <div class="preview-header">
+                    <div class="preview-title">📺 Live Preview</div>
+                    <div class="preview-position" id="previewPosition">Scene 1 of 12</div>
+                </div>
+                <div class="preview-speaker" id="previewSpeaker">Narrator</div>
+                <div class="preview-text" id="previewText">Select a dialogue to begin editing...</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="previewProgress"></div>
+                </div>
+            </div>
+
+            <!-- Dialogue Editor -->
+            <div class="editor-section">
+                <div class="section-header">
+                    <div class="section-title">
+                        💬 Dialogue Editor
+                    </div>
+                    <button class="btn btn-small btn-success" onclick="saveDialogue()">💾 Save Changes</button>
+                </div>
+                <div class="input-group">
+                    <label for="speakerInput">Speaker Name:</label>
+                    <input type="text" id="speakerInput" placeholder="Enter speaker name..." maxlength="50">
+                </div>
+                <div class="input-group">
+                    <label for="dialogueInput">Dialogue Text:</label>
+                    <textarea id="dialogueInput" placeholder="Enter dialogue text here..."></textarea>
+                </div>
+            </div>
+
+            <!-- Image Editor -->
+            <div class="editor-section">
+                <div class="section-header">
+                    <div class="section-title">
+                        🖼️ Scene Image
+                    </div>
+                    <button class="btn btn-small" onclick="document.getElementById('imageUpload').click()">📤 Upload New</button>
+                </div>
+                <input type="file" id="imageUpload" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
+                <img id="imagePreview" class="image-preview" src="" alt="No image selected" style="display: none;">
+                <div class="file-upload" id="imageDropZone" onclick="document.getElementById('imageUpload').click()">
+                    <div class="file-upload-icon">📸</div>
+                    <div class="file-upload-text">Click to upload or drag image here</div>
+                    <div class="file-upload-hint">SVG, PNG, JPG, GIF supported • Max 10MB</div>
+                </div>
+            </div>
+
+            <!-- Audio Editor -->
+            <div class="editor-section">
+                <div class="section-header">
+                    <div class="section-title">
+                        🔊 Audio Manager
+                    </div>
+                    <button class="btn btn-small" onclick="document.getElementById('audioUpload').click()">📤 Upload Audio</button>
+                </div>
+                <input type="file" id="audioUpload" accept="audio/*" style="display: none;" onchange="handleAudioUpload(event)">
+                
+                <div class="audio-controls">
+                    <button class="btn btn-small" onclick="playAudio()" id="playBtn">▶️ Play</button>
+                    <button class="btn btn-small" onclick="pauseAudio()">⏸️ Pause</button>
+                    <button class="btn btn-small" onclick="stopAudio()">⏹️ Stop</button>
+                    <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.1" value="0.7" onchange="setVolume(this.value)">
+                </div>
+                
+                <audio id="audioPlayer" controls style="display: none;"></audio>
+                
+                <div class="input-group">
+                    <label for="autoplaySelect">Auto-play on page load:</label>
+                    <select id="autoplaySelect">
+                        <option value="false">No</option>
+                        <option value="true">Yes</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Control Panel -->
+        <div class="control-panel">
+            <!-- Connection Status -->
+            <div class="control-group">
+                <h3>🔗 Connection Status</h3>
+                <div class="connection-status">
+                    <div class="status-indicator" id="connectionIndicator"></div>
+                    <div class="status-text" id="connectionText">Disconnected</div>
+                </div>
+                <button class="btn" onclick="reconnectMQTT()">🔄 Reconnect MQTT</button>
+            </div>
+
+            <!-- Story Control -->
+            <div class="control-group">
+                <h3>🎮 Story Control</h3>
+                <button class="btn btn-large btn-success" onclick="broadcastCurrentPage()">📡 Sync Current Page</button>
+                <button class="btn btn-large" onclick="broadcastNext()">➡️ Send Next</button>
+                <button class="btn btn-large" onclick="broadcastPrevious()">⬅️ Send Previous</button>
+                <div class="sync-controls">
+                    <button class="btn" onclick="broadcastPause()">⏸️ Pause All</button>
+                    <button class="btn" onclick="broadcastResume()">▶️ Resume All</button>
+                </div>
+            </div>
+
+            <!-- Connected Devices -->
+            <div class="control-group">
+                <h3>📱 Connected Devices</h3>
+                <div class="participant-list" id="participantList">
+                    <div class="participant-item">
+                        <div class="participant-info">
+                            <div class="participant-name">No devices connected</div>
+                            <div class="participant-details">Waiting for story viewers...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="control-group">
+                <h3>⚡ Quick Actions</h3>
+                <button class="btn" onclick="resetAllClients()">🔄 Reset All Clients</button>
+                <button class="btn" onclick="exportStory()">💾 Export Story</button>
+                <button class="btn" onclick="importStory()">📁 Import Story</button>
+                <button class="btn" onclick="showPreview()">👁️ Preview Mode</button>
+            </div>
+
+            <!-- Debug Actions (hidden by default) -->
+            <div class="control-group" id="debugActions" style="display: none;">
+                <h3>🐛 Debug Actions</h3>
+                <button class="btn btn-small" onclick="logOrchestratorState()">📊 Log State</button>
+                <button class="btn btn-small" onclick="exportDebugInfo()">📋 Export Debug</button>
+                <button class="btn btn-small btn-danger" onclick="emergencyReset()">🆘 Emergency Reset</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Story Data Script -->
+    <script>
+        // Check for debug mode
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('debug') === 'true') {
+            document.getElementById('debugActions').style.display = 'block';
+            console.log('🐛 Debug mode enabled');
+        }
+
+        // Console welcome message
+        console.log(`
+🎭 The Great Nerf War - Story Orchestration Dashboard
+================================================
+
+📋 Available Console Commands:
+   • getOrchestratorState() - Get current state
+   • logOrchestratorState() - Log detailed state info
+   • exportDebugInfo() - Export debug data
+   • emergencyReset() - Reset everything if needed
+   • monitorPerformance() - Check performance metrics
+
+⌨️  Keyboard Shortcuts:
+   • Arrow Left/Right - Navigate story
+   • Spacebar - Sync current page
+   • Ctrl+S - Save current dialogue
+   • Ctrl+Shift+R - Reconnect MQTT
+
+🖱️  Interface Tips:
+   • Right-click dialogue items for context menu
+   • Drag and drop images to upload
+   • All changes auto-save after 2 seconds
+   • Use ?debug=true in URL for debug mode
+
+Happy orchestrating! 🎖️
+        `);
+    </script>
+</body>
+</html>
