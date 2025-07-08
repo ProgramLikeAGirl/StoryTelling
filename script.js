@@ -63,6 +63,194 @@ let touchEndX = 0;           // Where did the touch end?
 let dialogueTextEl, speakerNameEl, sceneCounterEl, progressFillEl, backgroundEl, sceneTitle;
 
 /* ==========================================================================
+   AUDIO MAPPING SYSTEM - Comprehensive audio design for immersive storytelling
+   ========================================================================== */
+
+// Audio state management
+let currentBackgroundAudio = null;
+let soundEffectsQueue = [];
+let isProcessingAudio = false;
+
+// COMPREHENSIVE AUDIO MAPPING: Scene.Dialogue -> Audio File
+const audioMapping = {
+    // Scene 1: The Ordinary World
+    "1.1": "amb--wood-pidgeon--my-birding-year.ogg",
+    "1.6p": "stinger--boom.mp3",
+    
+    // Scene 2: The Call to Adventure  
+    "2.1": "mus--00-capybara.wav",
+    "2.4": "stinger--hells-kitchen-violin.mp3",
+    "2.7": "stinger--jumpscare.mp3",
+    
+    // Scene 3: The Refusal
+    "3.1": "mus--01-emu.wav", 
+    "3.4": "stinger--hells-kitchen-violin.mp3",
+    
+    // Scene 4: Meeting the Mentor
+    "4.1": "mus--02-briefing.wav",
+    "4.4": "stinger--tuba-jimmy-fallon.mp3",
+    
+    // Scene 5: Crossing the Threshold
+    "5.1": "mus--03-orders.wav",
+    "5.5": "stinger--hells-kitchen-violin.mp3",
+    "5.6": "stinger--tuba-jimmy-fallon.mp3",
+    
+    // Scene 6: Tests, Allies, Enemies
+    "6.1": "mus--01-emu.wav",
+    "6.6": "stinger--jumpscare.mp3",
+    
+    // Scene 7: Approach to the Inmost Cave
+    "7.1": "mus--03-orders.wav",
+    "7.9": "silence.wav",
+    
+    // Scene 8: The Ordeal
+    "8.1": "mus--02-briefing.wav",
+    "8.6": "mus--01-emu.wav", 
+    "8.7": "stinger--hells-kitchen-violin.mp3",
+    
+    // Scene 9: The Reward
+    "9.1": "mus--00-capybara.wav",
+    "9.7p": "silence.wav",
+    "9.8": "stinger--tuba-jimmy-fallon.mp3",
+    
+    // Scene 10: The Road Back
+    "10.1": "mus--02-briefing.wav",
+    
+    // Scene 11: The Resurrection  
+    "11.1": "mus--01-emu.wav",
+    "11.4": "stinger--hells-kitchen-violin.mp3",
+    
+    // Scene 12: Return with the Elixir
+    "12.1": "amb--wood-pidgeon--my-birding-year.ogg",
+    "12.7": "mus--04-ending.wav"
+};
+
+/**
+ * Create audio key for current position
+ */
+function createAudioKey(sceneIndex, dialogueIndex, isPost = false) {
+    const sceneNum = sceneIndex + 1;
+    const dialogueNum = dialogueIndex + 1;
+    return `${sceneNum}.${dialogueNum}${isPost ? 'p' : ''}`;
+}
+
+/**
+ * Play background music or ambient audio
+ */
+function playBackgroundAudio(filename) {
+    if (!audioEnabled) return;
+    
+    const backgroundAudio = document.getElementById('backgroundAudio');
+    if (!backgroundAudio) return;
+    
+    const audioPath = `assets/audio/${filename}`;
+    
+    // Only change if it's a different file
+    if (currentBackgroundAudio !== audioPath) {
+        console.log(`🎵 Playing background audio: ${filename}`);
+        currentBackgroundAudio = audioPath;
+        
+        // Handle silence specially
+        if (filename === 'silence.wav') {
+            backgroundAudio.pause();
+            backgroundAudio.currentTime = 0;
+            return;
+        }
+        
+        // Set new audio source
+        backgroundAudio.src = audioPath;
+        backgroundAudio.load(); // Ensure audio loads
+        
+        // Play the audio
+        backgroundAudio.play().catch(e => {
+            console.log("Background audio play failed:", e);
+        });
+    }
+}
+
+/**
+ * Play sound effect (non-looping, overlay audio)
+ */
+function playSoundEffect(filename) {
+    if (!audioEnabled) return;
+    
+    console.log(`🔊 Playing sound effect: ${filename}`);
+    
+    // Create a temporary audio element for sound effects
+    const soundEffect = new Audio(`assets/audio/${filename}`);
+    soundEffect.volume = 0.8; // Slightly louder than background
+    
+    // Play the sound effect
+    soundEffect.play().catch(e => {
+        console.log("Sound effect play failed:", e);
+    });
+    
+    // Clean up when finished
+    soundEffect.addEventListener('ended', () => {
+        soundEffect.remove();
+    });
+}
+
+/**
+ * Handle audio cues for current story position
+ */
+function handleAudioCues() {
+    if (isProcessingAudio) return;
+    isProcessingAudio = true;
+    
+    try {
+        const audioKey = createAudioKey(currentScene, currentDialogue);
+        const audioFile = audioMapping[audioKey];
+        
+        if (audioFile) {
+            // Determine audio type by filename prefix
+            if (audioFile.startsWith('mus--') || audioFile.startsWith('amb--') || audioFile === 'silence.wav') {
+                // Background music or ambient sound
+                playBackgroundAudio(audioFile);
+            } else if (audioFile.startsWith('stinger--')) {
+                // Sound effect
+                playSoundEffect(audioFile);
+            }
+        }
+        
+        // Check for post-dialogue cues (p suffix)
+        const postAudioKey = createAudioKey(currentScene, currentDialogue, true);
+        const postAudioFile = audioMapping[postAudioKey];
+        
+        if (postAudioFile) {
+            // Delay post-dialogue audio slightly for dramatic timing
+            setTimeout(() => {
+                if (postAudioFile.startsWith('mus--') || postAudioFile.startsWith('amb--') || postAudioFile === 'silence.wav') {
+                    playBackgroundAudio(postAudioFile);
+                } else if (postAudioFile.startsWith('stinger--')) {
+                    playSoundEffect(postAudioFile);
+                }
+            }, 1500); // 1.5 second delay for post-dialogue effects
+        }
+        
+    } finally {
+        // Reset processing flag after a short delay
+        setTimeout(() => {
+            isProcessingAudio = false;
+        }, 100);
+    }
+}
+
+/**
+ * Initialize audio system
+ */
+function initializeAudioSystem() {
+    console.log('🎵 Audio mapping system initialized with', Object.keys(audioMapping).length, 'cues');
+    
+    // Set initial audio for scene 1, dialogue 1
+    if (audioEnabled) {
+        setTimeout(() => {
+            handleAudioCues();
+        }, 1000); // Small delay to ensure page is ready
+    }
+}
+
+/* ==========================================================================
    STORY DATA - All the content organized in a easy-to-edit structure
    ========================================================================== */
 
@@ -418,6 +606,9 @@ function updateDisplay() {
             };
         }, 150);
     }
+    
+    // 🎵 Handle audio cues for current position
+    handleAudioCues();
 }
 
 // UPDATE PROGRESS BAR: Show how far through the story we are
@@ -490,6 +681,9 @@ function startStory() {
 
     // Update the display with the new name
     updateDisplay();
+    
+    // Initialize the comprehensive audio system
+    initializeAudioSystem();
 
     // Try to start background audio (may be blocked by browser)
     if (audioEnabled) {
@@ -512,13 +706,14 @@ function toggleAudio() {
     audioEnabled = !audioEnabled;
 
     if (audioEnabled) {
-        backgroundAudio.play().catch(e => {
-            console.log("Audio play failed:", e);
-            audioEnabled = false;
-        });
+        // Initialize audio system and trigger current position cues
+        initializeAudioSystem();
+        handleAudioCues();
         if (audioToggle) audioToggle.textContent = '🔊 Audio';
     } else {
+        // Pause all audio when disabled
         backgroundAudio.pause();
+        currentBackgroundAudio = null;
         if (audioToggle) audioToggle.textContent = '🔇 Audio';
     }
 }
