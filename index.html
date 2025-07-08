@@ -66,9 +66,6 @@
         <!-- BACKGROUND LAYER: Changes color/pattern based on current scene -->
         <div class="background bg-park" id="background"></div>
 
-        <!-- ADD SCENE IMAGE HERE -->
-        <img id="sceneImage" class="scene-image" src="" alt="Scene image" />
-        
         <!-- GRADIENT OVERLAY: Adds a subtle dark fade to make text more readable -->
         <div class="gradient-overlay"></div>
 
@@ -87,47 +84,51 @@
                 </div>
             </div>
             
-            <!-- MAIN CONTENT AREA: Where the story dialogue and controls appear -->
+            <!-- MAIN CONTENT AREA: Where the scene images are displayed -->
             <div class="main-content">
-                <!-- DIALOGUE BOX: Main interface for reading and navigating the story -->
-                <div class="dialogue-box">
-                        <!-- SPEAKER NAME: Shows who is currently talking (Narrator, Captain Jenkins, etc.) -->
-                        <div class="speaker-name" id="speakerName">Narrator</div>
-                        
-                        <!-- DIALOGUE TEXT: The actual story text that gets updated by JavaScript -->
-                        <div class="dialogue-text" id="dialogueText">Welcome to the most epic foam dart conflict in recorded history...</div>
-                    
-                    <!-- NAVIGATION CONTROLS: Buttons to move through the story -->
-                    <div class="controls">
-                        <button class="nav-button" id="prevButton" onclick="previousScene()" aria-label="Previous scene">← Previous</button>
-                        
-                        <!-- SCENE COUNTER: Shows current position in the story (e.g., "Scene 3 of 12") -->
-                        <div class="scene-counter">
-                            <span id="sceneCounter">Scene 1 of 12</span>
-                        </div>
-                        
-                        <button class="nav-button" id="nextButton" onclick="nextScene()" aria-label="Next scene">Next →</button>
-                    </div>
-                    
-                    <!-- AUDIO CONTROLS: Volume, mute/unmute, and restart options -->
-                    <div class="audio-controls">
-                        <!-- AUDIO TOGGLE: Turn background music on/off -->
-                        <button class="nav-button" onclick="toggleAudio()" id="audioToggle" aria-label="Toggle audio">🔊 Audio</button>
-                        
-                        <!-- VOLUME CONTROL: Slider to adjust audio volume -->
-                        <div class="volume-control">
-                            <span style="font-size: 0.8rem; color: #ccc;">Volume:</span>
-                            <input type="range" class="volume-slider" min="0" max="1" step="0.1" value="0.7" onchange="setVolume(this.value)" aria-label="Volume control">
-                        </div>
-                        
-                        <!-- RESTART BUTTON: Reset story back to the beginning -->
-                        <button class="nav-button" onclick="resetStory()" aria-label="Restart story">🔄 Restart</button>
-                        
-                        <!-- SHOW FULL STORY BUTTON: Display the complete story -->
-                        <button class="nav-button" id="showFullStoryButton" onclick="showFullStory()" aria-label="Show full story">Show Full Story</button>
-                    </div>
-                </div>
+                <!-- SCENE IMAGE: Displays current scene illustration -->
+                <img id="sceneImage" class="scene-image" src="" alt="Scene image" />
             </div>
+        </div>
+        
+        <!-- DIALOGUE BOX: Main interface for reading and navigating the story (positioned independently) -->
+        <div class="dialogue-box">
+                <!-- SPEAKER NAME: Shows who is currently talking (Narrator, Captain Jenkins, etc.) -->
+                <div class="speaker-name" id="speakerName">Narrator</div>
+                
+                <!-- DIALOGUE TEXT: The actual story text that gets updated by JavaScript -->
+                <div class="dialogue-text" id="dialogueText">Welcome to the most epic foam dart conflict in recorded history...</div>
+            
+            <!-- NAVIGATION CONTROLS: Buttons to move through the story -->
+            <div class="controls">
+                <button class="nav-button" id="prevButton" onclick="previousScene()" aria-label="Previous scene">← Previous</button>
+                
+                <!-- SCENE COUNTER: Shows current position in the story (e.g., "Scene 3 of 12") -->
+                <div class="scene-counter">
+                    <span id="sceneCounter">Scene 1 of 12</span>
+                </div>
+                
+                <button class="nav-button" id="nextButton" onclick="nextScene()" aria-label="Next scene">Next →</button>
+            </div>
+            
+            <!-- AUDIO CONTROLS: Volume, mute/unmute, and restart options -->
+            <div class="audio-controls">
+                <!-- AUDIO TOGGLE: Turn background music on/off -->
+                <button class="nav-button" onclick="toggleAudio()" id="audioToggle" aria-label="Toggle audio">🔊 Audio</button>
+                
+                <!-- VOLUME CONTROL: Slider to adjust audio volume -->
+                <div class="volume-control">
+                    <span style="font-size: 0.8rem; color: #ccc;">Volume:</span>
+                    <input type="range" class="volume-slider" min="0" max="1" step="0.1" value="0.7" onchange="setVolume(this.value)" aria-label="Volume control">
+                </div>
+                
+                <!-- RESTART BUTTON: Reset story back to the beginning -->
+                <button class="nav-button" onclick="resetStory()" aria-label="Restart story">🔄 Restart</button>
+                
+                <!-- SHOW FULL STORY BUTTON: Display the complete story -->
+                <button class="nav-button" id="showFullStoryButton" onclick="showFullStory()" aria-label="Show full story">Show Full Story</button>
+            </div>
+        </div>
         </div>
     </div>
 

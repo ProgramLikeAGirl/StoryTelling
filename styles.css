@@ -1,3 +1,6 @@
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans+Pro:ital,wght@0,300;0,400;0,600;0,700;0,800;1,300;1,400;1,600;1,700;1,800&display=swap');
+
 /* 
 🎨 STYLES.CSS - The Great Nerf War: A Capybara's Revenge
 
@@ -25,7 +28,7 @@ Key concepts used here:
 
 /* MAIN PAGE STYLING: Sets up the overall appearance */
 body {
-    font-family: 'Georgia', serif; /* Use an elegant, readable font */
+    font-family: 'Open Sans Pro', sans-serif; /* Use an elegant, readable font */
     background: #1a1a1a;           /* Dark background color (hex code) */
     color: #fff;                    /* White text color */
     overflow: hidden;               /* Hide scrollbars (we want full-screen) */
@@ -70,16 +73,15 @@ body {
     z-index: 1;                      /* Behind other content */
 }
 
-/* SCENE IMAGE: Optional image for each scene */
+/* SCENE IMAGE: Main illustration for each scene */
 .scene-image {
-    position: static;         /* Don't layer it behind anymore */
-    width: 90%;               /* Responsive sizing */
-    max-width: 800px;         /* Cap size on large screens */
-    height: auto;             /* Keep natural aspect ratio */
-    margin: 0 auto 20px auto; /* Center and space below */
-    display: block;           /* Respect margins */
-    border-radius: 12px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    width: 92%;               /* Take up 92% of width */
+    height: 100%;             /* Take up full height of container */
+    object-fit: cover;        /* Cover entire area, may crop to maintain aspect ratio */
+    object-position: center;  /* Center the image */
+    display: block;           /* Block display */
+    border-radius: 0;         /* Remove rounded corners for full screen effect */
+    box-shadow: none;         /* Remove shadow for cleaner full screen look */
     z-index: 3;
     transition: opacity 0.4s ease-in-out;
 }
@@ -115,43 +117,43 @@ body {
    HEADER COMPONENTS
    ========================================================================== */
 
-/* TITLE BAR: Top section with title and progress */
+/* TITLE BAR: Minimal top section with title and progress */
 .title-bar {
-    background: rgba(0,0,0,0.9);      /* Semi-transparent black background */
-    padding: 15px 20px;               /* Internal spacing */
-    border-bottom: 3px solid #8B4513; /* Brown bottom border */
-    backdrop-filter: blur(10px);      /* Blur effect behind the bar */
+    background: rgba(0,0,0,0.7);      /* More transparent background */
+    padding: 8px 15px;                /* Compact spacing */
+    border-bottom: 1px solid rgba(139, 69, 19, 0.6); /* Subtle border */
+    backdrop-filter: blur(8px);       /* Lighter blur effect */
 }
 
-/* MAIN TITLE: Large heading text */
+/* MAIN TITLE: Compact heading text */
 .title {
-    font-size: 1.8rem;                        /* Large font size */
-    font-weight: bold;                         /* Make text bold */
-    color: #DAA520;                           /* Gold color */
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.8); /* Drop shadow for depth */
+    font-size: 1.3rem;                        /* Smaller, less intrusive font */
+    font-weight: 600;                          /* Medium weight, not bold */
+    color: rgba(218, 165, 32, 0.9);           /* Slightly transparent gold */
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.6); /* Subtle shadow */
 }
 
-/* SUBTITLE: Smaller descriptive text */
+/* SUBTITLE: Minimal descriptive text */
 .subtitle {
-    font-size: 1rem;    /* Medium font size */
-    color: #ccc;        /* Light gray color */
+    font-size: 0.8rem;  /* Smaller font size */
+    color: rgba(204, 204, 204, 0.8); /* Transparent light gray */
     font-style: italic; /* Italicized text */
-    margin-top: 5px;    /* Small space above */
+    margin-top: 2px;    /* Minimal space above */
 }
 
-/* PROGRESS BAR: Shows story completion */
+/* PROGRESS BAR: Minimal story completion indicator */
 .progress-bar {
-    height: 4px;                        /* Thin bar */
-    background: rgba(255,255,255,0.2);  /* Light transparent background */
-    margin-top: 10px;                   /* Space above */
-    border-radius: 2px;                 /* Slightly rounded corners */
+    height: 2px;                        /* Very thin bar */
+    background: rgba(255,255,255,0.1);  /* Very subtle background */
+    margin-top: 6px;                    /* Smaller space above */
+    border-radius: 1px;                 /* Minimal rounded corners */
     overflow: hidden;                   /* Hide overflowing content */
 }
 
-/* PROGRESS FILL: The actual progress indicator */
+/* PROGRESS FILL: Subtle progress indicator */
 .progress-fill {
     height: 100%;                                    /* Fill the bar height */
-    background: linear-gradient(90deg, #DAA520, #FFD700); /* Gold gradient */
+    background: linear-gradient(90deg, rgba(218, 165, 32, 0.7), rgba(255, 215, 0, 0.8)); /* Transparent gold gradient */
     transition: width 0.8s ease;                    /* Smooth width changes */
     width: 0%;                                       /* Start at 0% */
 }
@@ -160,36 +162,37 @@ body {
    MAIN CONTENT AREA
    ========================================================================== */
 
-/* MAIN CONTENT: Where the story dialogue appears */
+/* MAIN CONTENT: Where the scene images are displayed */
 .main-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;  /* Stack image and dialogue box */
-    align-items: center;     /* Center horizontally */
-    justify-content: center; /* Center vertically */
-    padding: 20px;
+    flex: 1;                 /* Take up remaining space after title bar */
+    display: flex;           /* Use flexbox */
+    align-items: center;     /* Center vertically */
+    justify-content: center; /* Center horizontally */
+    padding: 0;              /* No padding - let art fill space */
+    margin: 0;               /* No margin */
+    overflow: hidden;        /* Hide overflow for clean full screen */
     z-index: 3;
-    text-align: center;
 }
 
 
-/* DIALOGUE BOX: The main story interface without resize functionality */
+/* DIALOGUE BOX: Minimal story interface */
 .dialogue-box {
     position: fixed;
-    background: rgba(0,0,0,0.95);
-    border: 2px solid #8B4513;
-    border-radius: 15px;
-    padding: 25px;
-    width: 90%;
-    max-width: 900px;
+    background: rgba(0,0,0,0.8);  /* More transparent background */
+    border: 1px solid rgba(139, 69, 19, 0.6); /* Subtle border */
+    border-radius: 10px;          /* Smaller border radius */
+    padding: 15px;               /* Compact padding */
+    width: 75%;                  /* Smaller width for minimalism */
+    max-width: 700px;            /* Reduced max width */
     margin: 0 auto;
     cursor: move;
     user-select: none;
     z-index: 1000;
     left: 50%;
     transform: translateX(-50%);
-    bottom: 20px;
+    bottom: 15px;                /* Closer to bottom edge */
     transition: transform 0.1s ease-out;
+    backdrop-filter: blur(8px);  /* Add subtle blur effect */
 }
 
 /* Content wrapper to maintain aspect ratio */
@@ -203,25 +206,25 @@ body {
     transform-origin: center center;
 }
 
-/* SPEAKER NAME: Shows who is talking */
+/* SPEAKER NAME: Minimal speaker indicator */
 .speaker-name {
-    font-size: 1.2rem;           /* Slightly larger text */
-    font-weight: bold;           /* Make it bold */
-    color: #DAA520;             /* Gold color */
-    margin-bottom: 10px;        /* Space below */
+    font-size: 1rem;             /* Smaller, less intrusive text */
+    font-weight: 600;            /* Medium weight instead of bold */
+    color: rgba(218, 165, 32, 0.9); /* Slightly transparent gold */
+    margin-bottom: 6px;          /* Reduced space below */
     text-transform: uppercase;   /* ALL CAPITAL LETTERS */
-    letter-spacing: 1px;        /* Space between letters */
+    letter-spacing: 0.5px;       /* Reduced letter spacing */
     width: 100%;
     transform-origin: center center;
 }
 
-/* DIALOGUE TEXT: The actual story content */
+/* DIALOGUE TEXT: Compact story content */
 .dialogue-text {
-    font-size: 1.1rem;    /* Readable font size */
-    line-height: 1.6;     /* Space between lines */
-    color: #f0f0f0;       /* Light gray text */
-    margin-bottom: 15px;  /* Space below */
-    min-height: 60px;     /* Minimum height to prevent jumping */
+    font-size: 1rem;      /* Slightly smaller font */
+    line-height: 1.5;     /* Tighter line spacing */
+    color: rgba(240, 240, 240, 0.95); /* Slightly transparent text */
+    margin-bottom: 10px;  /* Reduced space below */
+    min-height: 50px;     /* Smaller minimum height */
     width: 100%;
     transform-origin: center center;
 }
@@ -230,33 +233,37 @@ body {
    CONTROLS & NAVIGATION
    ========================================================================== */
 
-/* CONTROLS CONTAINER: Holds navigation buttons */
+/* CONTROLS CONTAINER: Compact navigation */
 .controls {
     display: flex;              /* Use flexbox */
     justify-content: space-between; /* Spread items apart */
     align-items: center;        /* Center vertically */
-    margin-top: 15px;          /* Space above */
-    flex-wrap: wrap;           /* Allow wrapping on small screens */
-    gap: 10px;                 /* Space between items */
+    margin-top: 10px;          /* Reduced space above */
+    flex-wrap: nowrap;         /* Prevent wrapping that causes layout issues */
+    gap: 8px;                  /* Smaller space between items */
     margin-top: auto;
     width: 100%;
     transform-origin: center center;
-    padding-top: 20px;
+    padding-top: 10px;         /* Reduced padding */
+    min-height: 40px;          /* Ensure consistent height */
 }
 
-/* NAVIGATION BUTTONS: Previous/Next buttons */
+/* NAVIGATION BUTTONS: Compact control buttons */
 .nav-button {
-    background: linear-gradient(135deg, #8B4513, #A0522D); /* Brown gradient */
-    color: white;                          /* White text */
+    background: linear-gradient(135deg, rgba(139, 69, 19, 0.8), rgba(160, 82, 45, 0.8)); /* Transparent brown gradient */
+    color: rgba(255, 255, 255, 0.95);     /* Slightly transparent white */
     border: none;                          /* Remove default border */
-    padding: 12px 25px;                    /* Internal spacing */
-    border-radius: 8px;                    /* Rounded corners */
+    padding: 8px 16px;                     /* Compact internal spacing */
+    border-radius: 6px;                    /* Smaller rounded corners */
     cursor: pointer;                       /* Show hand cursor on hover */
-    font-size: 1rem;                       /* Normal font size */
-    font-weight: bold;                     /* Bold text */
+    font-family: 'Open Sans Pro', sans-serif; /* Explicitly set Open Sans Pro font */
+    font-size: 0.85rem;                    /* Smaller font size */
+    font-weight: 600;                      /* Medium weight instead of bold */
     transition: all 0.3s ease;            /* Smooth hover effects */
     text-transform: uppercase;             /* UPPERCASE TEXT */
-    letter-spacing: 1px;                   /* Letter spacing */
+    letter-spacing: 0.5px;                 /* Reduced letter spacing */
+    white-space: nowrap;                   /* Prevent text wrapping inside buttons */
+    flex-shrink: 0;                        /* Prevent buttons from shrinking */
 }
 
 /* BUTTON HOVER EFFECTS: What happens when you hover over buttons */
@@ -274,20 +281,22 @@ body {
     box-shadow: none;    /* No shadow */
 }
 
-/* SCENE COUNTER: Shows current position (e.g., "Scene 3 of 12") */
+/* SCENE COUNTER: Minimal position indicator */
 .scene-counter {
-    color: #ccc;         /* Light gray text */
-    font-size: 0.9rem;   /* Slightly smaller text */
+    color: rgba(204, 204, 204, 0.7); /* More transparent light gray */
+    font-size: 0.8rem;   /* Smaller text */
     text-align: center;  /* Center the text */
+    font-weight: 400;    /* Normal weight */
 }
 
-/* AUDIO CONTROLS: Volume and playback controls */
+/* AUDIO CONTROLS: Compact volume and playback controls */
 .audio-controls {
     display: flex;       /* Use flexbox */
     align-items: center; /* Center vertically */
-    gap: 15px;          /* Space between items */
-    margin-top: 15px;   /* Space above */
-    flex-wrap: wrap;    /* Allow wrapping */
+    gap: 8px;           /* Reduced gap for better fit */
+    margin-top: 8px;    /* Reduced space above */
+    flex-wrap: wrap;    /* Allow wrapping only for audio controls */
+    justify-content: center; /* Center the audio controls */
 }
 
 /* VOLUME CONTROL CONTAINER */
@@ -332,7 +341,7 @@ body {
     max-width: 500px;                   /* Don't get too wide */
     width: 90%;                         /* Take up 90% of available width */
     box-shadow: 0 20px 40px rgba(0,0,0,0.8); /* Large shadow */
-    animation: modalSlideIn 0.5s ease-out;    /* Entrance animation */
+    animation: modalSlideIn 0.8s ease-out;    /* Entrance animation - slower for better UX */
 }
 
 /* MODAL HEADING: Large title text */
@@ -460,7 +469,7 @@ body {
 .typewriter-effect {
     overflow: hidden;                              /* Hide text beyond container */
     white-space: nowrap;                           /* Don't wrap text */
-    animation: typewriter 1.5s steps(40) forwards; /* Letter-by-letter animation */
+    animation: typewriter 3s steps(40) forwards; /* Letter-by-letter animation - slower for readability */
 }
 
 @keyframes typewriter {
@@ -478,15 +487,15 @@ body {
     color: #DAA520;                                 /* Gold color */
     text-shadow: 2px 2px 8px rgba(0,0,0,0.8);     /* Strong shadow */
     opacity: 0;                                     /* Start invisible */
-    animation: sceneTitleFade 2s ease-in-out;      /* Fade in and out */
+    animation: sceneTitleFade 4s ease-in-out;      /* Fade in and out - longer for readability */
     pointer-events: none;                           /* Don't block clicks */
     z-index: 5;                                     /* Above background */
 }
 
 @keyframes sceneTitleFade {
     0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }  /* Start: invisible, small */
-    20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }   /* Fade in, normal size */
-    80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }   /* Stay visible */
+    15% { opacity: 1; transform: translate(-50%, -50%) scale(1); }   /* Fade in, normal size */
+    85% { opacity: 1; transform: translate(-50%, -50%) scale(1); }   /* Stay visible longer */
     100% { opacity: 0; transform: translate(-50%, -50%) scale(1.1); } /* Fade out, slightly larger */
 }
 
@@ -494,30 +503,38 @@ body {
    RESPONSIVE DESIGN
    ========================================================================== */
 
-/* MOBILE STYLES: Adjustments for smaller screens */
+/* MOBILE STYLES: Minimal adjustments for smaller screens */
 @media (max-width: 768px) {
-    /* Smaller title on mobile */
+    /* Compact title on mobile */
     .title {
-        font-size: 1.4rem;
-    }
-    
-    /* More compact dialogue box */
-    .dialogue-box {
-        padding: 20px;
-        margin: 0 10px;
-    }
-    
-    /* Stack controls vertically */
-    .controls {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    
-    /* Full-width buttons on mobile */
-    .nav-button {
-        width: 100%;
-        padding: 15px;
         font-size: 1.1rem;
+    }
+    
+    /* Ultra-compact dialogue box */
+    .dialogue-box {
+        padding: 12px;
+        width: 85%;
+        bottom: 10px;
+    }
+    
+    /* Scene images on mobile */
+    .scene-image {
+        width: 100%;
+        max-height: 65vh;
+    }
+    
+    /* Keep controls horizontal but more compact on mobile */
+    .controls {
+        justify-content: space-between;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    /* Smaller but consistent buttons on mobile */
+    .nav-button {
+        padding: 6px 12px;
+        font-size: 0.75rem;
+        flex-shrink: 0;
     }
     
     /* Smaller volume slider */
